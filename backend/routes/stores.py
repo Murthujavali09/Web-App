@@ -110,6 +110,18 @@ def add_store():
         except (ValueError, TypeError):
             return jsonify({"error": "Total boxes must be a positive integer"}), 400
         
+        # Get opening_time and closing_time (optional, format: "HH:MM" in 24-hour format)
+        opening_time = data.get("opening_time")
+        closing_time = data.get("closing_time")
+        
+        # Validate time format if provided
+        import re
+        time_pattern = re.compile(r'^([01]?[0-9]|2[0-3]):([0-5][0-9])$')
+        if opening_time and not time_pattern.match(opening_time):
+            return jsonify({"error": "Opening time must be in 24-hour format (HH:MM), e.g., '09:00'"}), 400
+        if closing_time and not time_pattern.match(closing_time):
+            return jsonify({"error": "Closing time must be in 24-hour format (HH:MM), e.g., '17:00'"}), 400
+        
         # Get tenant_id and manager_username from authenticated user
         tenant_id = g.tenant_id
         user = g.current_user
@@ -125,7 +137,9 @@ def add_store():
             password=password,
             total_boxes=total_boxes,
             manager_username=manager_username,
-            allowed_ip=client_ip
+            allowed_ip=client_ip,
+            opening_time=opening_time,
+            closing_time=closing_time
         )
         # Return store info without password
         store_info = {
@@ -133,7 +147,9 @@ def add_store():
             "name": name,
             "username": username,
             "total_boxes": total_boxes,
-            "allowed_ip": client_ip
+            "allowed_ip": client_ip,
+            "opening_time": opening_time,
+            "closing_time": closing_time
         }
         
         # Return response immediately - inventory will be created on first inventory access
@@ -271,6 +287,16 @@ def edit_store():
         raw_use_current_ip = data.get("use_current_ip")
         use_current_ip = str(raw_use_current_ip).lower() in ("1", "true", "yes", "on")
         allowed_ip = data.get("allowed_ip") if "allowed_ip" in data else None
+        opening_time = data.get("opening_time")
+        closing_time = data.get("closing_time")
+        
+        # Validate time format if provided
+        import re
+        time_pattern = re.compile(r'^([01]?[0-9]|2[0-3]):([0-5][0-9])$')
+        if opening_time is not None and opening_time != "" and not time_pattern.match(opening_time):
+            return jsonify({"error": "Opening time must be in 24-hour format (HH:MM), e.g., '09:00'"}), 400
+        if closing_time is not None and closing_time != "" and not time_pattern.match(closing_time):
+            return jsonify({"error": "Closing time must be in 24-hour format (HH:MM), e.g., '17:00'"}), 400
         
         # Validate password strength if password is being updated
         if password:
@@ -301,7 +327,9 @@ def edit_store():
             username=username,
             password=password,
             total_boxes=total_boxes,
-            allowed_ip=ip_to_set
+            allowed_ip=ip_to_set,
+            opening_time=opening_time if opening_time != "" else None,
+            closing_time=closing_time if closing_time != "" else None
         )
         if success:
             # Return updated store info

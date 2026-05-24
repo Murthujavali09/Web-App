@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
     <script>
         tailwind.config = {
             theme: {
@@ -165,6 +166,10 @@
                             <a href="list-employees.html" id="listEmployeesLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
                                 <i class="fa-solid fa-users mr-2"></i>
                                 Employees
+                            </a>
+                            <a href="alerts.html" id="alertsLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-bell mr-2"></i>
+                                Alerts
                             </a>
                         </nav>
                         <a href="#" id="backToSuperAdmin" class="hidden items-center px-4 py-2 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 mr-4">
@@ -393,6 +398,7 @@
         })();
 
         let allEmployees = [];
+        let activeEmployeeIds = new Set();
 
         function getInitials(name) {
             return name
@@ -406,7 +412,14 @@
         async function loadEmployees() {
             try {
                 showLoadingState(true);
-                allEmployees = await apiGet('/employees/');
+                // Load employees and active count in parallel
+                const [employeesData, activeData] = await Promise.all([
+                    apiGet('/employees/'),
+                    apiGet('/employees/active-count', {})
+                ]);
+                
+                allEmployees = employeesData;
+                activeEmployeeIds = new Set(activeData.active_employee_ids || []);
                 renderEmployees();
             } catch (err) {
                 console.error('Failed to load employees:', err);
@@ -430,20 +443,25 @@
             }
         }
 
-        function updateStats(filteredEmployees) {
+        async function updateStats(filteredEmployees) {
             const totalEmployeesCount = document.getElementById('totalEmployeesCount');
             const activeEmployeesCount = document.getElementById('activeEmployeesCount');
 
             totalEmployeesCount.textContent = allEmployees.length.toString();
 
-            const activeCount = allEmployees.filter(emp => {
-                const status = (emp.status || emp.current_status || '').toLowerCase();
-                return status === 'active' || status === 'working' || status === 'present';
-            }).length;
-            activeEmployeesCount.textContent = activeCount.toString();
+            // Get active count from API
+            try {
+                const activeData = await apiGet('/employees/active-count', {});
+                const activeCount = activeData.active_count || 0;
+                activeEmployeeIds = new Set(activeData.active_employee_ids || []);
+                activeEmployeesCount.textContent = activeCount.toString();
+            } catch (err) {
+                console.error('Failed to load active count:', err);
+                activeEmployeesCount.textContent = '0';
+            }
         }
 
-        function renderEmployees() {
+        async function renderEmployees() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             let filteredEmployees = allEmployees;
 
@@ -455,7 +473,7 @@
                 );
             }
 
-            updateStats(filteredEmployees);
+            await updateStats(filteredEmployees);
             showLoadingState(false);
 
             const employeesGrid = document.getElementById('employeesGrid');
@@ -602,15 +620,17 @@
                 // Use apiDelete to include authentication headers
                 const result = await apiDelete(`/employees/${employeeId}`);
 
-                if (result.success) {
+                // Check if result has success property or if it's a successful response
+                if (result && (result.success === true || result.message)) {
                     showSuccess(`${employeeName} has been removed successfully.`);
                     await loadEmployees();
                 } else {
-                    showError('Failed to remove employee: ' + (result.error || 'Unknown error'));
+                    const errorMsg = result?.error || 'Unknown error';
+                    showError('Failed to remove employee: ' + errorMsg);
                 }
             } catch (err) {
                 console.error('Failed to remove employee:', err);
-                showError('Failed to remove employee: ' + err.message);
+                showError('Failed to remove employee: ' + (err.message || 'Unknown error'));
             }
         };
 

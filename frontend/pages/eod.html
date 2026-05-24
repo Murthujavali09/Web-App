@@ -139,22 +139,6 @@
                         </div>
                         <h2 class="text-2xl font-bold text-slate-900">End of Day Submission</h2>
                     </div>
-
-                    <!-- Top-right Date & Employee display (static for now) -->
-                    <div class="text-right text-sm font-semibold text-slate-700 space-y-1">
-                        <div>
-                            Date:
-                            <span id="eodDateDisplay" class="font-normal text-slate-800">
-                                11/18/2025
-                            </span>
-                        </div>
-                        <div>
-                            Employee:
-                            <span id="employeeNameDisplay" class="font-normal text-slate-800">
-                                John Doe
-                            </span>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- FORM LAYOUT -->
@@ -173,7 +157,7 @@
                                     name="cash"
                                     inputmode="decimal"
                                     class="eod-input animated-input flex-1"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1'); calculateOverShort();"
                                 />
                             </div>
 
@@ -188,7 +172,7 @@
                                     name="card"
                                     inputmode="decimal"
                                     class="eod-input animated-input flex-1"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1'); calculateOverShort();"
                                 />
                             </div>
 
@@ -203,14 +187,14 @@
                                     name="card1"
                                     inputmode="decimal"
                                     class="eod-input animated-input flex-1"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1'); calculateOverShort();"
                                 />
                             </div>
 
-                            <!-- 4. Total -->
+                            <!-- 4. Ex-Total -->
                             <div class="flex items-center gap-3">
                                 <label class="w-28 text-sm font-semibold text-slate-700 flex-shrink-0">
-                                    4. Total
+                                    4. Ex-Total
                                 </label>
                                 <input
                                     type="text"
@@ -218,7 +202,7 @@
                                     name="total"
                                     inputmode="decimal"
                                     class="eod-input animated-input flex-1"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1'); calculateOverShort();"
                                 />
                             </div>
 
@@ -282,10 +266,25 @@
                                 />
                             </div>
 
-                            <!-- 9. Over/Short -->
+                            <!-- 9. Inventory Sold -->
                             <div class="flex items-center gap-3">
                                 <label class="w-28 text-sm font-semibold text-slate-700 flex-shrink-0">
-                                    9. Over/Short
+                                    9. Inventory Sold
+                                </label>
+                                <input
+                                    type="text"
+                                    id="inventorySold"
+                                    name="inventorySold"
+                                    inputmode="numeric"
+                                    class="eod-input animated-input flex-1"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                />
+                            </div>
+
+                            <!-- 10. Over/Short -->
+                            <div class="flex items-center gap-3">
+                                <label class="w-28 text-sm font-semibold text-slate-700 flex-shrink-0">
+                                    10. Over/Short
                                 </label>
                                 <input
                                     type="text"
@@ -293,14 +292,15 @@
                                     name="overShort"
                                     inputmode="decimal"
                                     class="eod-input animated-input flex-1"
-                                    oninput="this.value = this.value.replace(/[^0-9.-]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                                    readonly
+                                    style="background-color: #f1f5f9; cursor: not-allowed;"
                                 />
                             </div>
 
-                            <!-- 10. Comments -->
+                            <!-- 11. Comments -->
                             <div class="eod-form-group mt-3">
                                 <label for="comments" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    10. Comments
+                                    11. Comments
                                 </label>
                                 <textarea
                                     id="comments"
@@ -312,7 +312,7 @@
                             </div>
                         </div>
 
-                        <!-- RIGHT SIDE: DENOMINATIONS ONLY (NAME & DATE ARE AT TOP RIGHT) -->
+                        <!-- RIGHT SIDE: DENOMINATIONS -->
                         <div class="space-y-3.5">
                             <!-- Denominations Card -->
                             <div class="border border-card-border rounded-2xl p-5 bg-slate-50 h-full flex flex-col">
@@ -529,6 +529,49 @@
                 activeLink.classList.add('nav-link-active');
             }
         }
+
+        // Calculate Over/Short automatically
+        function calculateOverShort() {
+            const cashInput = document.getElementById('cash');
+            const cardInput = document.getElementById('card');
+            const card1Input = document.getElementById('card1');
+            const exTotalInput = document.getElementById('total');
+            const overShortInput = document.getElementById('overShort');
+            
+            if (!cashInput || !cardInput || !card1Input || !exTotalInput || !overShortInput) {
+                return;
+            }
+            
+            // Get values and convert to numbers
+            const cash = parseFloat(cashInput.value) || 0;
+            const card = parseFloat(cardInput.value) || 0;
+            const card1 = parseFloat(card1Input.value) || 0;
+            const exTotal = parseFloat(exTotalInput.value) || 0;
+            
+            // Calculate: Ex-Total - (Cash + Card + Card1)
+            const difference = exTotal - (cash + card + card1);
+            
+            // Format the result
+            if (difference > 0) {
+                // Positive: show as "+amount over"
+                overShortInput.value = '+' + difference.toFixed(2) + ' over';
+                overShortInput.style.color = '#28a745';
+            } else if (difference < 0) {
+                // Negative: show absolute value as "amount short"
+                const absValue = Math.abs(difference);
+                overShortInput.value = absValue.toFixed(2) + ' short';
+                overShortInput.style.color = '#dc3545';
+            } else {
+                // Zero: show as "0"
+                overShortInput.value = '0';
+                overShortInput.style.color = '#6c757d';
+            }
+        }
+        
+        // Calculate on page load if values exist
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateOverShort();
+        });
 
     </script>
 </body>

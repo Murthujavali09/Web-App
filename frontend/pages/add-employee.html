@@ -167,6 +167,10 @@
                                 <i class="fa-solid fa-users mr-2"></i>
                                 Employees
                             </a>
+                            <a href="alerts.html" id="alertsLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-bell mr-2"></i>
+                                Alerts
+                            </a>
                         </nav>
                         <a href="#" id="backToSuperAdmin" class="hidden items-center px-4 py-2 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 mr-4">
                             <i class="fa-solid fa-arrow-left mr-2"></i>
@@ -211,6 +215,10 @@
                 <a href="list-employees.html" class="mobile-menu-link" onclick="closeMobileMenu()">
                     <i class="fa-solid fa-users"></i>
                     Employees
+                </a>
+                <a href="alerts.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-bell"></i>
+                    Alerts
                 </a>
                 <a href="#" id="backToSuperAdminMobile" class="mobile-menu-link hidden" onclick="closeMobileMenu()">
                     <i class="fa-solid fa-arrow-left"></i>
@@ -584,9 +592,9 @@
                         });
 
                         if (faceResult.success) {
-                            toggleStatus('Employee added successfully with face registration!', 'success');
+                            showSuccess('Employee added successfully with face registration!');
                         } else {
-                            toggleStatus('Employee added but face registration failed.', 'error');
+                            showSuccess('Employee added successfully! (Face registration had issues)');
                         }
                     } catch (faceErr) {
                         if (faceErr.message && faceErr.message.includes('already registered')) {
@@ -602,20 +610,21 @@
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                             return;
                         } else {
-                            toggleStatus('Employee added but face registration failed: ' + faceErr.message, 'error');
+                            showSuccess('Employee added successfully! (Face registration had issues)');
                         }
                     }
                 } else {
-                    toggleStatus('Employee added successfully (without face registration).', 'success');
+                    showSuccess('Employee added successfully!');
                 }
 
                 if (videoStream) {
                     videoStream.getTracks().forEach(track => track.stop());
                 }
 
+                // Redirect to employees list immediately after successful registration
                 setTimeout(() => {
                     window.location = 'list-employees.html';
-                }, 2000);
+                }, 500);
 
             } catch (err) {
                 console.error('Failed to add employee:', err);

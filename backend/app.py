@@ -157,6 +157,8 @@ def create_app():
     from backend.routes.admins import bp as admins_bp
     from backend.routes.tenants import bp as tenants_bp
     from backend.routes.billings import bp as billings_bp
+    from backend.routes.auto_clockout import bp as auto_clockout_bp
+    from backend.routes.alerts import bp as alerts_bp
 
     # Register error handlers BEFORE blueprints to ensure they catch all errors
     # Global error handler to ensure all API errors return JSON
@@ -238,6 +240,8 @@ def create_app():
     app.register_blueprint(managers_bp, url_prefix="/api/managers")
     app.register_blueprint(admins_bp, url_prefix="/api/admins")
     app.register_blueprint(billings_bp, url_prefix="/api/billings")
+    app.register_blueprint(auto_clockout_bp, url_prefix="/api/auto-clockout")
+    app.register_blueprint(alerts_bp, url_prefix="/api/alerts")
     
     # Apply rate limiting to login endpoints
     # Flask-Limiter will automatically apply rate limits based on decorators
@@ -468,6 +472,13 @@ def create_app():
         from backend.migrations.add_device_type_to_inventory import migrate
         migrate()
     
+    # CLI command to add inventory_sold column to EOD table
+    @app.cli.command("add-inventory-sold-to-eod")
+    def add_inventory_sold_to_eod_command():
+        """Add inventory_sold column to eod table"""
+        from backend.migrations.add_inventory_sold_to_eod import migrate
+        migrate()
+    
     # CLI command to add default inventory to existing stores
     @app.cli.command("add-inventory-to-stores")
     def add_inventory_to_stores_command():
@@ -525,6 +536,59 @@ def create_app():
         """Add is_admin and regions columns to managers table"""
         from backend.migrations.add_admin_fields_to_managers import migrate
         migrate()
+    
+    # CLI command to add store timings
+    @app.cli.command("add-store-timings")
+    def add_store_timings_command():
+        """Add opening_time and closing_time columns to stores table"""
+        from backend.migrations.add_store_timings import migrate
+        migrate()
+    
+    # CLI command to create alerts table
+    @app.cli.command("create-alerts-table")
+    def create_alerts_table_command():
+        """Create the alerts table if it doesn't exist"""
+        from backend.migrations.add_alerts_table import migrate
+        migrate()
+
+    @app.cli.command("seed-dev")
+    @click.option("--reset-super-admin", is_flag=True, help="Reset super admin password from .env")
+    @click.option("--no-demo-manager", is_flag=True, help="Skip creating demo manager account")
+    @click.option("--no-demo-stores", is_flag=True, help="Skip creating Lawrence/Oakville demo stores")
+    def seed_dev_command(reset_super_admin, no_demo_manager, no_demo_stores):
+        """Seed tenant, super admin (from .env), demo manager, and sample stores for local dev"""
+        from backend.seed_dev import seed_dev
+
+        with app.app_context():
+            db.create_all()
+            result = seed_dev(
+                create_demo_manager=not no_demo_manager,
+                create_demo_stores=not no_demo_stores,
+                force_reset_super_admin=reset_super_admin,
+            )
+
+        click.echo("")
+        click.echo("Development database seeded successfully.")
+        click.echo("-" * 50)
+        click.echo(f"Tenant: {result['company_name']} (id={result['tenant_id']})")
+        click.echo(f"Tenant email (for /api/tenants/login): {result['tenant_email']}")
+        click.echo("")
+        click.echo("Super Admin (login page — use USERNAME field):")
+        click.echo(f"  Username: {result['super_admin_username']}")
+        click.echo(f"  Password: {result['super_admin_password']}")
+        click.echo("")
+        if result.get("demo_manager_username"):
+            click.echo("Demo Manager:")
+            click.echo(f"  Username: {result['demo_manager_username']}")
+            click.echo(f"  Password: {result['demo_manager_password']}")
+            click.echo("")
+        if result["stores_created"]:
+            click.echo("Demo Stores:")
+            for s in result["stores_created"]:
+                click.echo(f"  {s['name']}: username={s['username']} password={s['password']}")
+            click.echo("")
+        click.echo("Log in at http://localhost:5000/")
+        click.echo("-" * 50)
 
     return app
 

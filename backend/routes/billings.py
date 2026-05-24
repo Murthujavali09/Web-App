@@ -14,7 +14,7 @@ def get_billings():
         user_role = g.current_user.get('role')
         current_month = get_current_billing_month()
         
-        # Get stores for this tenant, filtered by admin regions if admin
+        # Get stores for this tenant, filtered by admin regions if admin, or by manager username if manager
         if user_role == 'admin':
             admin_regions = g.current_user.get('regions', [])
             if not admin_regions:
@@ -46,17 +46,33 @@ def get_billings():
                 Store.manager_username.in_(manager_usernames)
             ).all()
             store_names = [store.name for store in stores]
+        elif user_role == 'manager':
+            # Manager sees only their own stores
+            manager_username = g.current_user.get('username')
+            if not manager_username:
+                return jsonify({
+                    'stores': [],
+                    'billings': {},
+                    'billing_month': current_month
+                }), 200
+            
+            stores = get_stores(tenant_id=tenant_id, manager_username=manager_username)
+            store_names = [store["name"] for store in stores]
         else:
-            # Manager or super-admin sees all stores
+            # Super-admin sees all stores
             stores = get_stores(tenant_id=tenant_id)
             store_names = [store["name"] for store in stores]
         
         # Get billings grouped by store (for current month)
-        billings = get_billings_by_stores(tenant_id, billing_month=current_month)
+        all_billings = get_billings_by_stores(tenant_id, billing_month=current_month)
         
-        # Ensure all stores have billing entries (even if empty)
+        # Filter billings to only include stores the user has access to
+        billings = {}
         for store_name in store_names:
-            if store_name not in billings:
+            if store_name in all_billings:
+                billings[store_name] = all_billings[store_name]
+            else:
+                # Ensure all stores have billing entries (even if empty)
                 billings[store_name] = {
                     'electricity': {'paid': False, 'amount': 0},
                     'wifi': {'paid': False, 'amount': 0},
@@ -107,12 +123,25 @@ def pay_billing():
             return jsonify({"error": "amount must be a valid number"}), 400
         
         tenant_id = g.tenant_id
+        user_role = g.current_user.get('role')
         
-        # Verify store belongs to tenant
-        stores = get_stores(tenant_id=tenant_id)
-        store_names = [store["name"] for store in stores]
-        if store_id not in store_names:
-            return jsonify({"error": f"Store '{store_id}' not found"}), 404
+        # Verify store belongs to tenant and manager (if manager)
+        if user_role == 'manager':
+            # Manager can only pay for their own stores
+            manager_username = g.current_user.get('username')
+            if not manager_username:
+                return jsonify({"error": "Manager username not found"}), 400
+            
+            stores = get_stores(tenant_id=tenant_id, manager_username=manager_username)
+            store_names = [store["name"] for store in stores]
+            if store_id not in store_names:
+                return jsonify({"error": f"Store '{store_id}' not found or access denied"}), 404
+        else:
+            # Super-admin can pay for any store in tenant
+            stores = get_stores(tenant_id=tenant_id)
+            store_names = [store["name"] for store in stores]
+            if store_id not in store_names:
+                return jsonify({"error": f"Store '{store_id}' not found"}), 404
         
         # Update billing payment
         billing = update_billing_payment(tenant_id, store_id, bill_type, amount)

@@ -310,7 +310,7 @@
                     </div>
                 </div>
                 <div id="inventory-table-container" class="p-6">
-                    <div id="loadingState" class="text-center py-12">
+                    <div id="loadingState" class="hidden text-center py-12">
                         <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
                         <p class="text-slate-600">Loading inventory history...</p>
                     </div>
@@ -318,8 +318,8 @@
                         <i class="fa-solid fa-triangle-exclamation text-red-500 text-4xl mb-4"></i>
                         <p class="text-red-600 font-semibold" id="errorMessage">Failed to load inventory history</p>
                     </div>
-                    <div id="tableContent" class="hidden">
-                        <!-- Inventory grid will be rendered here -->
+                    <div id="tableContent" class="text-center py-12 text-slate-600">
+                        No inventory history found.
                     </div>
                 </div>
             </div>
@@ -572,7 +572,7 @@
                 
                 if (periodSnapshots.length === 0) {
                     loadingState.classList.add('hidden');
-                    tableContent.innerHTML = '<div class="text-center py-12 text-slate-600">No inventory data found for this period.</div>';
+                    tableContent.innerHTML = '<div class="text-center py-12 text-slate-600">No inventory history found.</div>';
                     tableContent.classList.remove('hidden');
                     return;
                 }

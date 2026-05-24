@@ -93,21 +93,33 @@ function showConfirmDialog(message, title = 'Confirm Action', type = 'danger') {
     const isWarning = type === 'warning';
     const headerClass = isWarning ? 'warning' : '';
     const confirmBtnClass = isWarning ? 'warning' : '';
-    const icon = isWarning ? '⚠️' : '🗑️';
+    const iconClass = isWarning ? 'fa-triangle-exclamation' : 'fa-trash-can';
+    const iconBgClass = isWarning ? 'confirm-icon-bg-warning' : 'confirm-icon-bg-danger';
     
     overlay.innerHTML = `
       <div class="confirm-dialog-container">
         <div class="confirm-dialog-header ${headerClass}">
-          <span class="confirm-dialog-icon">${icon}</span>
+          <div class="confirm-dialog-icon-wrapper ${iconBgClass}">
+            <i class="fa-solid ${iconClass} confirm-dialog-icon"></i>
+          </div>
           <h3>${escapeHtml(title)}</h3>
         </div>
         <div class="confirm-dialog-body">
           <div class="confirm-dialog-message">${escapeHtml(message)}</div>
-          <div class="confirm-dialog-warning">This action cannot be undone.</div>
+          <div class="confirm-dialog-warning">
+            <i class="fa-solid fa-exclamation-circle"></i>
+            <span>This action cannot be undone.</span>
+          </div>
         </div>
         <div class="confirm-dialog-footer">
-          <button class="confirm-dialog-btn confirm-dialog-btn-cancel" onclick="closeConfirmDialog(false)">Cancel</button>
-          <button class="confirm-dialog-btn confirm-dialog-btn-confirm ${confirmBtnClass}" onclick="closeConfirmDialog(true)">Confirm</button>
+          <button class="confirm-dialog-btn confirm-dialog-btn-cancel" onclick="closeConfirmDialog(false)">
+            <i class="fa-solid fa-xmark"></i>
+            Cancel
+          </button>
+          <button class="confirm-dialog-btn confirm-dialog-btn-confirm ${confirmBtnClass}" onclick="closeConfirmDialog(true)">
+            <i class="fa-solid fa-check"></i>
+            Confirm
+          </button>
         </div>
       </div>
     `;
@@ -555,7 +567,7 @@ async function clockOut(entryId) {
 
 // ---------- EOD ----------
 async function submitEod(storeId, reportDate, notes, cashAmount = 0, creditAmount = 0, card1Amount = 0, qpayAmount = 0, boxesCount = 0, 
-                        accessoriesAmount = 0, magentaAmount = 0, overShort = 0, total1 = 0,
+                        accessoriesAmount = 0, magentaAmount = 0, inventorySold = 0, overShort = 0, total1 = 0,
                         denom100Count = 0, denom100Total = 0, denom50Count = 0, denom50Total = 0,
                         denom20Count = 0, denom20Total = 0, denom10Count = 0, denom10Total = 0,
                         denom5Count = 0, denom5Total = 0, denom1Count = 0, denom1Total = 0, totalBills = 0, submittedBy = null) {
@@ -570,6 +582,7 @@ async function submitEod(storeId, reportDate, notes, cashAmount = 0, creditAmoun
     boxes_count: boxesCount,
     accessories_amount: accessoriesAmount,
     magenta_amount: magentaAmount,
+    inventory_sold: inventorySold,
     over_short: overShort,
     total1: total1,
     denom_100_count: denom100Count,
@@ -597,12 +610,15 @@ async function loadStores(managerUsername = null) {
   const params = managerUsername ? { manager_username: managerUsername } : {};
   return await apiGet("/stores/", params);
 }
-async function addStore(name, total_boxes, username, password, managerUsername) {
-  return await apiPost("/stores/", { name, total_boxes, username, password, manager_username: managerUsername });
+async function addStore(name, total_boxes, username, password, managerUsername, openingTime, closingTime) {
+  return await apiPost("/stores/", { name, total_boxes, username, password, manager_username: managerUsername, opening_time: openingTime, closing_time: closingTime });
 }
-async function updateStore(name, new_name, total_boxes, username, password, useCurrentIp = false) {
+async function updateStore(name, new_name, total_boxes, username, password, useCurrentIp = false, openingTime = null, closingTime = null) {
   // Use apiPut to include authentication headers
-  return await apiPut("/stores/", { name, new_name, total_boxes, username, password, use_current_ip: useCurrentIp });
+  const payload = { name, new_name, total_boxes, username, password, use_current_ip: useCurrentIp };
+  if (openingTime !== null) payload.opening_time = openingTime;
+  if (closingTime !== null) payload.closing_time = closingTime;
+  return await apiPut("/stores/", payload);
 }
 async function removeStore(name) {
   // Use apiPost with DELETE method to include authentication headers and send name in body
@@ -925,15 +941,19 @@ window.submitAddStore = async function() {
   const usernameInput = qs("storeUsername");
   const passwordInput = qs("storePassword");
   const confirmPasswordInput = qs("storeConfirmPassword");
+  const openingTimeInput = qs("storeOpeningTime");
+  const closingTimeInput = qs("storeClosingTime");
   const errorDiv = qs("addStoreError");
   
-  if (!storeNameInput || !boxesInput || !usernameInput || !passwordInput || !confirmPasswordInput) return;
+  if (!storeNameInput || !boxesInput || !usernameInput || !passwordInput || !confirmPasswordInput || !openingTimeInput || !closingTimeInput) return;
   
   const name = storeNameInput.value.trim();
   const totalBoxes = boxesInput.value.trim();
   const username = usernameInput.value.trim();
   const password = passwordInput.value;
   const confirmPassword = confirmPasswordInput.value;
+  const openingTime = openingTimeInput.value;
+  const closingTime = closingTimeInput.value;
   
   // Validation
   if (!name) {
@@ -996,8 +1016,20 @@ window.submitAddStore = async function() {
     return;
   }
   
+  if (!openingTime) {
+    showError("addStoreError", "Opening time is required");
+    openingTimeInput.focus();
+    return;
+  }
+  
+  if (!closingTime) {
+    showError("addStoreError", "Closing time is required");
+    closingTimeInput.focus();
+    return;
+  }
+  
   try {
-    const result = await addStore(name, totalBoxesNum, username, password, session.username);
+    const result = await addStore(name, totalBoxesNum, username, password, session.username, openingTime, closingTime);
     
     // Validate result - it should have at least a name or success indicator
     if (!result || (!result.name && !result.success && result.status !== 201)) {
@@ -1054,7 +1086,7 @@ window.submitAddStore = async function() {
 };
 
 // Modal functions for Edit Store
-window.openEditStoreModal = function(storeName, totalBoxes, username, allowedIp) {
+window.openEditStoreModal = function(storeName, totalBoxes, username, allowedIp, store = null) {
   const modal = qs("editStoreModal");
   if (modal) {
     modal.classList.add("show");
@@ -1064,6 +1096,8 @@ window.openEditStoreModal = function(storeName, totalBoxes, username, allowedIp)
     const usernameInput = qs("editStoreUsername");
     const passwordInput = qs("editStorePassword");
     const confirmPasswordInput = qs("editStoreConfirmPassword");
+    const openingTimeInput = qs("editStoreOpeningTime");
+    const closingTimeInput = qs("editStoreClosingTime");
     const ipInfo = qs("editStoreAllowedIpInfo");
     const updateIpCheckbox = qs("editStoreUseCurrentIp");
     
@@ -1076,6 +1110,8 @@ window.openEditStoreModal = function(storeName, totalBoxes, username, allowedIp)
     if (usernameInput) usernameInput.value = username || "";
     if (passwordInput) passwordInput.value = "";
     if (confirmPasswordInput) confirmPasswordInput.value = "";
+    if (openingTimeInput && store && store.opening_time) openingTimeInput.value = store.opening_time;
+    if (closingTimeInput && store && store.closing_time) closingTimeInput.value = store.closing_time;
     if (ipInfo) {
       ipInfo.textContent = `Current allowed IP: ${allowedIp ? escapeHtml(allowedIp) : 'Not set'}`;
     }
@@ -1109,10 +1145,12 @@ window.submitEditStore = async function() {
   const usernameInput = qs("editStoreUsername");
   const passwordInput = qs("editStorePassword");
   const confirmPasswordInput = qs("editStoreConfirmPassword");
+  const openingTimeInput = qs("editStoreOpeningTime");
+  const closingTimeInput = qs("editStoreClosingTime");
   const errorDiv = qs("editStoreError");
   const updateIpCheckbox = qs("editStoreUseCurrentIp");
   
-  if (!originalNameInput || !nameInput || !boxesInput || !usernameInput || !passwordInput || !confirmPasswordInput) return;
+  if (!originalNameInput || !nameInput || !boxesInput || !usernameInput || !passwordInput || !confirmPasswordInput || !openingTimeInput || !closingTimeInput) return;
   
   const originalName = originalNameInput.value.trim();
   const newName = nameInput.value.trim();
@@ -1120,6 +1158,8 @@ window.submitEditStore = async function() {
   const username = usernameInput.value.trim();
   const password = passwordInput.value;
   const confirmPassword = confirmPasswordInput.value;
+  const openingTime = openingTimeInput.value;
+  const closingTime = closingTimeInput.value;
   
   // Validation
   if (!newName) {
@@ -1243,10 +1283,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location = "login.html";
 
   // General: Hide "Back" button for managers (unless being viewed by super-admin/admin)
+  // Also hide/show Alerts tab based on role
   const urlParams = new URLSearchParams(window.location.search);
   const viewAs = urlParams.get('view_as');
   const backToSuperAdmin = qs("backToSuperAdmin");
   const backToSuperAdminMobile = qs("backToSuperAdminMobile");
+  const alertsLink = qs("alertsLink");
   
   if (session?.role === "manager" && !viewAs) {
     // Regular manager login - hide back button
@@ -1258,6 +1300,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (backToSuperAdminMobile) {
       backToSuperAdminMobile.style.display = "none";
       backToSuperAdminMobile.classList.add("hidden");
+    }
+    // Show Alerts tab for managers
+    if (alertsLink) {
+      alertsLink.style.display = "";
+    }
+  } else if (session?.role === "super-admin" || session?.role === "admin") {
+    // Hide Alerts tab for super-admin/admin
+    if (alertsLink) {
+      alertsLink.style.display = "none";
     }
   }
 
@@ -1593,6 +1644,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log('Snapshot created/updated successfully - Sent date:', dateStr, 'Returned date:', returnedDate);
             showSuccess("Inventory quantities updated and snapshot submitted successfully!", "Inventory Submitted");
             
+            // Check for inventory mismatch warning
+            if (result.warning) {
+              console.warn('Inventory mismatch detected:', result.warning);
+              showWarning(result.warning, "Inventory Mismatch Warning");
+            }
+            
             // If we're on the inventory history page, refresh it
             const path = window.location.pathname.split('/').pop();
             if (path === 'store-inventory-history.html' && typeof loadInventoryHistory === 'function') {
@@ -1648,6 +1705,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const boxesCountInput = qs("boxesCount") || qs("boxes");
       const accessoriesAmountInput = qs("accessories");
       const magentaAmountInput = qs("magenta");
+      const inventorySoldInput = qs("inventorySold");
       const overShortInput = qs("overShort");
       const total1Input = qs("total1") || qs("total");
       const eodNotesInput = qs("eodNotes") || qs("comments");
@@ -1685,7 +1743,23 @@ document.addEventListener("DOMContentLoaded", async () => {
       const boxesCount = boxesCountInput ? parseNumber(boxesCountInput.value, parseInt) : 0;
       const accessoriesAmount = accessoriesAmountInput ? parseNumber(accessoriesAmountInput.value, parseFloat) : 0;
       const magentaAmount = magentaAmountInput ? parseNumber(magentaAmountInput.value, parseFloat) : 0;
-      const overShort = overShortInput ? parseNumber(overShortInput.value, parseFloat) : 0;
+      const inventorySold = inventorySoldInput ? parseNumber(inventorySoldInput.value, parseInt) : 0;
+      
+      // Parse over/short - handle formatted values like "+10.50 over" or "5.25 short"
+      let overShort = 0;
+      if (overShortInput && overShortInput.value) {
+        const overShortValue = overShortInput.value.trim();
+        // Extract numeric value (remove "over", "short", and "+" sign)
+        const numericMatch = overShortValue.match(/([+-]?\d+\.?\d*)/);
+        if (numericMatch) {
+          let numValue = parseFloat(numericMatch[1]);
+          // If it contains "short", make it negative
+          if (overShortValue.toLowerCase().includes('short')) {
+            numValue = -Math.abs(numValue);
+          }
+          overShort = numValue;
+        }
+      }
       const total1 = total1Input ? parseNumber(total1Input.value, parseFloat) : 0;
       
       // Denominations
@@ -1707,7 +1781,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       
       // Validation: At least one field must have a value
       const hasAnyValue = cashAmount > 0 || creditAmount > 0 || card1Amount > 0 || qpayAmount > 0 || boxesCount > 0 || 
-                          accessoriesAmount > 0 || magentaAmount > 0 || total1 > 0 || notes.trim().length > 0 ||
+                          accessoriesAmount > 0 || magentaAmount > 0 || inventorySold > 0 || total1 > 0 || notes.trim().length > 0 ||
                           denom100Count > 0 || denom50Count > 0 || denom20Count > 0 || denom10Count > 0 || 
                           denom5Count > 0 || denom1Count > 0 || totalBills > 0;
       
@@ -1740,6 +1814,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         boxesCount,
         accessoriesAmount,
         magentaAmount,
+        inventorySold,
         overShort,
         total1,
         notes,
@@ -1760,7 +1835,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const res = await submitEod(
           session.storeId, dateStr, notes, 
           cashAmount, creditAmount, card1Amount, qpayAmount, boxesCount, 
-          accessoriesAmount, magentaAmount, overShort, total1,
+          accessoriesAmount, magentaAmount, inventorySold, overShort, total1,
           denom100Count, denom100Total, denom50Count, denom50Total,
           denom20Count, denom20Total, denom10Count, denom10Total,
           denom5Count, denom5Total, denom1Count, denom1Total, totalBills,
@@ -1776,6 +1851,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (boxesCountInput) boxesCountInput.value = "";
         if (accessoriesAmountInput) accessoriesAmountInput.value = "";
         if (magentaAmountInput) magentaAmountInput.value = "";
+        if (inventorySoldInput) inventorySoldInput.value = "";
         if (overShortInput) overShortInput.value = "";
         if (eodNotesInput) eodNotesInput.value = "";
         if (denom100CountInput) denom100CountInput.value = "";
@@ -1991,7 +2067,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <i class="fa-solid fa-chart-bar text-slate-600"></i>
                 Manage Store
               </button>
-              <button class="btn-edit-store flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-slate-700 bg-white border-2 border-slate-300 rounded-lg hover:bg-slate-50 hover:border-slate-400 hover:shadow-lg hover:scale-105 transition-all duration-200" data-store-name="${escapedName}" data-store-boxes="${totalBoxes}" data-store-username="${escapeHtml(store.username || '')}" data-store-ip="${escapeHtml(store.allowed_ip || '')}">
+              <button class="btn-edit-store flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-slate-700 bg-white border-2 border-slate-300 rounded-lg hover:bg-slate-50 hover:border-slate-400 hover:shadow-lg hover:scale-105 transition-all duration-200" data-store-name="${escapedName}" data-store-boxes="${totalBoxes}" data-store-username="${escapeHtml(store.username || '')}" data-store-ip="${escapeHtml(store.allowed_ip || '')}" data-store-opening-time="${escapeHtml(store.opening_time || '')}" data-store-closing-time="${escapeHtml(store.closing_time || '')}">
                 <i class="fa-solid fa-edit text-slate-600"></i>
                 Edit Store
               </button>
@@ -2021,7 +2097,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             const totalBoxes = parseInt(this.getAttribute('data-store-boxes')) || 0;
             const username = this.getAttribute('data-store-username') || '';
             const allowedIp = this.getAttribute('data-store-ip') || '';
-            handleEditStore(storeName, totalBoxes, username, allowedIp);
+            const openingTime = this.getAttribute('data-store-opening-time') || '';
+            const closingTime = this.getAttribute('data-store-closing-time') || '';
+            // Find the full store object from the stores array
+            const store = stores.find(s => s.name === storeName) || { opening_time: openingTime, closing_time: closingTime };
+            handleEditStore(storeName, totalBoxes, username, allowedIp, store);
           });
         });
         
@@ -2057,8 +2137,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       window.openAddStoreModal();
     };
     
-    window.handleEditStore = function(storeName, totalBoxes, username, allowedIp) {
-      window.openEditStoreModal(storeName, totalBoxes, username, allowedIp);
+    window.handleEditStore = function(storeName, totalBoxes, username, allowedIp, store = null) {
+      window.openEditStoreModal(storeName, totalBoxes, username, allowedIp, store);
     };
     
     
@@ -2591,6 +2671,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const boxesCount = eod.boxes_count || 0;
         const accessoriesAmount = eod.accessories_amount || 0;
         const magentaAmount = eod.magenta_amount || 0;
+        const inventorySold = eod.inventory_sold || 0;
         const overShort = eod.over_short || 0;
         const total1 = eod.total1 || 0;
         const total2 = total1 - (cashAmount + creditAmount);
@@ -2714,6 +2795,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <div style="padding:16px;background:#f8f9fa;border-radius:8px;border-left:4px solid #e83e8c;">
                   <div style="font-size:0.875rem;color:#6c757d;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Magenta</div>
                   <div style="color:#e83e8c;font-size:1.5rem;font-weight:700;">$${magentaAmount.toFixed(2)}</div>
+                </div>
+                ` : ''}
+                ${inventorySold > 0 ? `
+                <div style="padding:16px;background:#f8f9fa;border-radius:8px;border-left:4px solid #6f42c1;">
+                  <div style="font-size:0.875rem;color:#6c757d;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Inventory Sold</div>
+                  <div style="color:#6f42c1;font-size:1.5rem;font-weight:700;">${inventorySold}</div>
                 </div>
                 ` : ''}
                 <div style="padding:16px;background:#f8f9fa;border-radius:8px;border-left:4px solid ${overShort >= 0 ? '#28a745' : '#dc3545'};">

@@ -176,6 +176,30 @@ def clock_in_face():
                 "clock_in_time": clock_in_iso
             }), 400
         
+        # Check store timings if store_id is provided
+        if store_id:
+            from backend.models import Store
+            store = Store.query.filter_by(tenant_id=tenant_id, name=store_id).first()
+            if store and store.opening_time:
+                # Parse opening time (format: "HH:MM")
+                try:
+                    opening_hour, opening_minute = map(int, store.opening_time.split(':'))
+                    now = datetime.utcnow()
+                    opening_time_today = now.replace(hour=opening_hour, minute=opening_minute, second=0, microsecond=0)
+                    earliest_clock_in = opening_time_today - timedelta(minutes=30)
+                    
+                    # Check if current time is before 30 minutes before opening
+                    if now < earliest_clock_in:
+                        opening_time_str = store.opening_time
+                        earliest_time_str = earliest_clock_in.strftime('%H:%M')
+                        return jsonify({
+                            "success": False,
+                            "error": f"Cannot clock in yet. Store opens at {opening_time_str}. You can clock in starting at {earliest_time_str} (30 minutes before opening)."
+                        }), 400
+                except (ValueError, AttributeError):
+                    # If time parsing fails, skip the check
+                    pass
+        
         # Compress face image
         compressed_image = compress_image(face_image, max_size=400) if face_image else None
         
@@ -194,12 +218,13 @@ def clock_in_face():
             update_storage_usage(tenant_id, image_size)
         
         # Create clock-in entry
+        clock_in_time = datetime.utcnow()
         entry = TimeClock(
             tenant_id=tenant_id,
             employee_id=employee_id,
             employee_name=employee_name,
             store_id=store_id,
-            clock_in=datetime.utcnow(),
+            clock_in=clock_in_time,
             clock_out=None,
             clock_in_face_image=compressed_image,
             clock_in_confidence=confidence
@@ -207,6 +232,39 @@ def clock_in_face():
         
         db.session.add(entry)
         db.session.commit()
+        
+        # Check if employee clocked in late (after opening time) and create alert
+        if store_id:
+            from backend.models import Store, create_alert
+            try:
+                store = Store.query.filter_by(tenant_id=tenant_id, name=store_id).first()
+                if store and store.opening_time and store.manager_username:
+                    try:
+                        opening_hour, opening_minute = map(int, store.opening_time.split(':'))
+                        opening_time_today = clock_in_time.replace(hour=opening_hour, minute=opening_minute, second=0, microsecond=0)
+                        
+                        # Check if clock-in is after opening time
+                        if clock_in_time > opening_time_today:
+                            # Calculate how many minutes late
+                            minutes_late = int((clock_in_time - opening_time_today).total_seconds() / 60)
+                            
+                            # Create alert for manager
+                            create_alert(
+                                tenant_id=tenant_id,
+                                store_id=store_id,
+                                manager_username=store.manager_username,
+                                alert_type='late_clock_in',
+                                title=f'Late Clock-In: {employee_name}',
+                                message=f'{employee_name} clocked in {minutes_late} minute{"s" if minutes_late != 1 else ""} late at {clock_in_time.strftime("%H:%M")}. Store opening time is {store.opening_time}.',
+                                employee_id=employee_id,
+                                employee_name=employee_name
+                            )
+                    except (ValueError, AttributeError) as e:
+                        # If time parsing fails, skip alert creation
+                        print(f"Warning: Could not create late clock-in alert: {e}")
+            except Exception as e:
+                # Don't fail clock-in if alert creation fails
+                print(f"Warning: Error creating alert: {e}")
         
         clock_in_iso = entry.clock_in.isoformat()
         if not clock_in_iso.endswith('Z') and entry.clock_in.tzinfo is None:
@@ -329,6 +387,50 @@ def clock_out_face():
                 "error": f"{employee_name} is not clocked in today. Please clock in first.",
                 "employee_name": employee_name
             }), 400
+        
+        # Check if employee should have been auto clocked out (15 minutes after closing)
+        if store_id:
+            from backend.models import Store
+            store = Store.query.filter_by(tenant_id=tenant_id, name=store_id).first()
+            if store and store.closing_time:
+                try:
+                    closing_hour, closing_minute = map(int, store.closing_time.split(':'))
+                    now = datetime.utcnow()
+                    closing_time_today = now.replace(hour=closing_hour, minute=closing_minute, second=0, microsecond=0)
+                    auto_clockout_time = closing_time_today + timedelta(minutes=15)
+                    
+                    # If it's past auto clock-out time, auto clock out
+                    if now >= auto_clockout_time:
+                        clock_out_time = auto_clockout_time  # Use the auto clock-out time, not current time
+                        clock_in_time = active_entry.clock_in
+                        hours_worked = (clock_out_time - clock_in_time).total_seconds() / 3600
+                        
+                        active_entry.clock_out = clock_out_time
+                        active_entry.hours_worked = round(hours_worked, 2)
+                        db.session.commit()
+                        
+                        clock_in_iso = clock_in_time.isoformat()
+                        if not clock_in_iso.endswith('Z') and clock_in_time.tzinfo is None:
+                            clock_in_iso += 'Z'
+                        
+                        clock_out_iso = clock_out_time.isoformat()
+                        if not clock_out_iso.endswith('Z') and clock_out_time.tzinfo is None:
+                            clock_out_iso += 'Z'
+                        
+                        return jsonify({
+                            "success": True,
+                            "auto_clockout": True,
+                            "entry_id": str(active_entry.id),
+                            "employee_id": str(employee_id),
+                            "employee_name": employee_name,
+                            "clock_in_time": clock_in_iso,
+                            "clock_out_time": clock_out_iso,
+                            "hours_worked": round(hours_worked, 2),
+                            "message": f"Auto clocked out at {auto_clockout_time.strftime('%H:%M')} (15 minutes after closing time {store.closing_time})"
+                        }), 200
+                except (ValueError, AttributeError):
+                    # If time parsing fails, skip the check
+                    pass
         
         # Compress face image
         compressed_image = compress_image(face_image, max_size=400) if face_image else None

@@ -1,9 +1,9 @@
 # backend/routes/inventory_history.py
 from flask import Blueprint, request, jsonify, g
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from sqlalchemy import func, cast, Date
 from backend.database import db
-from backend.models import Inventory, InventoryHistory
+from backend.models import Inventory, InventoryHistory, EOD, Store, create_alert
 from backend.auth import require_auth
 
 bp = Blueprint("inventory_history", __name__)
@@ -128,8 +128,94 @@ def create_inventory_snapshot():
         existing.updated_at = datetime.now()
         db.session.commit()
         
+        # Validate inventory against yesterday's data (same validation as create)
+        warning_message = None
+        if snapshot_dt.date() == today_dt.date():  # Only validate for today's snapshot
+            try:
+                # Get yesterday's date
+                yesterday = snapshot_dt.date() - timedelta(days=1)
+                
+                # Get yesterday's inventory snapshot
+                yesterday_snapshot = InventoryHistory.query.filter(
+                    InventoryHistory.tenant_id == tenant_id,
+                    InventoryHistory.store_id == store_id,
+                    func.date(InventoryHistory.snapshot_date) == yesterday
+                ).first()
+                
+                # Get yesterday's EOD inventory_sold
+                yesterday_date_str = yesterday.strftime('%Y-%m-%d')
+                yesterday_eod = EOD.query.filter_by(
+                    tenant_id=tenant_id,
+                    store_id=store_id,
+                    report_date=yesterday_date_str
+                ).first()
+                
+                if yesterday_snapshot and yesterday_eod:
+                    # Calculate yesterday's total inventory
+                    yesterday_items = yesterday_snapshot.get_items()
+                    yesterday_total = sum(item.get('quantity', 0) for item in yesterday_items)
+                    
+                    # Get inventory sold from yesterday's EOD
+                    inventory_sold = yesterday_eod.inventory_sold or 0
+                    
+                    # Calculate expected inventory: yesterday_total - inventory_sold
+                    expected_total = yesterday_total - inventory_sold
+                    
+                    # Calculate current total inventory
+                    current_total = sum(item.get('quantity', 0) for item in normalized_items)
+                    
+                    # Check for mismatch
+                    if current_total != expected_total:
+                        difference = current_total - expected_total
+                        warning_message = f"Inventory mismatch detected! Expected: {expected_total} (Yesterday: {yesterday_total} - Sold: {inventory_sold}), Actual: {current_total}, Difference: {difference:+d}"
+                        
+                        # Get store to find manager_username
+                        store = Store.query.filter_by(tenant_id=tenant_id, name=store_id).first()
+                        manager_username = store.manager_username if store else None
+                        
+                        if manager_username:
+                            # Create alert for the manager
+                            alert_title = f"Inventory Mismatch - {store_id}"
+                            alert_message = (
+                                f"Inventory mismatch detected for {store_id} on {snapshot_dt.date().isoformat()}.\n\n"
+                                f"Expected Total: {expected_total} items\n"
+                                f"(Yesterday's Total: {yesterday_total} - Inventory Sold: {inventory_sold})\n"
+                                f"Actual Total: {current_total} items\n"
+                                f"Difference: {difference:+d} items\n\n"
+                                f"Please verify the inventory counts."
+                            )
+                            
+                            create_alert(
+                                tenant_id=tenant_id,
+                                store_id=store_id,
+                                manager_username=manager_username,
+                                alert_type='inventory_mismatch',
+                                title=alert_title,
+                                message=alert_message
+                            )
+                            print(f"Alert created for manager {manager_username} about inventory mismatch")
+                        else:
+                            print(f"Warning: No manager found for store {store_id}, cannot create alert")
+                        
+                        print(f"INVENTORY MISMATCH: {warning_message}")
+            except Exception as validation_error:
+                # Don't fail the snapshot update if validation fails
+                print(f"Error during inventory validation: {validation_error}")
+                import traceback
+                traceback.print_exc()
+        
         print(f"Snapshot updated: id={existing.id}, store_id={store_id}, date={snapshot_dt.date()}, items_count={len(normalized_items)}")
-        return jsonify({"message": "Snapshot updated", "id": str(existing.id), "snapshot_date": snapshot_dt.date().isoformat()}), 200
+        
+        response_data = {
+            "message": "Snapshot updated",
+            "id": str(existing.id),
+            "snapshot_date": snapshot_dt.date().isoformat()
+        }
+        
+        if warning_message:
+            response_data["warning"] = warning_message
+        
+        return jsonify(response_data), 200
     else:
         # Prevent creating snapshots for past dates
         if snapshot_dt < today_dt:
@@ -151,5 +237,91 @@ def create_inventory_snapshot():
         # Refresh to get the committed snapshot
         db.session.refresh(snapshot)
         
+        # Validate inventory against yesterday's data
+        warning_message = None
+        if snapshot_dt.date() == today_dt.date():  # Only validate for today's snapshot
+            try:
+                # Get yesterday's date
+                yesterday = snapshot_dt.date() - timedelta(days=1)
+                
+                # Get yesterday's inventory snapshot
+                yesterday_snapshot = InventoryHistory.query.filter(
+                    InventoryHistory.tenant_id == tenant_id,
+                    InventoryHistory.store_id == store_id,
+                    func.date(InventoryHistory.snapshot_date) == yesterday
+                ).first()
+                
+                # Get yesterday's EOD inventory_sold
+                yesterday_date_str = yesterday.strftime('%Y-%m-%d')
+                yesterday_eod = EOD.query.filter_by(
+                    tenant_id=tenant_id,
+                    store_id=store_id,
+                    report_date=yesterday_date_str
+                ).first()
+                
+                if yesterday_snapshot and yesterday_eod:
+                    # Calculate yesterday's total inventory
+                    yesterday_items = yesterday_snapshot.get_items()
+                    yesterday_total = sum(item.get('quantity', 0) for item in yesterday_items)
+                    
+                    # Get inventory sold from yesterday's EOD
+                    inventory_sold = yesterday_eod.inventory_sold or 0
+                    
+                    # Calculate expected inventory: yesterday_total - inventory_sold
+                    expected_total = yesterday_total - inventory_sold
+                    
+                    # Calculate current total inventory
+                    current_total = sum(item.get('quantity', 0) for item in normalized_items)
+                    
+                    # Check for mismatch
+                    if current_total != expected_total:
+                        difference = current_total - expected_total
+                        warning_message = f"Inventory mismatch detected! Expected: {expected_total} (Yesterday: {yesterday_total} - Sold: {inventory_sold}), Actual: {current_total}, Difference: {difference:+d}"
+                        
+                        # Get store to find manager_username
+                        store = Store.query.filter_by(tenant_id=tenant_id, name=store_id).first()
+                        manager_username = store.manager_username if store else None
+                        
+                        if manager_username:
+                            # Create alert for the manager
+                            alert_title = f"Inventory Mismatch - {store_id}"
+                            alert_message = (
+                                f"Inventory mismatch detected for {store_id} on {snapshot_dt.date().isoformat()}.\n\n"
+                                f"Expected Total: {expected_total} items\n"
+                                f"(Yesterday's Total: {yesterday_total} - Inventory Sold: {inventory_sold})\n"
+                                f"Actual Total: {current_total} items\n"
+                                f"Difference: {difference:+d} items\n\n"
+                                f"Please verify the inventory counts."
+                            )
+                            
+                            create_alert(
+                                tenant_id=tenant_id,
+                                store_id=store_id,
+                                manager_username=manager_username,
+                                alert_type='inventory_mismatch',
+                                title=alert_title,
+                                message=alert_message
+                            )
+                            print(f"Alert created for manager {manager_username} about inventory mismatch")
+                        else:
+                            print(f"Warning: No manager found for store {store_id}, cannot create alert")
+                        
+                        print(f"INVENTORY MISMATCH: {warning_message}")
+            except Exception as validation_error:
+                # Don't fail the snapshot creation if validation fails
+                print(f"Error during inventory validation: {validation_error}")
+                import traceback
+                traceback.print_exc()
+        
         print(f"Snapshot created: id={snapshot.id}, store_id={store_id}, date={snapshot_dt.date()}, stored_date={snapshot.snapshot_date.date() if snapshot.snapshot_date else 'None'}, items_count={len(normalized_items)}")
-        return jsonify({"message": "Snapshot created", "id": str(snapshot.id), "snapshot_date": snapshot_dt.date().isoformat()}), 201
+        
+        response_data = {
+            "message": "Snapshot created",
+            "id": str(snapshot.id),
+            "snapshot_date": snapshot_dt.date().isoformat()
+        }
+        
+        if warning_message:
+            response_data["warning"] = warning_message
+        
+        return jsonify(response_data), 201
