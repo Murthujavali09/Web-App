@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerts — Pramaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#3B82F6',
+                            hover: '#2563EB'
+                        },
+                        secondary: '#64748B',
+                        light: '#F8FAFC',
+                        'card-border': '#E2E8F0',
+                        'input-border': '#CBD5E1'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-fade-in {
+            animation: fadeInPage 0.6s ease forwards;
+        }
+        .nav-link-active {
+            color: #1d4ed8 !important;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 16px rgba(15, 23, 42, 0.18);
+        }
+        .nav-link-active:hover {
+            color: white !important;
+            background-color: rgba(59, 130, 246, 0.5) !important;
+        }
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            max-width: 85vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #2563eb, #1d4ed8);
+            z-index: 50;
+            transition: right 0.3s ease;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+        }
+        .mobile-menu.active {
+            right: 0;
+        }
+        .mobile-menu-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mobile-menu-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        .mobile-menu-nav {
+            padding: 1rem 0;
+        }
+        .mobile-menu-link {
+            display: block;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: 500;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .mobile-menu-link:hover,
+        .mobile-menu-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: white;
+            color: white;
+        }
+        .mobile-menu-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        .alert-card {
+            transition: all 0.3s ease;
+        }
+        .alert-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-light font-sans antialiased text-slate-800">
+    <div id="app-container" class="min-h-screen pb-12">
+        <header id="header" class="sticky top-0 z-50 w-full">
+            <div class="w-[95%] max-w-7xl mx-auto mt-4 bg-gradient-to-r from-blue-600 to-blue-700 backdrop-blur-xl rounded-2xl shadow-2xl border border-blue-400/30">
+                <div class="flex items-center justify-between px-10 py-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white rounded-xl p-2.5 flex items-center justify-center hover:scale-110 transition-transform duration-200 shadow-lg">
+                            <i class="fa-solid fa-clock text-blue-600 text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-bold text-white">Pramaan</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <nav id="managerNavLinks" class="hidden md:flex items-center space-x-3 bg-blue-700/20 px-3 py-2 rounded-xl backdrop-blur-sm">
+                            <a href="manager.html" id="dashboardLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-chart-pie mr-2"></i>
+                                Dashboard
+                            </a>
+                            <a href="add-employee.html" id="addEmployeeLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-user-plus mr-2"></i>
+                                Add Employee
+                            </a>
+                            <a href="billings-payments.html" id="billingsLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-credit-card mr-2"></i>
+                                Billings & Payments
+                            </a>
+                            <a href="list-employees.html" id="listEmployeesLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-users mr-2"></i>
+                                Employees
+                            </a>
+                            <a href="alerts.html" id="alertsLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform nav-link-active">
+                                <i class="fa-solid fa-bell mr-2"></i>
+                                Alerts
+                            </a>
+                        </nav>
+                        <a href="#" id="backToSuperAdmin" class="hidden items-center px-4 py-2 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 mr-4">
+                            <i class="fa-solid fa-arrow-left mr-2"></i>
+                            Back
+                        </a>
+                        <button class="hidden md:flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform border border-white/20" onclick="logoutApp()">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                            Logout
+                        </button>
+                        <button class="md:hidden text-white hover:text-blue-200 transition-colors duration-200" onclick="toggleMobileMenu()" id="mobileMenuBtn">
+                            <i class="fa-solid fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <span class="text-white font-bold text-lg">Menu</span>
+                <button class="mobile-menu-close" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <nav class="mobile-menu-nav">
+                <a href="manager.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    Dashboard
+                </a>
+                <a href="add-employee.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-user-plus"></i>
+                    Add Employee
+                </a>
+                <a href="billings-payments.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-credit-card"></i>
+                    Billings & Payments
+                </a>
+                <a href="list-employees.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-users"></i>
+                    Employees
+                </a>
+                <a href="alerts.html" class="mobile-menu-link active" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-bell"></i>
+                    Alerts
+                </a>
+                <a href="#" id="backToSuperAdminMobile" class="mobile-menu-link hidden" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Back to Super Admin
+                </a>
+                <div class="border-t border-white/20 my-2"></div>
+                <button class="mobile-menu-link w-full text-left" onclick="logoutApp(); closeMobileMenu();" style="border: none; background: none; cursor: pointer;">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Logout
+                </button>
+            </nav>
+        </div>
+
+        <main id="main-content" class="page-fade-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12">
+            <!-- Page Header -->
+            <div class="mb-8">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="bg-gradient-to-r from-amber-500 to-orange-500 w-16 h-16 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-bell text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-slate-900">Alerts</h1>
+                        <p class="text-slate-600 mt-1">Important notifications and reminders for your stores</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts Container -->
+            <div id="alertsContainer" class="space-y-4">
+                <!-- Loading State -->
+                <div id="alertsLoading" class="hidden text-center py-12">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
+                    <p class="text-slate-600">Loading alerts...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="alertsEmpty" class="text-center py-16 bg-white rounded-2xl border border-card-border shadow-sm">
+                    <div class="bg-slate-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa-solid fa-bell-slash text-slate-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-slate-900 mb-2">No Alerts</h3>
+                    <p class="text-slate-600">You're all caught up! No alerts at this time.</p>
+                </div>
+
+                <!-- Alerts will be dynamically inserted here -->
+            </div>
+        </main>
+    </div>
+
+    <script src="static/js/script.js"></script>
+    <script>
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            menu.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            menu.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+
+        // Navigation active state
+        document.addEventListener('DOMContentLoaded', function() {
+            const nav = document.getElementById('managerNavLinks');
+            if (nav) {
+                const links = Array.from(nav.querySelectorAll('a[data-nav-link]'));
+                const currentPath = window.location.pathname.split('/').pop();
+                links.forEach(link => {
+                    const linkPath = link.getAttribute('href').split('/').pop();
+                    if (linkPath === currentPath) {
+                        link.classList.add('nav-link-active');
+                    }
+                });
+            }
+
+            // Check access - only managers can access this page
+            const session = loadSession();
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewAs = urlParams.get('view_as');
+            
+            // Only allow managers (not super-admin or admin, even when viewing as manager)
+            if (!session || session.role !== 'manager' || viewAs) {
+                // Redirect to appropriate page
+                if (session?.role === 'super-admin') {
+                    window.location = 'super-admin.html';
+                } else if (session?.role === 'admin') {
+                    window.location = 'admin.html';
+                } else {
+                    window.location = 'login.html';
+                }
+                return;
+            }
+            
+            // Hide navigation for super-admin/admin viewing as manager (shouldn't happen, but just in case)
+            if ((session?.role === 'super-admin' || session?.role === 'admin') && viewAs) {
+                const managerNavLinks = document.getElementById('managerNavLinks');
+                const backToSuperAdmin = document.getElementById('backToSuperAdmin');
+                const backToSuperAdminMobile = document.getElementById('backToSuperAdminMobile');
+                
+                if (managerNavLinks) {
+                    managerNavLinks.style.display = 'none';
+                }
+                if (backToSuperAdmin) {
+                    backToSuperAdmin.classList.remove('hidden');
+                    backToSuperAdmin.classList.add('md:flex');
+                    if (session?.role === 'admin') {
+                        backToSuperAdmin.href = 'admin.html';
+                        backToSuperAdmin.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i> Back to Admin';
+                    } else {
+                        backToSuperAdmin.href = 'super-admin.html';
+                        backToSuperAdmin.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i> Back to Super Admin';
+                    }
+                }
+                if (backToSuperAdminMobile) {
+                    backToSuperAdminMobile.classList.remove('hidden');
+                    if (session?.role === 'admin') {
+                        backToSuperAdminMobile.innerHTML = '<i class="fa-solid fa-arrow-left"></i> Back to Admin';
+                    } else {
+                        backToSuperAdminMobile.innerHTML = '<i class="fa-solid fa-arrow-left"></i> Back to Super Admin';
+                    }
+                }
+            }
+
+            // Check access - only managers can access this page
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewAs = urlParams.get('view_as');
+            
+            // Only allow managers (not super-admin or admin, even when viewing as manager)
+            if (!session || session.role !== 'manager' || viewAs) {
+                // Redirect to appropriate page
+                if (session?.role === 'super-admin') {
+                    window.location = 'super-admin.html';
+                } else if (session?.role === 'admin') {
+                    window.location = 'admin.html';
+                } else {
+                    window.location = 'login.html';
+                }
+                return;
+            }
+
+            // Load alerts
+            loadAlerts();
+        });
+
+        // Load and display alerts
+        async function loadAlerts() {
+            const alertsContainer = document.getElementById('alertsContainer');
+            const alertsLoading = document.getElementById('alertsLoading');
+            const alertsEmpty = document.getElementById('alertsEmpty');
+            
+            try {
+                alertsLoading.classList.remove('hidden');
+                alertsEmpty.classList.add('hidden');
+                
+                // Get session
+                const session = loadSession();
+                if (!session || session.role !== 'manager') {
+                    alertsLoading.classList.add('hidden');
+                    alertsContainer.innerHTML = '<div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center"><p class="text-red-800">Access denied. This page is for managers only.</p></div>';
+                    return;
+                }
+
+                // Fetch alerts from API
+                const alertsData = await apiGet('/alerts/', {});
+                const alerts = alertsData.alerts || [];
+
+                alertsLoading.classList.add('hidden');
+                
+                if (alerts.length === 0) {
+                    alertsEmpty.classList.remove('hidden');
+                    return;
+                }
+
+                // Render alerts
+                alertsContainer.innerHTML = alerts.map(alert => {
+                    const date = new Date(alert.created_at);
+                    const timeAgo = getTimeAgo(date);
+                    
+                    // Determine color and icon based on alert type
+                    let color = 'blue';
+                    let icon = 'fa-bell';
+                    if (alert.alert_type === 'late_clock_in') {
+                        color = 'amber';
+                        icon = 'fa-clock';
+                    } else if (alert.alert_type === 'auto_clockout') {
+                        color = 'orange';
+                        icon = 'fa-user-clock';
+                    }
+                    
+                    const isRead = alert.is_read ? 'opacity-60' : '';
+                    
+                    return `
+                        <div class="alert-card bg-white rounded-2xl border ${alert.is_read ? 'border-slate-200' : 'border-amber-300'} shadow-sm p-6 hover:shadow-md ${isRead}" data-alert-id="${alert.id}">
+                            <div class="flex items-start gap-4">
+                                <div class="bg-${color}-100 w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid ${icon} text-${color}-600 text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-start justify-between gap-4 mb-2">
+                                        <div class="flex-1">
+                                            <h3 class="text-lg font-semibold text-slate-900">${escapeHtml(alert.title)}</h3>
+                                            ${alert.store_id ? `<p class="text-sm text-slate-500 mt-1">Store: ${escapeHtml(alert.store_id)}</p>` : ''}
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            ${!alert.is_read ? '<span class="bg-amber-500 text-white text-xs font-semibold px-2 py-1 rounded-full">New</span>' : ''}
+                                            <span class="text-sm text-slate-500 whitespace-nowrap">${timeAgo}</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-slate-600 mb-4">${escapeHtml(alert.message)}</p>
+                                    ${!alert.is_read ? `
+                                    <button onclick="markAlertRead('${alert.id}')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-${color}-600 bg-${color}-50 rounded-lg hover:bg-${color}-100 transition-colors">
+                                        Mark as Read
+                                        <i class="fa-solid fa-check text-xs"></i>
+                                    </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading alerts:', error);
+                alertsLoading.classList.add('hidden');
+                alertsContainer.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+                        <i class="fa-solid fa-exclamation-circle text-red-600 text-2xl mb-2"></i>
+                        <p class="text-red-800">Failed to load alerts. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Helper function to get time ago
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Mark alert as read
+        async function markAlertRead(alertId) {
+            try {
+                await apiPost(`/alerts/${alertId}/read`, {});
+                // Reload alerts
+                loadAlerts();
+            } catch (error) {
+                console.error('Error marking alert as read:', error);
+                showToast('Failed to mark alert as read', 'error');
+            }
+        }
+        
+        // Make function available globally
+        window.markAlertRead = markAlertRead;
+
+        // Animation
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            requestAnimationFrame(() => {
+                mainContent.classList.add('page-fade-in');
+            });
+        }
+    </script>
+</body>
+</html>

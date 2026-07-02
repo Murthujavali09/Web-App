@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Store Inventory Management — Pramaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#3B82F6',
+                            hover: '#2563EB'
+                        },
+                        secondary: '#64748B',
+                        light: '#F8FAFC',
+                        'card-border': '#E2E8F0',
+                        'input-border': '#CBD5E1'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-fade-in {
+            animation: fadeInPage 0.6s ease forwards;
+        }
+        .inventory-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid transparent;
+            background-color: transparent;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        .inventory-input:focus {
+            outline: none;
+            background-color: #eff6ff;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            border-radius: 0.375rem;
+        }
+        .inventory-table th,
+        .inventory-table td {
+            border: 1px solid #E2E8F0;
+        }
+        .inventory-table th {
+            background-color: #F8FAFC;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-container {
+            background: white;
+            border-radius: 1rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748B;
+            padding: 0.5rem;
+            line-height: 1;
+        }
+        .modal-close:hover {
+            color: #1E293B;
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .modal-form-group {
+            margin-bottom: 1.5rem;
+        }
+        .modal-form-group label {
+            display: block;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .modal-form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #CBD5E1;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+        .modal-form-group input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #E2E8F0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+        .modal-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .modal-btn-primary {
+            background: #3B82F6;
+            color: white;
+        }
+        .modal-btn-primary:hover {
+            background: #2563EB;
+        }
+        .modal-btn-secondary {
+            background: #F1F5F9;
+            color: #475569;
+        }
+        .modal-btn-secondary:hover {
+            background: #E2E8F0;
+        }
+        /* Mobile Menu Styles */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            max-width: 85vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #2563eb, #1d4ed8);
+            z-index: 50;
+            transition: right 0.3s ease;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+        }
+        .mobile-menu.active {
+            right: 0;
+        }
+        .mobile-menu-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mobile-menu-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mobile-menu-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .mobile-menu-nav {
+            padding: 1rem 0;
+        }
+        .mobile-menu-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .mobile-menu-link:hover,
+        .mobile-menu-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: white;
+            color: white;
+        }
+        .mobile-menu-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-light font-sans antialiased text-slate-800">
+    <div id="app-container" class="min-h-screen pb-12">
+        <header id="header" class="sticky top-0 z-50 w-full">
+            <div class="w-[95%] max-w-7xl mx-auto mt-4 bg-gradient-to-r from-blue-600 to-blue-700 backdrop-blur-xl rounded-2xl shadow-2xl border border-blue-400/30">
+                <div class="flex items-center justify-between px-10 py-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white rounded-xl p-2.5 flex items-center justify-center hover:scale-110 transition-transform duration-200 shadow-lg">
+                            <i class="fa-solid fa-clock text-blue-600 text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-bold text-white">Pramaan</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <nav id="managerNavLinks" class="hidden md:flex items-center space-x-3 bg-blue-700/20 px-3 py-2 rounded-xl backdrop-blur-sm">
+                            <a href="manager.html" id="dashboardLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-chart-pie mr-2"></i>
+                                Dashboard
+                            </a>
+                            <a href="add-employee.html" id="addEmployeeLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-user-plus mr-2"></i>
+                                Add Employee
+                            </a>
+                            <a href="billings-payments.html" id="billingsLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-credit-card mr-2"></i>
+                                Billings & Payments
+                            </a>
+                            <a href="list-employees.html" id="listEmployeesLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-users mr-2"></i>
+                                Employees
+                            </a>
+                        </nav>
+                        <a href="#" id="backToSuperAdmin" class="hidden items-center px-4 py-2 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 mr-4">
+                            <i class="fa-solid fa-arrow-left mr-2"></i>
+                            Back
+                        </a>
+                        <button class="hidden md:flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform border border-white/20" onclick="logoutApp()">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                            Logout
+                        </button>
+                        <button class="md:hidden text-white hover:text-blue-200 transition-colors duration-200" onclick="toggleMobileMenu()" id="mobileMenuBtn">
+                            <i class="fa-solid fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <span class="text-white font-bold text-lg">Menu</span>
+                <button class="mobile-menu-close" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <nav class="mobile-menu-nav">
+                <a href="manager.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    Dashboard
+                </a>
+                <a href="add-employee.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-user-plus"></i>
+                    Add Employee
+                </a>
+                <a href="billings-payments.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-credit-card"></i>
+                    Billings & Payments
+                </a>
+                <a href="list-employees.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-users"></i>
+                    Employees
+                </a>
+                <a href="#" id="backToSuperAdminMobile" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Back
+                </a>
+                <div class="border-t border-white/20 my-2"></div>
+                <button class="mobile-menu-link w-full text-left" onclick="logoutApp(); closeMobileMenu();" style="border: none; background: none; cursor: pointer;">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Logout
+                </button>
+            </nav>
+        </div>
+
+        <main id="main-content" class="page-fade-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+            <div class="mb-6">
+                <button id="backBtn" class="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border-2 border-slate-300 rounded-lg hover:bg-slate-50 hover:border-slate-400 hover:shadow-lg hover:scale-105 transition-all duration-200">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Back to Manager
+                </button>
+            </div>
+
+            <div id="inventory-section" class="bg-white rounded-2xl shadow-lg border border-card-border overflow-hidden">
+                <div id="inventory-header" class="px-8 py-5 border-b border-card-border flex justify-between items-center bg-slate-50/50">
+                    <div class="flex items-center gap-4">
+                        <label for="inventoryType" class="text-sm font-semibold text-slate-700">Select Inventory Type:</label>
+                        <select id="inventoryType" onchange="console.log('Direct onchange fired:', this.value); if(typeof window.renderInventory === 'function') window.renderInventory();" class="px-5 py-3 bg-white border-2 border-slate-300 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer hover:border-slate-400 transition-all duration-200 shadow-sm hover:shadow-md appearance-none bg-no-repeat bg-right pr-10" style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23475569%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-position: right 0.75rem center; background-size: 1.25rem;">
+                            <option value="metro" selected>Metro Inventory</option>
+                            <option value="discontinued">Discontinued Phones/EOL Phones</option>
+                            <option value="unlocked">Unlocked phones/NONUP</option>
+                        </select>
+                    </div>
+                    <div class="text-right">
+                        <h3 class="text-lg font-semibold text-primary">Inventory Report</h3>
+                        <p id="report-date" class="text-sm text-slate-500"></p>
+                    </div>
+                </div>
+
+                <div id="inventory-table-container" class="p-6 bg-slate-50">
+                    <div class="mb-4 flex flex-col sm:flex-row gap-4 items-center">
+                        <button id="addItemBtn" class="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-slate-700 bg-slate-50 border border-slate-300 rounded-lg hover:bg-slate-100 hover:border-slate-400 transition-all duration-200" onclick="window.openAddItemModal(); return false;">
+                            <i class="fa-solid fa-plus text-slate-600"></i>
+                            Add Item
+                        </button>
+                        <input id="inventorySearch" placeholder="Search items (name or SKU)" class="flex-1 px-5 py-3 text-base bg-white border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-500/20 focus:border-blue-600 focus:bg-white focus:shadow-lg transition-all duration-200 placeholder:text-slate-400 hover:border-slate-400 hover:shadow-sm min-w-0" />
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse inventory-table bg-white">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900 w-1/3">Device Name</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900 w-1/4">SKU</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-slate-900 w-1/5">Current Qty</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-slate-900 w-1/5">Stage</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-slate-900 w-1/6">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="inventory-footer" class="px-6 py-4 border-t border-card-border bg-slate-50/50 flex justify-between items-center gap-3">
+                    <div class="flex items-center gap-8">
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-semibold text-slate-700">Total Devices:</span>
+                            <span id="grandTotalStage" class="text-2xl font-bold text-slate-800">0</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-semibold text-slate-700">Total Sims:</span>
+                            <span id="grandTotalSims" class="text-2xl font-bold text-slate-800">0</span>
+                        </div>
+                    </div>
+                    <button id="saveInventoryBtn" class="flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 hover:shadow-lg hover:scale-105 transition-all duration-200 shadow-sm">
+                        <i class="fa-solid fa-save"></i>
+                        Save Inventory
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Edit Item Modal -->
+    <div id="editItemModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>✏️ Edit Item</h3>
+                <button class="modal-close" onclick="closeEditItemModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="editItemError" class="modal-error"></div>
+                <form id="editItemForm">
+                    <div class="modal-form-group">
+                        <label for="editItemName">Item Name *</label>
+                        <input type="text" id="editItemName" name="editItemName" placeholder="Enter item name" required autofocus>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="editItemSku">SKU *</label>
+                        <input type="text" id="editItemSku" name="editItemSku" placeholder="Enter SKU (e.g., APP001)" required>
+                    </div>
+                    <input type="hidden" id="editItemOldSku" name="editItemOldSku">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn modal-btn-secondary" onclick="closeEditItemModal()">Cancel</button>
+                <button type="button" class="modal-btn modal-btn-primary" onclick="submitEditItem()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Item Modal -->
+    <div id="addItemModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Add New Item</h3>
+                <button class="modal-close" onclick="closeAddItemModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="addItemError" class="modal-error"></div>
+                <form id="addItemForm">
+                    <div class="modal-form-group">
+                        <label for="itemName">Item Name *</label>
+                        <input type="text" id="itemName" name="itemName" placeholder="Enter item name" required autofocus>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="itemSku">SKU *</label>
+                        <input type="text" id="itemSku" name="itemSku" placeholder="Enter SKU (e.g., APP001)" required>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="itemQuantity">Initial Quantity</label>
+                        <input type="number" id="itemQuantity" name="itemQuantity" placeholder="0" value="0" min="0">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn modal-btn-secondary" onclick="closeAddItemModal()">Cancel</button>
+                <button type="button" class="modal-btn modal-btn-primary" onclick="submitAddItem()">Add Item</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="static/js/script.js"></script>
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+            const dateString = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            const dateEl = document.getElementById('report-date');
+            if (dateEl) dateEl.textContent = dateString;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // Handle navigation visibility when viewing as admin/super-admin
+        const session = loadSession();
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewAs = urlParams.get('view_as');
+        
+        if (viewAs && (session?.role === 'super-admin' || session?.role === 'admin')) {
+            const managerNavLinks = document.getElementById('managerNavLinks');
+            const backToSuperAdmin = document.getElementById('backToSuperAdmin');
+            
+            if (managerNavLinks) {
+                managerNavLinks.style.display = 'none';
+            }
+            if (backToSuperAdmin) {
+                if (session?.role === 'admin') {
+                    backToSuperAdmin.href = 'admin.html';
+                    backToSuperAdmin.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i> Back to Admin';
+                } else {
+                    backToSuperAdmin.href = 'super-admin.html';
+                    backToSuperAdmin.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i> Back to Super Admin';
+                }
+                backToSuperAdmin.classList.remove('hidden');
+                backToSuperAdmin.classList.add('md:flex');
+            }
+        }
+        
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            const menu = document.getElementById('mobileMenu');
+            overlay.classList.toggle('active');
+            menu.classList.toggle('active');
+            if (menu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+        
+        function closeMobileMenu() {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            const menu = document.getElementById('mobileMenu');
+            overlay.classList.remove('active');
+            menu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMobileMenu();
+            }
+        });
+        
+        function updateMobileMenuActiveState() {
+            const currentPath = window.location.pathname.split('/').pop() || 'store-inventory.html';
+            const mobileLinks = document.querySelectorAll('.mobile-menu-link');
+            mobileLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href && href !== '#') {
+                    const hrefPath = href.split('/').pop().split('#')[0];
+                    if (hrefPath === currentPath) {
+                        link.classList.add('active');
+                    }
+                }
+            });
+        }
+        
+        // Handle back to super admin link
+        const backToSuperAdminMobile = document.getElementById('backToSuperAdminMobile');
+        const backToSuperAdmin = document.getElementById('backToSuperAdmin');
+        if (backToSuperAdminMobile && backToSuperAdmin) {
+            backToSuperAdminMobile.href = backToSuperAdmin.href;
+            backToSuperAdminMobile.onclick = function(e) {
+                if (backToSuperAdmin.onclick) {
+                    backToSuperAdmin.onclick(e);
+                }
+                closeMobileMenu();
+            };
+        }
+        
+        updateMobileMenuActiveState();
+    </script>
+</body>
+</html>

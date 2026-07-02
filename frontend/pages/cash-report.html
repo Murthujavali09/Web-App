@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash Report — Pramaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.FontAwesomeConfig = {
+            autoReplaceSvg: 'nest'
+        };
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#3B82F6',
+                            hover: '#2563EB'
+                        },
+                        secondary: '#64748B',
+                        light: '#F8FAFC',
+                        'card-border': '#E2E8F0',
+                        'input-border': '#CBD5E1'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-fade-in {
+            animation: fadeInPage 0.6s ease forwards;
+        }
+        .cash-report-table th,
+        .cash-report-table td {
+            border: 1px solid #E2E8F0;
+        }
+        .cash-report-table th {
+            background-color: #F8FAFC;
+        }
+        /* Mobile Menu Styles */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            max-width: 85vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #2563eb, #1d4ed8);
+            z-index: 50;
+            transition: right 0.3s ease;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+        }
+        .mobile-menu.active {
+            right: 0;
+        }
+        .mobile-menu-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mobile-menu-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mobile-menu-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .mobile-menu-nav {
+            padding: 1rem 0;
+        }
+        .mobile-menu-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .mobile-menu-link:hover,
+        .mobile-menu-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: white;
+            color: white;
+        }
+        .mobile-menu-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-light font-sans antialiased text-slate-800">
+    <div id="app-container" class="min-h-screen pb-12">
+        <header id="header" class="sticky top-0 z-50 w-full">
+            <div class="w-[95%] max-w-7xl mx-auto mt-4 bg-gradient-to-r from-blue-600 to-blue-700 backdrop-blur-xl rounded-2xl shadow-2xl border border-blue-400/30">
+                <div class="flex items-center justify-between px-10 py-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white rounded-xl p-2.5 flex items-center justify-center hover:scale-110 transition-transform duration-200 shadow-lg">
+                            <i class="fa-solid fa-clock text-blue-600 text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-bold text-white">Pramaan</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <nav class="hidden md:flex items-center space-x-3 bg-blue-700/20 px-3 py-2 rounded-xl backdrop-blur-sm" id="main-nav">
+                            <a href="#" data-nav-link data-dashboard-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-chart-pie mr-2"></i>
+                                Dashboard
+                            </a>
+                            <a href="all-managers.html" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-users mr-2"></i>
+                                All Managers
+                            </a>
+                            <a href="#" data-subscription-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-credit-card mr-2"></i>
+                                Subscription
+                            </a>
+                        </nav>
+                        <button class="hidden md:flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform border border-white/20" onclick="logoutApp()">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                            Logout
+                        </button>
+                        <button class="md:hidden text-white hover:text-blue-200 transition-colors duration-200" onclick="toggleMobileMenu()" id="mobileMenuBtn">
+                            <i class="fa-solid fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <span class="text-white font-bold text-lg">Menu</span>
+                <button class="mobile-menu-close" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <nav class="mobile-menu-nav">
+                <a href="super-admin.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    Dashboard
+                </a>
+                <a href="all-managers.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-users"></i>
+                    All Managers
+                </a>
+                <a href="all-admins.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-user-shield"></i>
+                    Admins
+                </a>
+                <a href="super-admin.html#subscription" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-credit-card"></i>
+                    Subscription
+                </a>
+                <a href="cash-report.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-cash-register"></i>
+                    Cash Report
+                </a>
+                <a href="card-report.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-credit-card"></i>
+                    Card Report
+                </a>
+                <a href="billings.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    Billings
+                </a>
+                <div class="border-t border-white/20 my-2"></div>
+                <button class="mobile-menu-link w-full text-left" onclick="logoutApp(); closeMobileMenu();" style="border: none; background: none; cursor: pointer;">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Logout
+                </button>
+            </nav>
+        </div>
+
+        <main id="main-content" class="page-fade-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+            <!-- Managers List View -->
+            <div id="managersView" class="bg-white rounded-2xl shadow-lg border border-card-border overflow-hidden">
+                <div class="px-8 py-5 border-b border-card-border flex justify-between items-center bg-slate-50/50">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Cash Report</h2>
+                        <p class="text-sm text-slate-500">View cash reports by manager</p>
+                    </div>
+                    <button id="backToManagersBtn" class="hidden px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-hover transition shadow-sm" onclick="showManagersList()">
+                        <i class="fa-solid fa-arrow-left mr-2"></i>
+                        Back to Managers
+                    </button>
+                </div>
+                <div id="managersList" class="p-6">
+                    <div id="managersLoadingState" class="text-center py-12">
+                        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
+                        <p class="text-slate-600">Loading managers...</p>
+                    </div>
+                    <div id="managersErrorState" class="hidden text-center py-12">
+                        <i class="fa-solid fa-triangle-exclamation text-red-500 text-4xl mb-4"></i>
+                        <p class="text-red-600 font-semibold" id="managersErrorMessage">Failed to load managers</p>
+                    </div>
+                    <div id="managersGrid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Manager cards will be inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cash Report Table View -->
+            <div id="cash-report-section" class="hidden bg-white rounded-2xl shadow-lg border border-card-border overflow-hidden mt-6">
+                <div id="cash-report-header" class="px-8 py-5 border-b border-card-border flex justify-between items-center bg-slate-50/50">
+                    <div>
+                        <h2 id="tenant-name" class="text-2xl font-bold text-slate-800">Cash Report</h2>
+                        <p class="text-sm text-slate-500">Daily Cash Reconciliation by Store</p>
+                    </div>
+                    <div class="text-right">
+                        <h3 class="text-lg font-semibold text-primary mb-2">Cash Report</h3>
+                        <div class="flex items-center justify-end gap-3">
+                            <button id="prevWeekBtn" class="p-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 hover:border-primary transition-all duration-200 hover:scale-105" title="Previous Week">
+                                <i class="fa-solid fa-chevron-left text-slate-700"></i>
+                            </button>
+                            <span id="weekRange" class="text-sm text-slate-600 font-medium min-w-[200px] text-center">Loading...</span>
+                            <button id="nextWeekBtn" class="p-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 hover:border-primary transition-all duration-200 hover:scale-105" title="Next Week">
+                                <i class="fa-solid fa-chevron-right text-slate-700"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="cash-report-table-container" class="p-6">
+                    <div id="loadingState" class="text-center py-12">
+                        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
+                        <p class="text-slate-600">Loading cash report data...</p>
+                    </div>
+                    <div id="errorState" class="hidden text-center py-12">
+                        <i class="fa-solid fa-triangle-exclamation text-red-500 text-4xl mb-4"></i>
+                        <p class="text-red-600 font-semibold" id="errorMessage">Failed to load cash report</p>
+                    </div>
+                    <div id="tableContent" class="hidden overflow-x-auto">
+                        <div class="mb-4 flex justify-end">
+                            <button id="downloadBtn" class="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-hover transition shadow-sm">
+                                <i class="fa-solid fa-download"></i>
+                                Download Report
+                            </button>
+                        </div>
+                        <table class="w-full border-collapse cash-report-table">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900 w-1/6">Date</th>
+                                    <!-- Store columns will be inserted here -->
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-slate-900 w-1/5">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cash-report-body">
+                                <!-- Data rows will be inserted here -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-slate-100">
+                                    <td colspan="100" class="px-4 py-4 text-right text-lg font-bold text-slate-900">Grand Total:</td>
+                                    <td class="px-4 py-4 text-right text-lg font-bold text-primary" id="grandTotal">$0.00</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="static/js/script.js"></script>
+    <script>
+        let currentWeekStart = null;
+        let reportData = null;
+        let stores = [];
+        let selectedManagerUsername = null;
+        let selectedManagerLocation = null;
+        let allManagers = [];
+
+        // Initialize week to last 7 days (ending today)
+        function initWeek() {
+            const today = new Date();
+            currentWeekStart = new Date(today);
+            currentWeekStart.setDate(today.getDate() - 6); // 7 days including today
+            currentWeekStart.setHours(0, 0, 0, 0);
+        }
+
+        function getWeekEnd() {
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(currentWeekStart.getDate() + 6);
+            return weekEnd;
+        }
+
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function formatDisplayDate(date) {
+            const d = new Date(date);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
+        function updateWeekRange() {
+            const weekEnd = getWeekEnd();
+            const startStr = formatDisplayDate(currentWeekStart);
+            const endStr = formatDisplayDate(weekEnd);
+            document.getElementById('weekRange').textContent = `${startStr} to ${endStr}`;
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2
+            }).format(amount);
+        }
+
+        async function loadManagers() {
+            const loadingState = document.getElementById('managersLoadingState');
+            const errorState = document.getElementById('managersErrorState');
+            const managersGrid = document.getElementById('managersGrid');
+            const errorMessage = document.getElementById('managersErrorMessage');
+
+            loadingState.classList.remove('hidden');
+            errorState.classList.add('hidden');
+            managersGrid.classList.add('hidden');
+
+            try {
+                allManagers = await apiGet('/managers/');
+                
+                // Filter out super admin
+                allManagers = allManagers.filter(mgr => !mgr.is_super_admin);
+                
+                // Load store counts and calculate grand totals for each manager
+                const startDate = formatDate(currentWeekStart);
+                const endDate = formatDate(getWeekEnd());
+                
+                for (let mgr of allManagers) {
+                    try {
+                        // Get stores for this manager
+                        const managerStores = await apiGet(`/stores/?manager_username=${encodeURIComponent(mgr.username)}`);
+                        mgr.storeCount = managerStores ? managerStores.length : 0;
+                        
+                        // Only calculate grand total if manager has stores
+                        if (mgr.storeCount > 0) {
+                            // Get cash report for this manager's stores
+                            const reportData = await apiGet(`/eod/cash-report?start_date=${startDate}&end_date=${endDate}&manager_username=${encodeURIComponent(mgr.username)}`);
+                            
+                            // Calculate grand total
+                            let grandTotal = 0;
+                            if (reportData.data) {
+                                Object.values(reportData.data).forEach(dateData => {
+                                    Object.values(dateData).forEach(storeData => {
+                                        grandTotal += storeData.cash_amount || 0;
+                                    });
+                                });
+                            }
+                            mgr.grandTotal = grandTotal;
+                        } else {
+                            mgr.grandTotal = 0;
+                        }
+                    } catch (err) {
+                        console.error(`Failed to load data for manager ${mgr.username}:`, err);
+                        mgr.storeCount = 0;
+                        mgr.grandTotal = 0;
+                    }
+                }
+                
+                renderManagersList();
+                
+                loadingState.classList.add('hidden');
+                managersGrid.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error loading managers:', error);
+                loadingState.classList.add('hidden');
+                errorState.classList.remove('hidden');
+                errorMessage.textContent = error.message || 'Failed to load managers';
+            }
+        }
+
+        function renderManagersList() {
+            const managersGrid = document.getElementById('managersGrid');
+            managersGrid.innerHTML = '';
+
+            if (!allManagers || allManagers.length === 0) {
+                managersGrid.innerHTML = '<div class="col-span-full text-center py-8 text-slate-500">No managers found</div>';
+                return;
+            }
+
+            allManagers.forEach(manager => {
+                const card = document.createElement('div');
+                card.className = 'bg-white border border-card-border rounded-xl p-6 hover:border-primary hover:shadow-md cursor-pointer transition-all duration-200';
+                card.onclick = () => showManagerReport(manager.username);
+                
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
+                                <i class="fa-solid fa-user-tie text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-slate-900">${escapeHtml(manager.location || 'No Region')}</h3>
+                                <p class="text-sm text-slate-600">${escapeHtml(manager.name || 'Manager')}</p>
+                                <p class="text-sm text-slate-500">${manager.storeCount || 0} store(s)</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-lg font-bold text-black">${formatCurrency(manager.grandTotal || 0)}</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-card-border">
+                        <span class="text-sm text-primary font-medium">Click to view report →</span>
+                    </div>
+                `;
+                
+                managersGrid.appendChild(card);
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function showManagerReport(managerUsername) {
+            selectedManagerUsername = managerUsername;
+            
+            // Find the manager's location
+            const manager = allManagers.find(m => m.username === managerUsername);
+            selectedManagerLocation = manager ? (manager.location || 'No Region') : 'No Region';
+            
+            // Update the header title
+            const headerTitle = document.getElementById('tenant-name');
+            if (headerTitle) {
+                headerTitle.textContent = selectedManagerLocation;
+            }
+            
+            const managersView = document.getElementById('managersView');
+            const cashReportSection = document.getElementById('cash-report-section');
+            const backBtn = document.getElementById('backToManagersBtn');
+            
+            managersView.classList.add('hidden');
+            cashReportSection.classList.remove('hidden');
+            backBtn.classList.remove('hidden');
+            
+            loadCashReport();
+        }
+
+        function showManagersList() {
+            selectedManagerUsername = null;
+            selectedManagerLocation = null;
+            
+            // Reset the header title
+            const headerTitle = document.getElementById('tenant-name');
+            if (headerTitle) {
+                headerTitle.textContent = 'Cash Report';
+            }
+            
+            const managersView = document.getElementById('managersView');
+            const cashReportSection = document.getElementById('cash-report-section');
+            const backBtn = document.getElementById('backToManagersBtn');
+            
+            managersView.classList.remove('hidden');
+            cashReportSection.classList.add('hidden');
+            backBtn.classList.add('hidden');
+        }
+
+        async function loadCashReport() {
+            const loadingState = document.getElementById('loadingState');
+            const errorState = document.getElementById('errorState');
+            const tableContent = document.getElementById('tableContent');
+            const errorMessage = document.getElementById('errorMessage');
+
+            loadingState.classList.remove('hidden');
+            errorState.classList.add('hidden');
+            tableContent.classList.add('hidden');
+
+            try {
+                const startDate = formatDate(currentWeekStart);
+                const endDate = formatDate(getWeekEnd());
+                
+                let url = `/eod/cash-report?start_date=${startDate}&end_date=${endDate}`;
+                if (selectedManagerUsername) {
+                    url += `&manager_username=${encodeURIComponent(selectedManagerUsername)}`;
+                }
+
+                const data = await apiGet(url);
+                
+                reportData = data.data;
+                stores = data.stores || [];
+
+                renderTable();
+                
+                loadingState.classList.add('hidden');
+                tableContent.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error loading cash report:', error);
+                loadingState.classList.add('hidden');
+                errorState.classList.remove('hidden');
+                errorMessage.textContent = error.message || 'Failed to load cash report data';
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('cash-report-body');
+            const thead = document.querySelector('thead tr');
+            
+            // Clear existing store columns (keep Date and Total)
+            const existingStoreCols = thead.querySelectorAll('th.store-col');
+            existingStoreCols.forEach(col => col.remove());
+
+            // Add store columns
+            stores.forEach((store, index) => {
+                const th = document.createElement('th');
+                th.className = 'px-4 py-3 text-center text-sm font-semibold text-slate-900 store-col';
+                th.textContent = store;
+                thead.insertBefore(th, thead.lastElementChild);
+            });
+
+            // Update footer colspan
+            const footerTd = document.querySelector('tfoot tr td:first-child');
+            footerTd.setAttribute('colspan', stores.length + 1);
+
+            // Clear tbody
+            tbody.innerHTML = '';
+
+            // Generate dates for the week
+            const dates = [];
+            const currentDate = new Date(currentWeekStart);
+            for (let i = 0; i < 7; i++) {
+                dates.push(new Date(currentDate));
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            let grandTotal = 0;
+
+            // Create rows for each date
+            dates.forEach(date => {
+                const dateStr = formatDate(date);
+                const displayDate = formatDisplayDate(dateStr);
+                
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-blue-50/30';
+                
+                // Date cell
+                const dateTd = document.createElement('td');
+                dateTd.className = 'px-4 py-1 text-sm text-slate-700';
+                dateTd.textContent = displayDate;
+                tr.appendChild(dateTd);
+
+                // Store cells
+                let rowTotal = 0;
+                stores.forEach(store => {
+                    const storeData = reportData[dateStr]?.[store] || { cash_amount: 0, credit_amount: 0, qpay_amount: 0, total: 0 };
+                    const cashAmount = storeData.cash_amount || 0;
+                    rowTotal += cashAmount;
+
+                    const storeTd = document.createElement('td');
+                    storeTd.className = 'px-4 py-3 text-sm text-slate-800 text-right font-medium';
+                    storeTd.textContent = formatCurrency(cashAmount);
+                    tr.appendChild(storeTd);
+                });
+
+                // Total cell
+                const totalTd = document.createElement('td');
+                totalTd.className = 'px-4 py-3 text-sm text-slate-800 font-semibold text-right';
+                totalTd.textContent = formatCurrency(rowTotal);
+                tr.appendChild(totalTd);
+
+                grandTotal += rowTotal;
+                tbody.appendChild(tr);
+            });
+
+            // Update grand total
+            document.getElementById('grandTotal').textContent = formatCurrency(grandTotal);
+        }
+
+        function downloadReport() {
+            if (!reportData || !stores) {
+                alert('No data available to download');
+                return;
+            }
+
+            // Create CSV content
+            let csv = 'Cash Report\n';
+            csv += `Date Range: ${formatDisplayDate(currentWeekStart)} to ${formatDisplayDate(getWeekEnd())}\n\n`;
+            
+            // Header row
+            csv += 'Date,';
+            stores.forEach(store => {
+                csv += `${store},`;
+            });
+            csv += 'Total\n';
+
+            // Data rows
+            const dates = [];
+            const currentDate = new Date(currentWeekStart);
+            for (let i = 0; i < 7; i++) {
+                dates.push(new Date(currentDate));
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            let grandTotal = 0;
+            dates.forEach(date => {
+                const dateStr = formatDate(date);
+                const displayDate = formatDisplayDate(dateStr);
+                csv += `${displayDate},`;
+                
+                let rowTotal = 0;
+                stores.forEach(store => {
+                    const storeData = reportData[dateStr]?.[store] || { cash_amount: 0 };
+                    const cashAmount = storeData.cash_amount || 0;
+                    rowTotal += cashAmount;
+                    csv += `${cashAmount.toFixed(2)},`;
+                });
+                
+                csv += `${rowTotal.toFixed(2)}\n`;
+                grandTotal += rowTotal;
+            });
+
+            // Grand total row
+            csv += 'Grand Total,';
+            stores.forEach(() => csv += ',');
+            csv += `${grandTotal.toFixed(2)}\n`;
+
+            // Create download link
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `cash-report-${formatDate(currentWeekStart)}-to-${formatDate(getWeekEnd())}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Event listeners
+        document.getElementById('prevWeekBtn').addEventListener('click', () => {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            updateWeekRange();
+            if (selectedManagerUsername) {
+                loadCashReport();
+            } else {
+                loadManagers();
+            }
+        });
+
+        document.getElementById('nextWeekBtn').addEventListener('click', () => {
+            const today = new Date();
+            today.setHours(23, 59, 59, 999);
+            const newWeekEnd = new Date(currentWeekStart);
+            newWeekEnd.setDate(currentWeekStart.getDate() + 13); // Check if next week would go beyond today
+            
+            // Don't allow going beyond today
+            if (newWeekEnd <= today) {
+                currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+                updateWeekRange();
+                if (selectedManagerUsername) {
+                    loadCashReport();
+                } else {
+                    loadManagers();
+                }
+            }
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', downloadReport);
+
+        // Initialize navigation active state
+        function initNavActiveState() {
+            const nav = document.querySelector('nav');
+            if (nav) {
+                // Remove all active classes first
+                const links = Array.from(nav.querySelectorAll('a[data-nav-link]'));
+                links.forEach(link => link.classList.remove('nav-link-active'));
+                
+                // Find and activate the current page link
+                const currentPath = window.location.pathname.split('/').pop() || 'cash-report.html';
+                const activeLink = links.find(link => {
+                    const href = link.getAttribute('href');
+                    const hrefPath = href.split('/').pop();
+                    return hrefPath === currentPath;
+                });
+                
+                // For cash-report, we don't have a nav-link, so we don't activate any
+                // But we ensure all links are properly styled
+            }
+        }
+        
+        // Update navigation based on role
+        function updateNavForRole() {
+            const session = loadSession();
+            if (session) {
+                const dashboardLink = document.querySelector('[data-dashboard-link]');
+                const subscriptionLink = document.querySelector('[data-subscription-link]');
+                
+                if (session.role === 'admin') {
+                    if (dashboardLink) dashboardLink.href = 'admin.html';
+                    if (subscriptionLink) subscriptionLink.style.display = 'none';
+                } else if (session.role === 'super-admin') {
+                    if (dashboardLink) dashboardLink.href = 'super-admin.html';
+                    if (subscriptionLink) {
+                        subscriptionLink.href = '#';
+                        subscriptionLink.onclick = function() { 
+                            window.location = 'super-admin.html#subscription'; 
+                            return false; 
+                        };
+                    }
+                }
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNavForRole();
+            initNavActiveState();
+            initWeek();
+            updateWeekRange();
+            loadManagers();
+        });
+        
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            const menu = document.getElementById('mobileMenu');
+            overlay.classList.toggle('active');
+            menu.classList.toggle('active');
+            if (menu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+        
+        function closeMobileMenu() {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            const menu = document.getElementById('mobileMenu');
+            overlay.classList.remove('active');
+            menu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMobileMenu();
+            }
+        });
+        
+        function updateMobileMenuActiveState() {
+            const currentPath = window.location.pathname.split('/').pop() || 'cash-report.html';
+            const mobileLinks = document.querySelectorAll('.mobile-menu-link');
+            mobileLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href && href !== '#') {
+                    const hrefPath = href.split('/').pop().split('#')[0];
+                    if (hrefPath === currentPath) {
+                        link.classList.add('active');
+                    }
+                }
+            });
+        }
+        
+        updateMobileMenuActiveState();
+    </script>
+</body>
+</html>
+

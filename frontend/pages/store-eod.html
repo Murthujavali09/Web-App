@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Store — EODs</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        /* Mobile Menu Styles */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            max-width: 85vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #2c3e50, #1b2b36);
+            z-index: 50;
+            transition: right 0.3s ease;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+        }
+        .mobile-menu.active {
+            right: 0;
+        }
+        .mobile-menu-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mobile-menu-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mobile-menu-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .mobile-menu-nav {
+            padding: 1rem 0;
+        }
+        .mobile-menu-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .mobile-menu-link:hover,
+        .mobile-menu-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: white;
+            color: white;
+        }
+        .mobile-menu-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        .mobile-menu-btn {
+            display: none;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="nav-left">
+            <div class="logo">⏰ Pramaan</div>
+            <nav class="nav-links"><a href="dashboard.html">Dashboard</a><a href="timeclock.html">Time Clock</a><a
+                    href="inventory.html">Inventory</a><a href="eod.html">End of Day</a><a
+                    href="history.html">History</a></nav>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+        <div class="nav-right">
+            
+            <a href="#" class="btn-logout" onclick="logoutApp()">Logout</a>
+        </div>
+    </div>
+    
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <span style="color: white; font-weight: bold; font-size: 1.125rem;">Menu</span>
+            <button class="mobile-menu-close" onclick="closeMobileMenu()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        <nav class="mobile-menu-nav">
+            <a href="dashboard.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                <i class="fa-solid fa-chart-pie"></i>
+                Dashboard
+            </a>
+            <a href="timeclock.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                <i class="fa-solid fa-clock"></i>
+                Time Clock
+            </a>
+            <a href="inventory.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                <i class="fa-solid fa-boxes"></i>
+                Inventory
+            </a>
+            <a href="eod.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                <i class="fa-solid fa-calendar-check"></i>
+                End of Day
+            </a>
+            <a href="history.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                <i class="fa-solid fa-history"></i>
+                History
+            </a>
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); margin: 0.5rem 0;"></div>
+            <button class="mobile-menu-link w-full text-left" onclick="logoutApp(); closeMobileMenu();" style="border: none; background: none; cursor: pointer;">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                Logout
+            </button>
+        </nav>
+    </div>
+    <div class="container">
+        <h2 id="storeEodTitle">Store — EOD Submissions</h2>
+        <div id="storeEodList" style="margin-top:12px"></div>
+    </div>
+    <script src="static/js/script.js"></script>
+    <script>
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            const menu = document.getElementById('mobileMenu');
+            overlay.classList.toggle('active');
+            menu.classList.toggle('active');
+            if (menu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+        
+        function closeMobileMenu() {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            const menu = document.getElementById('mobileMenu');
+            overlay.classList.remove('active');
+            menu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMobileMenu();
+            }
+        });
+        
+        function updateMobileMenuActiveState() {
+            const currentPath = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
+            const mobileLinks = document.querySelectorAll('.mobile-menu-link');
+            mobileLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href && href !== '#') {
+                    const hrefPath = href.split('/').pop().split('#')[0];
+                    if (hrefPath === currentPath) {
+                        link.classList.add('active');
+                    }
+                }
+            });
+        }
+        
+        updateMobileMenuActiveState();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>View Inventory Snapshot — Pramaan</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <div class="navbar">
+        <div class="nav-left">
+            <div class="logo">⏰ Pramaan</div>
+            <nav class="nav-links">
+                <a href="manager.html">Manager Dashboard</a>
+            </nav>
+        </div>
+        <div class="nav-right">
+            <a href="#" class="btn-logout" onclick="logoutApp()">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2 id="snapshotTitle">Inventory Snapshot</h2>
+        <div style="margin-top:12px">
+            <button id="backBtn" class="bulk-update-btn" style="background:#6c757d">← Back to History</button>
+        </div>
+        
+        <div id="snapshotContainer" style="margin-top:20px">
+            <div style="text-align:center;padding:40px;color:#6c757d;">
+                Loading snapshot...
+            </div>
+        </div>
+    </div>
+    
+    <script src="static/js/script.js"></script>
+    <script>
+        // Check session
+        const session = loadSession();
+        if (!session || session.role !== 'manager') {
+            showError('Access denied. Manager login required.');
+            window.location = 'login.html';
+        }
+        
+        // Get parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const storeName = urlParams.get('store') || 'Store';
+        const snapshotDate = urlParams.get('date');
+        
+        if (!snapshotDate) {
+            showWarning('Snapshot date is required');
+            window.location = 'manager.html';
+        }
+        
+        // Format date for display
+        const displayDate = new Date(snapshotDate).toLocaleDateString('en-US', { 
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+        });
+        
+        // Update title
+        document.getElementById('snapshotTitle').textContent = `Inventory Snapshot — ${displayDate}`;
+        
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location = `store-inventory-history.html?store=${encodeURIComponent(storeName)}`;
+        });
+        
+        // Load snapshot data
+        async function loadSnapshot() {
+            const container = document.getElementById('snapshotContainer');
+            
+            try {
+                // Get all snapshots and find the specific one
+                const historyData = await apiGet('/inventory/history', { store_id: storeName });
+                const snapshot = historyData.find(s => s.snapshot_date === snapshotDate);
+                
+                if (!snapshot) {
+                    container.innerHTML = '<div class="no-data" style="text-align:center;padding:40px;color:#dc3545;">Snapshot not found.</div>';
+                    return;
+                }
+                
+                const items = snapshot.items || [];
+                
+                if (items.length === 0) {
+                    container.innerHTML = '<div class="no-data" style="text-align:center;padding:40px;">No items in this snapshot.</div>';
+                    return;
+                }
+                
+                // Calculate total quantity
+                const totalQty = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
+                
+                // Render table
+                container.innerHTML = `
+                    <div style="background:white;padding:24px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.1);border:1px solid #e9ecef;">
+                        <div style="margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #e9ecef;">
+                            <h3 style="margin:0 0 8px 0;color:#2c3e50;font-size:1.3rem;">Store: ${escapeHtml(storeName)}</h3>
+                            <p style="margin:0;color:#6c757d;font-size:0.95rem;">Total Items: <strong>${items.length}</strong> | Total Quantity: <strong>${totalQty}</strong></p>
+                        </div>
+                        
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%;border-collapse:collapse;">
+                                <thead>
+                                    <tr style="background:#f8f9fa;border-bottom:2px solid #dee2e6;">
+                                        <th style="padding:14px;text-align:left;font-weight:700;color:#495057;font-size:1rem;">SKU</th>
+                                        <th style="padding:14px;text-align:left;font-weight:700;color:#495057;font-size:1rem;">Name</th>
+                                        <th style="padding:14px;text-align:right;font-weight:700;color:#495057;font-size:1rem;">Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${items.map(item => `
+                                        <tr style="border-bottom:1px solid #e9ecef;transition:background 0.2s ease;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+                                            <td style="padding:14px;color:#2c3e50;font-size:0.95rem;">${escapeHtml(item.sku || '')}</td>
+                                            <td style="padding:14px;color:#2c3e50;font-size:0.95rem;font-weight:500;">${escapeHtml(item.name || 'Unknown')}</td>
+                                            <td style="padding:14px;text-align:right;color:#2c3e50;font-size:0.95rem;font-weight:600;">${item.quantity || 0}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                                <tfoot>
+                                    <tr style="background:#f8f9fa;border-top:2px solid #dee2e6;">
+                                        <th style="padding:14px;text-align:left;font-weight:700;color:#2c3e50;font-size:1rem;">TOTAL</th>
+                                        <th style="padding:14px;"></th>
+                                        <th style="padding:14px;text-align:right;font-weight:700;color:#28a745;font-size:1.1rem;">${totalQty}</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                console.error('Failed to load snapshot:', err);
+                container.innerHTML = '<div class="no-data" style="text-align:center;padding:40px;color:#dc3545;">Failed to load snapshot. Please try again.</div>';
+            }
+        }
+        
+        // Load data
+        loadSnapshot();
+    </script>
+</body>
+</html>

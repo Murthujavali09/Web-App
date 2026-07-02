@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Activities — Pramaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#3B82F6',
+                            hover: '#2563EB'
+                        },
+                        secondary: '#64748B',
+                        light: '#F8FAFC',
+                        'card-border': '#E2E8F0',
+                        'input-border': '#CBD5E1'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-fade-in {
+            animation: fadeInPage 0.6s ease forwards;
+        }
+        .nav-link-active {
+            color: #1d4ed8 !important;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 16px rgba(15, 23, 42, 0.18);
+        }
+        .nav-link-active:hover {
+            color: white !important;
+            background-color: rgba(59, 130, 246, 0.5) !important;
+        }
+        .status-complete {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        .status-active {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+    </style>
+</head>
+<body class="bg-light font-sans antialiased text-slate-800">
+    <div id="app-container" class="min-h-screen pb-12">
+        <header id="header" class="sticky top-0 z-50 w-full">
+            <div class="w-[95%] max-w-7xl mx-auto mt-4 bg-gradient-to-r from-blue-600 to-blue-700 backdrop-blur-xl rounded-2xl shadow-2xl border border-blue-400/30">
+                <div class="flex items-center justify-between px-10 py-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white rounded-xl p-2.5 flex items-center justify-center hover:scale-110 transition-transform duration-200 shadow-lg">
+                            <i class="fa-solid fa-clock text-blue-600 text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-bold text-white">Pramaan</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <nav class="hidden md:flex items-center space-x-3 bg-blue-700/20 px-3 py-2 rounded-xl backdrop-blur-sm">
+                            <a href="manager.html" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-chart-pie mr-2"></i>
+                                Dashboard
+                            </a>
+                            <a href="add-employee.html" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-user-plus mr-2"></i>
+                                Add Employee
+                            </a>
+                            <a href="list-employees.html" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-users mr-2"></i>
+                                Employees
+                            </a>
+                        </nav>
+                        <button class="hidden md:flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform border border-white/20" onclick="logoutApp()">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                            Logout
+                        </button>
+                        <button class="md:hidden text-white hover:text-blue-200 transition-colors duration-200">
+                            <i class="fa-solid fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main id="main-content" class="page-fade-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12">
+            <div class="flex items-center justify-between mb-8">
+                <h1 class="text-3xl font-bold text-slate-900">Employee Activities</h1>
+                <button onclick="window.history.back()" class="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-slate-700 bg-white border-2 border-slate-300 rounded-lg hover:bg-slate-50 hover:border-slate-400 hover:shadow-lg hover:scale-105 transition-all duration-200">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Back
+                </button>
+            </div>
+            
+            <div id="employeeInfoCard" class="hidden bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-2xl shadow-xl mb-8"></div>
+            
+            <div id="statsGrid" class="hidden grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"></div>
+            
+            <div id="activitiesTable" class="hidden bg-white rounded-xl border border-card-border shadow-sm overflow-hidden mb-8"></div>
+            
+            <div id="emptyState" class="hidden text-center py-16 bg-white rounded-xl border border-card-border shadow-sm">
+                <div class="text-5xl mb-4">📊</div>
+                <p class="text-secondary text-lg mb-2">No employee selected</p>
+                <p class="text-secondary text-sm">Please select an employee from the list</p>
+            </div>
+            
+            <div id="loadingState" class="hidden text-center py-12 bg-white rounded-xl border border-card-border shadow-sm">
+                <i class="fa-solid fa-spinner fa-spin text-3xl text-primary mb-4"></i>
+                <p class="text-secondary">Loading activities...</p>
+            </div>
+        </main>
+    </div>
+    
+    <script src="static/js/script.js"></script>
+    <script>
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            requestAnimationFrame(() => {
+                mainContent.classList.add('page-fade-in');
+            });
+        }
+
+        const nav = document.querySelector('nav');
+        if (nav) {
+            const links = Array.from(nav.querySelectorAll('a[data-nav-link]'));
+            const currentPath = window.location.pathname.split('/').pop();
+            const activeLink = links.find(link => link.getAttribute('href').split('/').pop() === currentPath) || links[0];
+            if (activeLink) {
+                activeLink.classList.add('nav-link-active');
+            }
+        }
+
+        let allEmployees = [];
+        let selectedEmployee = null;
+        let allEntries = [];
+        
+        async function loadAllEmployees() {
+            try {
+                allEmployees = await apiGet('/employees/');
+            } catch (err) {
+                console.error('Failed to load employees:', err);
+            }
+        }
+        
+        async function loadEmployeeActivities(employeeId) {
+            try {
+                document.getElementById('loadingState').classList.remove('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
+                document.getElementById('employeeInfoCard').classList.add('hidden');
+                document.getElementById('statsGrid').classList.add('hidden');
+                document.getElementById('activitiesTable').classList.add('hidden');
+                
+                selectedEmployee = allEmployees.find(emp => emp.employee_id === employeeId);
+                
+                if (!selectedEmployee) {
+                    throw new Error('Employee not found');
+                }
+                
+                // Use apiGet to include authentication headers
+                const data = await apiGet(`/timeclock/employee/${employeeId}/history`);
+                
+                document.getElementById('loadingState').classList.add('hidden');
+                
+                allEntries = data.entries || [];
+                
+                loadEmployeeActivitiesWithFilter(employeeId, null, null);
+                
+            } catch (err) {
+                console.error('Failed to load activities:', err);
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('emptyState').innerHTML = `
+                    <div class="text-5xl mb-4">⚠️</div>
+                    <p class="text-secondary text-lg mb-2" style="color: #dc3545;">Failed to load activities</p>
+                    <p class="text-secondary text-sm">${err.message}</p>
+                `;
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+        }
+        
+        function displayEmployeeInfo(employee, totalHours = 0) {
+            const card = document.getElementById('employeeInfoCard');
+            
+            let earningsHtml = '';
+            if (employee.hourly_pay !== undefined && employee.hourly_pay !== null && totalHours > 0) {
+                const earnings = totalHours * employee.hourly_pay;
+                earningsHtml = `
+                    <p class="mt-2 text-lg font-semibold opacity-100">
+                        Earnings: <span class="text-2xl text-emerald-200">$${earnings.toFixed(2)}</span>
+                    </p>
+                `;
+            }
+            
+            card.innerHTML = `
+                <h3 class="text-2xl font-bold mb-2">${escapeHtml(employee.name)}</h3>
+                <p class="opacity-90">${escapeHtml(employee.role || 'Employee')} • ${escapeHtml(employee.store_id)}</p>
+                <p class="mt-3 text-lg font-semibold opacity-100">
+                    Total Hours: <span class="text-2xl">${totalHours.toFixed(2)} hrs</span>
+                </p>
+                ${earningsHtml}
+            `;
+            card.classList.remove('hidden');
+        }
+        
+        function displayStatistics(entries) {
+            const totalDays = entries.length;
+            let totalHours = 0;
+            let completedShifts = 0;
+            
+            entries.forEach(entry => {
+                if (entry.hours_worked) {
+                    totalHours += entry.hours_worked;
+                    completedShifts++;
+                }
+            });
+            
+            const avgHours = completedShifts > 0 ? (totalHours / completedShifts).toFixed(2) : 0;
+            
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = `
+                <div class="bg-white p-6 rounded-xl border border-card-border shadow-sm text-center">
+                    <div class="text-3xl font-bold text-primary mb-2">${totalDays}</div>
+                    <div class="text-sm text-secondary">Total Days</div>
+                </div>
+                <div class="bg-white p-6 rounded-xl border border-card-border shadow-sm text-center">
+                    <div class="text-3xl font-bold text-primary mb-2">${totalHours.toFixed(2)}</div>
+                    <div class="text-sm text-secondary">Total Hours</div>
+                </div>
+                <div class="bg-white p-6 rounded-xl border border-card-border shadow-sm text-center">
+                    <div class="text-3xl font-bold text-primary mb-2">${avgHours}</div>
+                    <div class="text-sm text-secondary">Avg Hours/Day</div>
+                </div>
+                <div class="bg-white p-6 rounded-xl border border-card-border shadow-sm text-center">
+                    <div class="text-3xl font-bold text-primary mb-2">${completedShifts}</div>
+                    <div class="text-sm text-secondary">Completed Shifts</div>
+                </div>
+            `;
+            statsGrid.classList.remove('hidden');
+        }
+        
+        function displayActivities(entries, startDate = null, endDate = null) {
+            const table = document.getElementById('activitiesTable');
+            
+            const filteredEntries = entries;
+            
+            if (filteredEntries.length === 0) {
+                document.getElementById('emptyState').innerHTML = `
+                    <div class="text-5xl mb-4">📭</div>
+                    <p class="text-secondary text-lg mb-2">No activities found</p>
+                    <p class="text-secondary text-sm">${startDate || endDate ? 'No entries found for the selected date range' : 'This employee hasn\'t clocked in yet'}</p>
+                `;
+                document.getElementById('emptyState').classList.remove('hidden');
+                return;
+            }
+            
+            let dateRangeText = '';
+            if (startDate && endDate) {
+                const startStr = new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const endStr = new Date(endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                dateRangeText = ` (${startStr} - ${endStr})`;
+            } else if (startDate) {
+                const startStr = new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                dateRangeText = ` (from ${startStr})`;
+            } else if (endDate) {
+                const endStr = new Date(endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                dateRangeText = ` (until ${endStr})`;
+            }
+            
+            let html = `
+                <div class="p-6 border-b border-card-border bg-slate-50">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                        <h3 class="text-xl font-bold text-slate-900 m-0">Activity History (${filteredEntries.length} entries${dateRangeText})</h3>
+                        <div class="flex flex-wrap gap-3 items-center">
+                            <div class="flex gap-2 items-center">
+                                <label for="startDate" class="text-sm text-secondary font-semibold">Start:</label>
+                                <input type="date" id="startDate" class="px-3 py-2 border border-input-border rounded-lg text-sm">
+                            </div>
+                            <div class="flex gap-2 items-center">
+                                <label for="endDate" class="text-sm text-secondary font-semibold">End:</label>
+                                <input type="date" id="endDate" class="px-3 py-2 border border-input-border rounded-lg text-sm">
+                            </div>
+                            <button id="applyDateFilter" class="px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-hover transition shadow-sm">
+                                Apply
+                            </button>
+                            <button id="clearDateFilter" class="px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-200 rounded-lg hover:bg-slate-300 transition">
+                                Clear
+                            </button>
+                            <button id="downloadExcelBtn" class="px-4 py-2 text-sm font-semibold text-white bg-emerald-500 rounded-lg hover:bg-emerald-600 transition shadow-sm">
+                                <i class="fa-solid fa-download mr-2"></i>Download Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="divide-y divide-slate-200 max-h-[600px] overflow-y-auto">
+            `;
+            
+            filteredEntries.forEach(entry => {
+                const date = new Date(entry.clock_in);
+                const dateStr = date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: '2-digit',
+                    year: 'numeric'
+                });
+                const dayStr = date.toLocaleDateString('en-US', { weekday: 'long' });
+                
+                const clockInTime = date.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+                
+                let clockOutTime = '-';
+                let hoursWorked = '-';
+                let statusHtml = '<span class="status-active inline-block px-3 py-1 rounded-full text-xs font-semibold">Active</span>';
+                
+                if (entry.clock_out) {
+                    const clockOutDate = new Date(entry.clock_out);
+                    clockOutTime = clockOutDate.toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                    hoursWorked = entry.hours_worked ? `${entry.hours_worked.toFixed(2)} hrs` : '-';
+                    statusHtml = '<span class="status-complete inline-block px-3 py-1 rounded-full text-xs font-semibold">Complete</span>';
+                }
+                
+                const storeName = entry.store_id || 'N/A';
+                
+                html += `
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-6 gap-4 hover:bg-slate-50 transition-colors">
+                        <div>
+                            <div class="font-semibold text-slate-900">${dateStr}</div>
+                            <div class="text-sm text-secondary mt-1">${dayStr}</div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-secondary mb-1">Clock In</div>
+                            <div class="text-slate-900">${clockInTime}</div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-secondary mb-1">Clock Out</div>
+                            <div class="text-slate-900">${clockOutTime}</div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-secondary mb-1">Hours</div>
+                            <div class="text-xl font-bold text-primary">${hoursWorked}</div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-secondary mb-1">Store</div>
+                            <div class="text-slate-900 font-semibold">${storeName}</div>
+                        </div>
+                        <div>
+                            ${statusHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            table.innerHTML = html;
+            table.classList.remove('hidden');
+            
+            if (startDate) {
+                document.getElementById('startDate').value = startDate;
+            }
+            if (endDate) {
+                document.getElementById('endDate').value = endDate;
+            }
+            
+            document.getElementById('applyDateFilter').onclick = () => {
+                const start = document.getElementById('startDate').value;
+                const end = document.getElementById('endDate').value;
+                if (selectedEmployee) {
+                    loadEmployeeActivitiesWithFilter(selectedEmployee.employee_id, start || null, end || null);
+                }
+            };
+            
+            document.getElementById('clearDateFilter').onclick = () => {
+                document.getElementById('startDate').value = '';
+                document.getElementById('endDate').value = '';
+                if (selectedEmployee) {
+                    loadEmployeeActivitiesWithFilter(selectedEmployee.employee_id, null, null);
+                }
+            };
+            
+            document.getElementById('downloadExcelBtn').onclick = () => {
+                downloadActivitiesExcel(filteredEntries, selectedEmployee, startDate, endDate);
+            };
+        }
+        
+        function downloadActivitiesExcel(entries, employee, startDate, endDate) {
+            try {
+                if (!employee || !entries || entries.length === 0) {
+                    showWarning('No activities to download');
+                    return;
+                }
+                
+                const excelData = entries.map(entry => {
+                    const date = new Date(entry.clock_in);
+                    const dateStr = date.toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: '2-digit',
+                        year: 'numeric'
+                    });
+                    const dayStr = date.toLocaleDateString('en-US', { weekday: 'long' });
+                    
+                    const clockInTime = date.toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                    
+                    let clockOutTime = '-';
+                    let hoursWorked = 0;
+                    let status = 'Active';
+                    
+                    if (entry.clock_out) {
+                        const clockOutDate = new Date(entry.clock_out);
+                        clockOutTime = clockOutDate.toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                        });
+                        hoursWorked = entry.hours_worked || 0;
+                        status = 'Complete';
+                    }
+                    
+                    return {
+                        'Date': dateStr,
+                        'Day': dayStr,
+                        'Clock In': clockInTime,
+                        'Clock Out': clockOutTime,
+                        'Hours Worked': hoursWorked > 0 ? hoursWorked.toFixed(2) : '-',
+                        'Store': entry.store_id || 'N/A'
+                    };
+                });
+                
+                const totalHours = entries.reduce((sum, entry) => {
+                    return sum + (entry.hours_worked || 0);
+                }, 0);
+                const completedShifts = entries.filter(e => e.clock_out).length;
+                
+                excelData.push({
+                    'Date': '',
+                    'Day': '',
+                    'Clock In': '',
+                    'Clock Out': 'TOTAL',
+                    'Hours Worked': totalHours.toFixed(2),
+                    'Store': `${completedShifts} completed`
+                });
+                
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(excelData);
+                
+                ws['!cols'] = [
+                    { wch: 15 },
+                    { wch: 12 },
+                    { wch: 12 },
+                    { wch: 12 },
+                    { wch: 12 },
+                    { wch: 15 }
+                ];
+                
+                XLSX.utils.book_append_sheet(wb, ws, 'Activities');
+                
+                let filename = `${employee.name.replace(/[^a-zA-Z0-9_-]/g, '_')}_Activities`;
+                if (startDate && endDate) {
+                    const startStr = new Date(startDate).toISOString().split('T')[0];
+                    const endStr = new Date(endDate).toISOString().split('T')[0];
+                    filename += `_${startStr}_to_${endStr}`;
+                } else if (startDate) {
+                    const startStr = new Date(startDate).toISOString().split('T')[0];
+                    filename += `_from_${startStr}`;
+                } else if (endDate) {
+                    const endStr = new Date(endDate).toISOString().split('T')[0];
+                    filename += `_until_${endStr}`;
+                }
+                filename += '.xlsx';
+                
+                XLSX.writeFile(wb, filename);
+                
+                console.log('Excel file downloaded successfully:', filename);
+                
+            } catch (err) {
+                console.error('Failed to download Excel:', err);
+                showError('Failed to download Excel file: ' + (err.message || 'Unknown error'));
+            }
+        }
+        
+        async function loadEmployeeActivitiesWithFilter(employeeId, startDate, endDate) {
+            let filteredEntries = allEntries;
+            
+            if (startDate || endDate) {
+                filteredEntries = allEntries.filter(entry => {
+                    const entryDate = new Date(entry.clock_in);
+                    const entryDateOnly = new Date(entryDate.getFullYear(), entryDate.getMonth(), entryDate.getDate());
+                    
+                    if (startDate) {
+                        const start = new Date(startDate);
+                        const startOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+                        if (entryDateOnly < startOnly) return false;
+                    }
+                    
+                    if (endDate) {
+                        const end = new Date(endDate);
+                        const endOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+                        if (entryDateOnly > endOnly) return false;
+                    }
+                    
+                    return true;
+                });
+            }
+            
+            let totalHours = 0;
+            filteredEntries.forEach(entry => {
+                if (entry.hours_worked) {
+                    totalHours += entry.hours_worked;
+                }
+            });
+            
+            displayEmployeeInfo(selectedEmployee, totalHours);
+            displayStatistics(filteredEntries);
+            displayActivities(filteredEntries, startDate, endDate);
+        }
+        
+        const session = loadSession();
+        if (!session || session.role !== 'manager') {
+            window.location = 'login.html';
+        }
+        
+        loadAllEmployees().then(() => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const employeeId = urlParams.get('employeeId');
+            
+            if (employeeId) {
+                loadEmployeeActivities(employeeId);
+            } else {
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pramaan — Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#3B82F6',
+                            hover: '#2563EB'
+                        },
+                        secondary: '#64748B',
+                        light: '#F8FAFC',
+                        'card-border': '#E2E8F0',
+                        'input-border': '#CBD5E1'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-fade-in {
+            animation: fadeInPage 0.6s ease forwards;
+        }
+        .message {
+            display: block;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .message.error {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FCA5A5;
+        }
+        .message.success {
+            background: #D1FAE5;
+            color: #065F46;
+            border: 1px solid #6EE7B7;
+        }
+        .message.info {
+            background: #DBEAFE;
+            color: #1E40AF;
+            border: 1px solid #93C5FD;
+        }
+    </style>
+</head>
+<body class="bg-light font-sans antialiased text-slate-800">
+    <div id="app-container" class="min-h-screen flex items-center justify-center px-4 py-12">
+        <div class="w-full max-w-md">
+            <div class="bg-white p-10 rounded-2xl border border-card-border shadow-xl page-fade-in">
+                <div class="text-center mb-8">
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-700 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <i class="fa-solid fa-clock text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-slate-900 mb-2">Pramaan</h1>
+                    <p class="text-sm text-secondary">Store or Manager Login</p>
+                </div>
+                
+                <form id="loginForm" class="space-y-6">
+                    <div>
+                        <label for="username" class="block text-sm font-semibold text-slate-700 mb-2">Username</label>
+                        <input type="text" id="username" placeholder="Enter username" class="block w-full px-5 py-3.5 text-base bg-slate-50 border-2 border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-600 focus:bg-white focus:shadow-lg focus:-translate-y-0.5 transition-all duration-200 placeholder:text-slate-400 hover:border-slate-400 hover:shadow-sm">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-semibold text-slate-700 mb-2">Password</label>
+                        <input type="password" id="password" placeholder="Enter password" class="block w-full px-5 py-3.5 text-base bg-slate-50 border-2 border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-600 focus:bg-white focus:shadow-lg focus:-translate-y-0.5 transition-all duration-200 placeholder:text-slate-400 hover:border-slate-400 hover:shadow-sm">
+                    </div>
+                    <button type="submit" id="loginBtn" class="w-full flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl hover:from-blue-700 hover:to-blue-800 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg">
+                        <i class="fa-solid fa-lock mr-3"></i>
+                        Login
+                    </button>
+                    <div id="loginMessage" class="message" style="display:none;"></div>
+                </form>
+                
+                <div class="mt-6 pt-6 border-t border-card-border">
+                    <a href="/signup" class="w-full flex items-center justify-center px-8 py-4 text-base font-bold text-blue-600 bg-white border-2 border-blue-600 rounded-xl hover:bg-blue-50 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+                        <i class="fa-solid fa-user-plus mr-3"></i>
+                        Sign Up
+                    </a>
+                    <p class="text-center text-sm text-secondary mt-4">
+                        New to Pramaan? Create your account
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="static/js/script.js"></script>
+    <script>
+        // Animation
+        const mainContent = document.getElementById('app-container');
+        if (mainContent) {
+            requestAnimationFrame(() => {
+                mainContent.querySelector('.page-fade-in')?.classList.add('page-fade-in');
+            });
+        }
+
+        // Ensure script.js login handler is properly set up
+        // script.js runs immediately when loaded and checks for loginBtn
+        // We just need to prevent form default submission
+        (function() {
+            // Wait for both DOM and script.js to be ready
+            function setupForm() {
+                const loginForm = document.getElementById('loginForm');
+                const loginBtn = document.getElementById('loginBtn');
+                
+                if (!loginForm || !loginBtn) {
+                    // Try again if elements not ready
+                    setTimeout(setupForm, 50);
+                    return;
+                }
+
+                // Prevent form default submission
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // Trigger button click - script.js handles it
+                    loginBtn.click();
+                });
+            }
+
+            // Start setup when ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', setupForm);
+            } else {
+                // DOM already ready
+                setupForm();
+            }
+        })();
+    </script>
+</body>
+</html>

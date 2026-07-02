@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Managers — Pramaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#3B82F6',
+                            hover: '#2563EB'
+                        },
+                        secondary: '#64748B',
+                        light: '#F8FAFC',
+                        'card-border': '#E2E8F0',
+                        'input-border': '#CBD5E1'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-fade-in {
+            animation: fadeInPage 0.6s ease forwards;
+        }
+        .nav-link-active {
+            color: #1d4ed8 !important;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 16px rgba(15, 23, 42, 0.18);
+        }
+        .nav-link-active:hover {
+            color: white !important;
+            background-color: rgba(59, 130, 246, 0.5) !important;
+        }
+        /* Mobile Menu Styles */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            max-width: 85vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #2563eb, #1d4ed8);
+            z-index: 50;
+            transition: right 0.3s ease;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+        }
+        .mobile-menu.active {
+            right: 0;
+        }
+        .mobile-menu-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mobile-menu-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mobile-menu-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .mobile-menu-nav {
+            padding: 1rem 0;
+        }
+        .mobile-menu-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .mobile-menu-link:hover,
+        .mobile-menu-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: white;
+            color: white;
+        }
+        .mobile-menu-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-light font-sans antialiased text-slate-800">
+    <div id="app-container" class="min-h-screen pb-12">
+        <header id="header" class="sticky top-0 z-50 w-full">
+            <div class="w-[95%] max-w-7xl mx-auto mt-4 bg-gradient-to-r from-blue-600 to-blue-700 backdrop-blur-xl rounded-2xl shadow-2xl border border-blue-400/30">
+                <div class="flex items-center justify-between px-10 py-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white rounded-xl p-2.5 flex items-center justify-center hover:scale-110 transition-transform duration-200 shadow-lg">
+                            <i class="fa-solid fa-clock text-blue-600 text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-bold text-white">Pramaan</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <nav class="hidden md:flex items-center space-x-3 bg-blue-700/20 px-3 py-2 rounded-xl backdrop-blur-sm" id="main-nav">
+                            <a href="#" data-nav-link data-dashboard-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-chart-pie mr-2"></i>
+                                Dashboard
+                            </a>
+                            <a href="all-managers.html" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-users mr-2"></i>
+                                All Managers
+                            </a>
+                            <a href="all-admins.html" data-nav-link data-admins-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-user-shield mr-2"></i>
+                                Admins
+                            </a>
+                            <a href="#" data-subscription-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-credit-card mr-2"></i>
+                                Subscription
+                            </a>
+                        </nav>
+                        <button class="hidden md:flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform border border-white/20" onclick="logoutApp()">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                            Logout
+                        </button>
+                        <button class="md:hidden text-white hover:text-blue-200 transition-colors duration-200" onclick="toggleMobileMenu()" id="mobileMenuBtn">
+                            <i class="fa-solid fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <span class="text-white font-bold text-lg">Menu</span>
+                <button class="mobile-menu-close" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <nav class="mobile-menu-nav">
+                <a href="super-admin.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    Dashboard
+                </a>
+                <a href="all-managers.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-users"></i>
+                    All Managers
+                </a>
+                <a href="all-admins.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-user-shield"></i>
+                    Admins
+                </a>
+                <a href="super-admin.html#subscription" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-credit-card"></i>
+                    Subscription
+                </a>
+                <div class="border-t border-white/20 my-2"></div>
+                <button class="mobile-menu-link w-full text-left" onclick="logoutApp(); closeMobileMenu();" style="border: none; background: none; cursor: pointer;">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Logout
+                </button>
+            </nav>
+        </div>
+
+        <main id="main-content" class="page-fade-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12">
+            <div class="flex items-center justify-between mb-8">
+                <h1 class="text-3xl font-bold text-slate-900">All Managers</h1>
+                <a href="add-manager.html" id="addManagerBtn" class="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-hover hover:shadow-lg hover:scale-105 transition-all duration-200 shadow-sm">
+                    <i class="fa-solid fa-plus"></i>
+                    Add Manager
+                </a>
+            </div>
+            
+            <div class="bg-white p-8 rounded-xl border border-card-border shadow-sm mb-8">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:space-x-6 space-y-4 lg:space-y-0">
+                    <label for="searchInput" class="text-base font-semibold text-slate-800 flex items-center">
+                        <i class="fa-solid fa-search mr-3 text-primary text-lg"></i>
+                        Search Manager
+                    </label>
+                    <input type="text" id="searchInput" placeholder="Type manager name or username to search..." class="flex-1 px-5 py-3.5 text-base bg-slate-50 border border-input-border rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all duration-300 hover:border-slate-400 hover:shadow-md focus:shadow-lg focus:scale-[1.01]">
+                </div>
+            </div>
+            
+            <div id="loadingState" class="text-center py-12 bg-white rounded-xl border border-card-border shadow-sm">
+                <i class="fa-solid fa-spinner fa-spin text-3xl text-primary mb-4"></i>
+                <p class="text-secondary">Loading managers...</p>
+            </div>
+            
+            <div id="managersGrid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            
+            <div id="emptyState" class="hidden text-center py-16 bg-white rounded-xl border border-card-border shadow-sm">
+                <div class="text-5xl mb-4">👤</div>
+                <p class="text-secondary text-lg mb-6">No managers found</p>
+                <a href="add-manager.html" id="addFirstManagerBtn" class="inline-flex items-center px-5 py-2.5 text-sm font-semibold text-white bg-primary rounded-md hover:bg-primary-hover transition shadow-sm">
+                    <i class="fa-solid fa-user-plus mr-2"></i>
+                    Add Your First Manager
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <!-- Super Admin Edit Modal -->
+    <div id="superAdminModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-card-border px-6 py-4 flex items-center justify-between rounded-t-2xl">
+                <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield text-primary"></i>
+                    Edit Super Admin
+                </h2>
+                <button onclick="closeSuperAdminModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="superAdminError" class="hidden mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"></div>
+                <div id="superAdminSuccess" class="hidden mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm"></div>
+                
+                <form id="superAdminForm" class="space-y-5">
+                    <div>
+                        <label for="superAdminUsername" class="block text-sm font-semibold text-slate-800 mb-2">
+                            Username <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="superAdminUsername" required
+                            class="block w-full px-4 py-3 text-base bg-slate-50 border-2 border-slate-300 rounded-xl focus:ring-4 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all duration-300">
+                    </div>
+                    
+                    <div>
+                        <label for="superAdminPassword" class="block text-sm font-semibold text-slate-800 mb-2">
+                            New Password
+                        </label>
+                        <input type="password" id="superAdminPassword"
+                            placeholder="Leave blank to keep current password"
+                            class="block w-full px-4 py-3 text-base bg-slate-50 border-2 border-slate-300 rounded-xl focus:ring-4 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all duration-300">
+                        <p class="mt-1 text-xs text-slate-500">Leave blank if you don't want to change password</p>
+                    </div>
+                    
+                    <div>
+                        <label for="superAdminConfirmPassword" class="block text-sm font-semibold text-slate-800 mb-2">
+                            Confirm New Password
+                        </label>
+                        <input type="password" id="superAdminConfirmPassword"
+                            placeholder="Re-enter new password"
+                            class="block w-full px-4 py-3 text-base bg-slate-50 border-2 border-slate-300 rounded-xl focus:ring-4 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all duration-300">
+                        <div id="passwordMatchError" class="hidden mt-1 text-xs text-red-600">Passwords do not match</div>
+                    </div>
+                    
+                    <div class="flex gap-3 pt-4">
+                        <button type="button" onclick="closeSuperAdminModal()" 
+                            class="flex-1 px-4 py-3 text-sm font-semibold text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                            class="flex-1 px-4 py-3 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-hover transition shadow-sm">
+                            <i class="fa-solid fa-save mr-2"></i>
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="static/js/script.js"></script>
+    <script>
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            requestAnimationFrame(() => {
+                mainContent.classList.add('page-fade-in');
+            });
+        }
+
+        // Initialize navigation active state
+        function initNavActiveState() {
+            const nav = document.querySelector('nav');
+            if (nav) {
+                // Remove all active classes first
+                const links = Array.from(nav.querySelectorAll('a[data-nav-link]'));
+                links.forEach(link => link.classList.remove('nav-link-active'));
+                
+                // Find and activate the current page link
+                const currentPath = window.location.pathname.split('/').pop() || 'all-managers.html';
+                const activeLink = links.find(link => {
+                    const href = link.getAttribute('href');
+                    const hrefPath = href.split('/').pop();
+                    return hrefPath === currentPath;
+                });
+                
+                if (activeLink) {
+                    activeLink.classList.add('nav-link-active');
+                }
+            }
+        }
+        
+        initNavActiveState();
+
+        let allManagers = [];
+        let superAdminInfo = null;
+        
+        function getInitials(name) {
+            return name
+                .split(' ')
+                .map(word => word[0])
+                .join('')
+                .toUpperCase()
+                .substring(0, 2);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        async function loadManagers() {
+            try {
+                document.getElementById('loadingState').classList.remove('hidden');
+                document.getElementById('managersGrid').classList.add('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
+                
+                const session = loadSession();
+                const isSuperAdmin = session && session.role === 'super-admin';
+                
+                // Load super admin info if logged in as super admin
+                if (isSuperAdmin && session.username) {
+                    try {
+                        superAdminInfo = await apiGet(`/managers/${encodeURIComponent(session.username)}`);
+                    } catch (err) {
+                        console.error('Failed to load super admin info:', err);
+                    }
+                }
+                
+                allManagers = await apiGet('/managers/');
+                
+                // Fetch store counts for each manager
+                for (let mgr of allManagers) {
+                    try {
+                        const stores = await apiGet(`/stores/?manager_username=${encodeURIComponent(mgr.username)}`);
+                        mgr.storeCount = stores ? stores.length : 0;
+                    } catch (err) {
+                        console.error(`Failed to load stores for manager ${mgr.username}:`, err);
+                        mgr.storeCount = 0;
+                    }
+                }
+                
+                renderManagers();
+                
+            } catch (err) {
+                console.error('Failed to load managers:', err);
+                document.getElementById('loadingState').innerHTML = '<p class="text-red-600 font-semibold">Failed to load managers</p>';
+            }
+        }
+        
+        function renderManagers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const session = loadSession();
+            const isAdmin = session && session.role === 'admin';
+            const isSuperAdmin = session && session.role === 'super-admin';
+            
+            let filteredManagers = allManagers;
+            
+            if (searchTerm) {
+                filteredManagers = filteredManagers.filter(mgr => 
+                    (mgr.name && mgr.name.toLowerCase().includes(searchTerm)) ||
+                    (mgr.username && mgr.username.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            document.getElementById('loadingState').classList.add('hidden');
+            
+            const grid = document.getElementById('managersGrid');
+            let html = '';
+            
+            // Add super admin card if logged in as super admin
+            if (isSuperAdmin && superAdminInfo) {
+                const superAdminSearchMatch = !searchTerm || 
+                    (superAdminInfo.name && superAdminInfo.name.toLowerCase().includes(searchTerm)) ||
+                    (superAdminInfo.username && superAdminInfo.username.toLowerCase().includes(searchTerm));
+                
+                if (superAdminSearchMatch) {
+                    const initials = getInitials(superAdminInfo.name || superAdminInfo.username || 'SA');
+                    html += `
+                        <div class="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border-2 border-purple-300 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02]">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                                    ${initials}
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <h3 class="text-lg font-semibold text-slate-900">${escapeHtml(superAdminInfo.name || 'Super Admin')}</h3>
+                                        <span class="px-2 py-0.5 text-xs font-bold text-purple-700 bg-purple-200 rounded-full">SUPER ADMIN</span>
+                                    </div>
+                                    <p class="text-sm text-slate-600">${escapeHtml(superAdminInfo.username || '')}</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-purple-200" onclick="event.stopPropagation();">
+                                <button onclick="openSuperAdminModal()" 
+                                        class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-md hover:from-purple-700 hover:to-blue-700 transition shadow-sm">
+                                    <i class="fa-solid fa-edit"></i>
+                                    Manage Credentials
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Add manager cards
+            html += filteredManagers.map(mgr => {
+                const initials = getInitials(mgr.name || mgr.username || 'M');
+                const editButtonHtml = isAdmin ? '' : `
+                        <div class="mt-4 pt-4 border-t border-card-border" onclick="event.stopPropagation();">
+                            <button onclick="editManager('${escapeHtml(mgr.username)}', '${escapeHtml(mgr.name || '')}')" 
+                                    class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-md hover:bg-primary-hover transition shadow-sm">
+                                <i class="fa-solid fa-edit"></i>
+                                Edit Manager
+                            </button>
+                        </div>`;
+                
+                return `
+                    <div class="bg-white p-6 rounded-xl border border-card-border shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] cursor-pointer" onclick="openManagerDashboard('${escapeHtml(mgr.username)}')">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold">${initials}</div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-slate-900">${escapeHtml(mgr.location || 'No Location')}</h3>
+                                ${mgr.name ? `<p class="text-sm text-slate-600">${escapeHtml(mgr.name)}</p>` : ''}
+                            </div>
+                        </div>
+                        <div class="space-y-3 pt-4 border-t border-card-border">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="font-medium text-slate-600 flex items-center gap-2"><i class="fa-solid fa-store text-primary"></i>Stores</span>
+                                <span class="text-slate-900">${mgr.storeCount || 0}</span>
+                            </div>
+                        </div>
+                        ${editButtonHtml}
+                    </div>
+                `;
+            }).join('');
+            
+            if (html === '' && !searchTerm) {
+                // No super admin card and no managers
+                document.getElementById('managersGrid').classList.add('hidden');
+                document.getElementById('emptyState').classList.remove('hidden');
+                return;
+            }
+            
+            if (html === '' && searchTerm) {
+                // Search term but no matches
+                document.getElementById('managersGrid').classList.add('hidden');
+                document.getElementById('emptyState').classList.remove('hidden');
+                return;
+            }
+            
+            grid.classList.remove('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+            grid.innerHTML = html;
+        }
+        
+        window.openManagerDashboard = function(managerUsername) {
+            const session = loadSession();
+            if (session && (session.role === 'super-admin' || session.role === 'admin')) {
+                window.location = `manager.html?view_as=${encodeURIComponent(managerUsername)}`;
+            }
+        };
+        
+        window.editManager = async function(managerUsername, managerName) {
+            window.location = `add-manager.html?edit=${encodeURIComponent(managerUsername)}`;
+        };
+        
+        window.openSuperAdminModal = function() {
+            if (!superAdminInfo) return;
+            
+            document.getElementById('superAdminUsername').value = superAdminInfo.username || '';
+            document.getElementById('superAdminPassword').value = '';
+            document.getElementById('superAdminConfirmPassword').value = '';
+            document.getElementById('superAdminError').classList.add('hidden');
+            document.getElementById('superAdminSuccess').classList.add('hidden');
+            document.getElementById('passwordMatchError').classList.add('hidden');
+            document.getElementById('superAdminModal').classList.remove('hidden');
+        };
+        
+        window.closeSuperAdminModal = function() {
+            document.getElementById('superAdminModal').classList.add('hidden');
+        };
+        
+        // Handle password confirmation
+        document.getElementById('superAdminConfirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('superAdminPassword').value;
+            const confirmPassword = this.value;
+            const errorDiv = document.getElementById('passwordMatchError');
+            
+            if (password && confirmPassword && password !== confirmPassword) {
+                errorDiv.classList.remove('hidden');
+            } else {
+                errorDiv.classList.add('hidden');
+            }
+        });
+        
+        // Handle form submission
+        document.getElementById('superAdminForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const errorDiv = document.getElementById('superAdminError');
+            const successDiv = document.getElementById('superAdminSuccess');
+            const session = loadSession();
+            
+            if (!session || session.role !== 'super-admin' || !session.username) {
+                errorDiv.textContent = 'Invalid session. Please login again.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            const username = document.getElementById('superAdminUsername').value.trim();
+            const password = document.getElementById('superAdminPassword').value;
+            const confirmPassword = document.getElementById('superAdminConfirmPassword').value;
+            
+            // Hide previous messages
+            errorDiv.classList.add('hidden');
+            successDiv.classList.add('hidden');
+            
+            // Validate
+            if (!username) {
+                errorDiv.textContent = 'Username is required';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // If password is provided, confirm password must match
+            if (password) {
+                if (password !== confirmPassword) {
+                    errorDiv.textContent = 'Passwords do not match';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+                if (password.length < 8) {
+                    errorDiv.textContent = 'Password must be at least 8 characters long';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+            }
+            
+            try {
+                const updateData = {
+                    username: username
+                };
+                
+                // Only include password if it's provided
+                if (password) {
+                    updateData.password = password;
+                }
+                
+                await apiPut(`/managers/${encodeURIComponent(session.username)}`, updateData);
+                
+                // Update session if username changed
+                if (username !== session.username) {
+                    session.username = username;
+                    saveSession(session);
+                }
+                
+                // Reload super admin info
+                superAdminInfo = await apiGet(`/managers/${encodeURIComponent(username)}`);
+                
+                successDiv.textContent = 'Credentials updated successfully!';
+                successDiv.classList.remove('hidden');
+                
+                // Reload managers to reflect changes
+                setTimeout(() => {
+                    loadManagers();
+                    closeSuperAdminModal();
+                }, 1500);
+                
+            } catch (err) {
+                errorDiv.textContent = err.message || 'Failed to update credentials';
+                errorDiv.classList.remove('hidden');
+            }
+        });
+        
+        // Close modal on outside click
+        document.getElementById('superAdminModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSuperAdminModal();
+            }
+        });
+        
+        document.getElementById('searchInput').addEventListener('input', renderManagers);
+        
+        const session = loadSession();
+        if (!session || (session.role !== 'super-admin' && session.role !== 'admin')) {
+            window.location = 'login.html';
+        } else {
+            // Update navigation links based on role
+            const dashboardLink = document.querySelector('[data-dashboard-link]');
+            const adminsLink = document.querySelector('[data-admins-link]');
+            const subscriptionLink = document.querySelector('[data-subscription-link]');
+            
+            if (session.role === 'admin') {
+                // Admin links - hide Admins and Subscription links
+                if (dashboardLink) dashboardLink.href = 'admin.html';
+                if (adminsLink) adminsLink.style.display = 'none'; // Hide Admins link for admin
+                if (subscriptionLink) subscriptionLink.style.display = 'none'; // Hide Subscription link for admin
+                // Hide Add Manager button for admin
+                const addManagerBtn = document.getElementById('addManagerBtn');
+                const addFirstManagerBtn = document.getElementById('addFirstManagerBtn');
+                if (addManagerBtn) addManagerBtn.style.display = 'none';
+                if (addFirstManagerBtn) addFirstManagerBtn.style.display = 'none';
+            } else if (session.role === 'super-admin') {
+                // Super-admin links - show all links
+                if (dashboardLink) dashboardLink.href = 'super-admin.html';
+                if (adminsLink) adminsLink.href = 'all-admins.html';
+                if (subscriptionLink) {
+                    subscriptionLink.href = '#';
+                    subscriptionLink.onclick = function() { 
+                        window.location = 'super-admin.html#subscription'; 
+                        return false; 
+                    };
+                }
+            }
+        }
+        
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            const menu = document.getElementById('mobileMenu');
+            overlay.classList.toggle('active');
+            menu.classList.toggle('active');
+            if (menu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+        
+        function closeMobileMenu() {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            const menu = document.getElementById('mobileMenu');
+            overlay.classList.remove('active');
+            menu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMobileMenu();
+            }
+        });
+        
+        function updateMobileMenuActiveState() {
+            const currentPath = window.location.pathname.split('/').pop() || 'all-managers.html';
+            const mobileLinks = document.querySelectorAll('.mobile-menu-link');
+            mobileLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href && href !== '#') {
+                    const hrefPath = href.split('/').pop().split('#')[0];
+                    if (hrefPath === currentPath) {
+                        link.classList.add('active');
+                    }
+                }
+            });
+        }
+        
+        updateMobileMenuActiveState();
+        loadManagers();
+    </script>
+</body>
+</html>
+

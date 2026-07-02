@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pramaan — Select Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#3B82F6',
+                            hover: '#2563EB'
+                        },
+                        secondary: '#64748B',
+                        light: '#F8FAFC',
+                        'card-border': '#E2E8F0',
+                        'input-border': '#CBD5E1',
+                        muted: '#F1F5F9',
+                        'muted-foreground': '#64748B',
+                        border: '#E2E8F0',
+                        foreground: '#0F172A'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-fade-in {
+            animation: fadeInPage 0.6s ease forwards;
+        }
+        .message {
+            display: block;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .message.error {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FCA5A5;
+        }
+        .plan-card {
+            transition: all 0.3s ease;
+        }
+        .plan-card:hover {
+            transform: translateY(-4px);
+        }
+        .plan-card.selected {
+            border-color: #3B82F6;
+            background: rgba(239, 246, 255, 0.7);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.1), 0 10px 10px -5px rgba(59, 130, 246, 0.04);
+        }
+        .plan-card.popular {
+            border-width: 2px;
+            border-color: #3B82F6;
+        }
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .pricing-toggle {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            background: #F1F5F9;
+            border-radius: 9999px;
+            padding: 4px;
+        }
+        .pricing-toggle-pill {
+            position: absolute;
+            left: 4px;
+            top: 4px;
+            height: calc(100% - 8px);
+            background: #3B82F6;
+            border-radius: 9999px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pricing-toggle-button {
+            position: relative;
+            z-index: 10;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.2s;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .pricing-toggle-button.active {
+            color: white;
+        }
+        .pricing-toggle-button:not(.active) {
+            color: #64748B;
+        }
+        .pricing-toggle-button:not(.active):hover {
+            color: #0F172A;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-slide-in {
+            animation: slideIn 0.6s ease forwards;
+        }
+        .plan-card.popular-desktop {
+            transform: translateY(-20px);
+        }
+        @media (max-width: 1023px) {
+            .plan-card.popular-desktop {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-light font-sans antialiased text-slate-800">
+    <div id="app-container" class="min-h-screen flex items-center justify-center px-4 py-12">
+        <div class="w-full max-w-6xl">
+            <div class="bg-white p-10 rounded-2xl border border-card-border shadow-xl page-fade-in">
+                <div class="text-center mb-8">
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-700 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <i class="fa-solid fa-clock text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-4xl font-bold tracking-tight text-slate-900 mb-2">Find the Perfect Plan</h1>
+                    <p class="text-muted-foreground text-lg">Select the ideal package for your needs and start building today.</p>
+                </div>
+                
+                <div id="errorMessage" class="message error mb-6" style="display:none;"></div>
+                
+                <!-- Pricing Toggle -->
+                <div class="flex justify-center mb-8">
+                    <div class="pricing-toggle" id="pricingToggle">
+                        <div class="pricing-toggle-pill" id="togglePill"></div>
+                        <button type="button" class="pricing-toggle-button active" id="monthlyBtn" data-period="monthly">
+                            Monthly
+                        </button>
+                        <button type="button" class="pricing-toggle-button" id="annualBtn" data-period="annual">
+                            Annual <span class="hidden sm:inline">(Save 20%)</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Plan Cards -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start mb-8">
+                    <!-- Basic Plan -->
+                    <div class="plan-card border border-border rounded-2xl p-8 flex flex-col relative bg-white/70 backdrop-blur-sm cursor-pointer animate-slide-in" data-plan="basic" style="animation-delay: 0s;">
+                        <div class="flex-1 flex flex-col text-center">
+                            <h3 class="text-xl font-semibold text-foreground mb-2">Basic</h3>
+                            <p class="text-sm text-muted-foreground mb-6">Perfect for individuals and small projects.</p>
+                            <div class="flex items-baseline justify-center gap-x-1 mb-2">
+                                <span class="text-5xl font-bold tracking-tight text-foreground" id="basicPrice">$29</span>
+                                <span class="text-sm font-semibold leading-6 tracking-wide text-muted-foreground">/ month</span>
+                            </div>
+                            <p class="text-xs text-muted-foreground mb-8" id="basicBilling">Billed Monthly</p>
+                            <ul role="list" class="space-y-3 text-sm leading-6 text-left text-muted-foreground mb-8">
+                                <li class="flex gap-x-3">
+                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
+                                    <span>Up to 10 stores</span>
+                                </li>
+                                <li class="flex gap-x-3">
+                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
+                                    <span>Basic analytics</span>
+                                </li>
+                                <li class="flex gap-x-3">
+                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
+                                    <span>48-hour support response</span>
+                                </li>
+                                <li class="flex gap-x-3">
+                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
+                                    <span>1GB Storage</span>
+                                </li>
+                                <li class="flex gap-x-3">
+                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
+                                    <span>Community support</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Standard Plan (Popular) -->
+                    <div class="plan-card popular border-2 border-primary rounded-2xl p-8 flex flex-col relative bg-white/70 backdrop-blur-sm cursor-pointer selected popular-desktop animate-slide-in" data-plan="standard" style="animation-delay: 0.15s;">
+                        <div class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
+                            <div class="bg-primary py-1.5 px-4 rounded-full flex items-center gap-1.5">
+                                <i class="fa-solid fa-star text-white text-sm"></i>
+                                <span class="text-white text-sm font-semibold">Most Popular</span>
+                            </div>
+                        </div>
+                        <div class="flex-1 flex flex-col text-center">
+                            <h3 class="text-xl font-semibold text-foreground mb-2">Standard</h3>
+                            <p class="text-sm text-muted-foreground mb-6">Ideal for growing teams and businesses.</p>
+                            <div class="flex items-baseline justify-center gap-x-1 mb-2">
+                                <span class="text-5xl font-bold tracking-tight text-foreground" id="standardPrice">$79</span>
+                                <span class="text-sm font-semibold leading-6 tracking-wide text-muted-foreground">/ month</span>
+                            </div>
+                            <p class="text-xs text-muted-foreground mb-8" id="standardBilling">Billed Monthly</p>
+                            <ul role="list" class="space-y-3 text-sm leading-6 text-left text-muted-foreground mb-8">
+                                <li class="flex gap-x-3">
+                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
+                                    <span>Unlimited stores</span>
+                                </li>
+                                <li class="flex gap-x-3">
+                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
+                                    <span>Advanced analytics</span>
+                                </li>
+                                <li class="flex gap-x-3">
+                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
+                                    <span>24-hour support response</span>
+                                </li>
+                                <li class="flex gap-x-3">
+                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
+                                    <span>10GB Storage</span>
+                                </li>
+                                <li class="flex gap-x-3">
+                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
+                                    <span>Priority support & Team collaboration</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Premium Plan -->
+                    <div class="plan-card border border-border rounded-2xl p-8 flex flex-col relative bg-white/70 backdrop-blur-sm cursor-pointer animate-slide-in" data-plan="premium" style="animation-delay: 0.3s;">
+                        <div class="flex-1 flex flex-col text-center">
+                            <h3 class="text-xl font-semibold text-foreground mb-2">Premium</h3>
+                            <p class="text-sm text-muted-foreground mb-6">For large organizations with specific needs.</p>
+                            <div class="flex items-baseline justify-center gap-x-1 mb-2">
+                                <span class="text-5xl font-bold tracking-tight text-foreground" id="premiumPrice">$199</span>
+                                <span class="text-sm font-semibold leading-6 tracking-wide text-muted-foreground">/ month</span>
+                            </div>
+                            <p class="text-xs text-muted-foreground mb-8" id="premiumBilling">Billed Monthly</p>
+                            <ul role="list" class="space-y-3 text-sm leading-6 text-left text-muted-foreground mb-8">
+                                <li class="flex gap-x-3">
+                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
+                                    <span>Everything in Standard</span>
+                                </li>
+                                <li class="flex gap-x-3">
+                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
+                                    <span>Custom solutions & integrations</span>
+                                </li>
+                                <li class="flex gap-x-3">
+                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
+                                    <span>Dedicated account manager</span>
+                                </li>
+                                <li class="flex gap-x-3">
+                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
+                                    <span>100GB Storage</span>
+                                </li>
+                                <li class="flex gap-x-3">
+                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
+                                    <span>SSO Authentication & Advanced security</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <input type="hidden" id="selectedPlan" value="standard">
+                <input type="hidden" id="billingPeriod" value="monthly">
+                
+                <button type="button" id="signupBtn" class="w-full flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl hover:from-blue-700 hover:to-blue-800 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg">
+                    <i class="fa-solid fa-check-circle mr-3"></i>
+                    Sign Up
+                </button>
+                
+                <div class="mt-6 pt-6 border-t border-card-border">
+                    <a href="/signup.html" class="w-full flex items-center justify-center px-8 py-4 text-base font-bold text-blue-600 bg-white border-2 border-blue-600 rounded-xl hover:bg-blue-50 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+                        <i class="fa-solid fa-arrow-left mr-3"></i>
+                        Back to Sign Up
+                    </a>
+                    <p class="text-center text-sm text-secondary mt-4">
+                        Need to change your information?
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const API_BASE = '/api';
+        
+        // Check if signup data exists
+        const signupData = sessionStorage.getItem('signupData');
+        if (!signupData) {
+            // Redirect to signup page if no data
+            window.location.href = '/signup.html';
+        }
+        
+        // Pricing data
+        const pricingData = {
+            basic: { monthly: 29, annual: 23 },
+            standard: { monthly: 79, annual: 63 },
+            premium: { monthly: 199, annual: 159 }
+        };
+        
+        let isMonthly = true;
+        let selectedPlan = 'standard';
+        
+        // Animation
+        const mainContent = document.getElementById('app-container');
+        if (mainContent) {
+            requestAnimationFrame(() => {
+                mainContent.querySelector('.page-fade-in')?.classList.add('page-fade-in');
+            });
+        }
+        
+        // Pricing Toggle
+        function updateTogglePill() {
+            const monthlyBtn = document.getElementById('monthlyBtn');
+            const annualBtn = document.getElementById('annualBtn');
+            const togglePill = document.getElementById('togglePill');
+            
+            if (isMonthly) {
+                togglePill.style.width = monthlyBtn.offsetWidth + 'px';
+                togglePill.style.transform = 'translateX(0)';
+                monthlyBtn.classList.add('active');
+                annualBtn.classList.remove('active');
+            } else {
+                togglePill.style.width = annualBtn.offsetWidth + 'px';
+                togglePill.style.transform = `translateX(${monthlyBtn.offsetWidth}px)`;
+                monthlyBtn.classList.remove('active');
+                annualBtn.classList.add('active');
+                
+                // Confetti effect
+                const rect = annualBtn.getBoundingClientRect();
+                const originX = (rect.left + rect.width / 2) / window.innerWidth;
+                const originY = (rect.top + rect.height / 2) / window.innerHeight;
+                
+                if (typeof confetti !== 'undefined') {
+                    confetti({
+                        particleCount: 80,
+                        spread: 80,
+                        origin: { x: originX, y: originY },
+                        colors: ['#3B82F6', '#F8FAFC', '#E2E8F0'],
+                        ticks: 300,
+                        gravity: 1.2,
+                        decay: 0.94,
+                        startVelocity: 30,
+                    });
+                }
+            }
+        }
+        
+        function updatePrices() {
+            const period = isMonthly ? 'monthly' : 'annual';
+            const billingText = isMonthly ? 'Billed Monthly' : 'Billed Annually';
+            
+            Object.keys(pricingData).forEach(plan => {
+                const priceEl = document.getElementById(`${plan}Price`);
+                const billingEl = document.getElementById(`${plan}Billing`);
+                if (priceEl) {
+                    priceEl.textContent = '$' + pricingData[plan][period];
+                }
+                if (billingEl) {
+                    billingEl.textContent = billingText;
+                }
+            });
+        }
+        
+        document.getElementById('monthlyBtn').addEventListener('click', () => {
+            if (!isMonthly) {
+                isMonthly = true;
+                updateTogglePill();
+                updatePrices();
+                document.getElementById('billingPeriod').value = 'monthly';
+            }
+        });
+        
+        document.getElementById('annualBtn').addEventListener('click', () => {
+            if (isMonthly) {
+                isMonthly = false;
+                updateTogglePill();
+                updatePrices();
+                document.getElementById('billingPeriod').value = 'annual';
+            }
+        });
+        
+        // Initialize toggle
+        updateTogglePill();
+        
+        // Plan selection
+        document.querySelectorAll('.plan-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.plan-card').forEach(c => {
+                    c.classList.remove('selected', 'border-primary', 'border-2');
+                    if (!c.classList.contains('popular')) {
+                        c.classList.add('border', 'border-border');
+                    }
+                });
+                card.classList.add('selected');
+                if (card.classList.contains('popular')) {
+                    card.classList.add('border-2', 'border-primary');
+                } else {
+                    card.classList.add('border-2', 'border-primary');
+                }
+                selectedPlan = card.dataset.plan;
+                document.getElementById('selectedPlan').value = selectedPlan;
+            });
+        });
+        
+        // Sign Up button
+        document.getElementById('signupBtn').addEventListener('click', async () => {
+            const errorMsg = document.getElementById('errorMessage');
+            const signupBtn = document.getElementById('signupBtn');
+            
+            // Hide error
+            errorMsg.style.display = 'none';
+            
+            // Get signup data from sessionStorage
+            const signupDataObj = JSON.parse(signupData);
+            
+            // Get selected plan and billing period
+            const plan = document.getElementById('selectedPlan').value;
+            const billingPeriod = document.getElementById('billingPeriod').value;
+            
+            if (!plan) {
+                showError('Please select a plan');
+                return;
+            }
+            
+            // Disable button
+            signupBtn.disabled = true;
+            signupBtn.innerHTML = '<span class="loading"></span>Processing...';
+            
+            try {
+                // Prepare data for API (backend expects company_name, email, plan)
+                const formData = {
+                    company_name: signupDataObj.companyName,
+                    email: signupDataObj.email,
+                    plan: plan,
+                    billing_period: billingPeriod,
+                    // Include additional fields for future use
+                    first_name: signupDataObj.firstName,
+                    last_name: signupDataObj.lastName,
+                    phone_number: signupDataObj.phoneNumber
+                };
+                
+                const response = await fetch(`${API_BASE}/tenants/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Signup failed');
+                }
+                
+                // Clear sessionStorage
+                sessionStorage.removeItem('signupData');
+                
+                // Redirect to Stripe checkout
+                if (data.checkout_url) {
+                    window.location.href = data.checkout_url;
+                } else {
+                    throw new Error('No checkout URL received');
+                }
+                
+            } catch (error) {
+                console.error('Signup error:', error);
+                showError(error.message || 'Failed to create account. Please try again.');
+                signupBtn.disabled = false;
+                signupBtn.innerHTML = '<i class="fa-solid fa-check-circle mr-3"></i>Sign Up';
+            }
+        });
+        
+        function showError(message) {
+            const errorMsg = document.getElementById('errorMessage');
+            errorMsg.textContent = message;
+            errorMsg.style.display = 'block';
+        }
+        
+        // Check for cancelled signup
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('cancelled') === 'true') {
+            showError('Signup was cancelled. Please try again if you want to continue.');
+        }
+    </script>
+</body>
+</html>
+

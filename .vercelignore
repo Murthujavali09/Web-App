@@ -1,0 +1,56 @@
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git
+.mypy_cache
+.pytest_cache
+.hypothesis
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+uploads/
+# Landing page - exclude source files, but INCLUDE built dist
+# Note: landing/dist/public must be built and committed for deployment
+landing/node_modules/
+landing/client/
+landing/server/
+landing/shared/
+landing/src/
+landing/components.json
+landing/package.json
+landing/pnpm-lock.yaml
+landing/tsconfig*.json
+landing/vite.config.ts
+landing/patches/
+# DO NOT exclude landing/dist/ - it contains the built landing page
+# Excel files
+*.xlsx
+*.xls
+# Documentation
+*.md
+DEPLOYMENT_CHECKLIST.md
+# Test files
+test/
+tests/
+*_test.py
+test_*.py
+

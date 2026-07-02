@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billings & Payments — Pramaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#3B82F6',
+                            hover: '#2563EB'
+                        },
+                        secondary: '#64748B',
+                        light: '#F8FAFC',
+                        'card-border': '#E2E8F0',
+                        'input-border': '#CBD5E1'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-fade-in {
+            animation: fadeInPage 0.6s ease forwards;
+        }
+        .cash-report-table th,
+        .cash-report-table td {
+            border: 1px solid #E2E8F0;
+        }
+        .cash-report-table th {
+            background-color: #F8FAFC;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+            position: relative;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal-header {
+            background: linear-gradient(to right, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 20px 24px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+        .modal-body {
+            padding: 24px;
+        }
+        .modal-form-group {
+            margin-bottom: 20px;
+        }
+        .modal-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .modal-form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #CBD5E1;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: #F8FAFC;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        .modal-form-group input:hover {
+            border-color: #94A3B8;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .modal-form-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1), 0 10px 25px -5px rgba(37, 99, 235, 0.2);
+        }
+        .modal-error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+            font-size: 0.9rem;
+        }
+        .modal-error.show {
+            display: block;
+        }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        .modal-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        .modal-btn-primary {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            color: white;
+        }
+        .modal-btn-primary:hover {
+            background: linear-gradient(to right, #1d4ed8, #1e40af);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .modal-btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .modal-btn-secondary:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body class="bg-light font-sans antialiased text-slate-800">
+    <div id="app-container" class="min-h-screen pb-12">
+        <header id="header" class="sticky top-0 z-50 w-full">
+            <div class="w-[95%] max-w-7xl mx-auto mt-4 bg-gradient-to-r from-blue-600 to-blue-700 backdrop-blur-xl rounded-2xl shadow-2xl border border-blue-400/30">
+                <div class="flex items-center justify-between px-10 py-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white rounded-xl p-2.5 flex items-center justify-center hover:scale-110 transition-transform duration-200 shadow-lg">
+                            <i class="fa-solid fa-clock text-blue-600 text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-bold text-white">Pramaan</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <nav id="managerNavLinks" class="hidden md:flex items-center space-x-3 bg-blue-700/20 px-3 py-2 rounded-xl backdrop-blur-sm">
+                            <a href="manager.html" id="dashboardLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-chart-pie mr-2"></i>
+                                Dashboard
+                            </a>
+                            <a href="add-employee.html" id="addEmployeeLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-user-plus mr-2"></i>
+                                Add Employee
+                            </a>
+                            <a href="billings-payments.html" id="billingsLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform nav-link-active">
+                                <i class="fa-solid fa-credit-card mr-2"></i>
+                                Billings & Payments
+                            </a>
+                            <a href="list-employees.html" id="listEmployeesLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-users mr-2"></i>
+                                Employees
+                            </a>
+                            <a href="alerts.html" id="alertsLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-bell mr-2"></i>
+                                Alerts
+                            </a>
+                        </nav>
+                        <a href="#" id="backToSuperAdmin" class="hidden items-center px-4 py-2 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 mr-4">
+                            <i class="fa-solid fa-arrow-left mr-2"></i>
+                            Back
+                        </a>
+                        <button class="hidden md:flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform border border-white/20" onclick="logoutApp()">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                            Logout
+                        </button>
+                        <button class="md:hidden text-white hover:text-blue-200 transition-colors duration-200">
+                            <i class="fa-solid fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main id="main-content" class="page-fade-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+            <div id="billings-section" class="bg-white rounded-2xl shadow-lg border border-card-border overflow-hidden">
+                <div id="billings-header" class="px-8 py-5 border-b border-card-border flex justify-between items-center bg-slate-50/50">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Billings & Payments</h2>
+                        <p class="text-sm text-slate-500">Manage store utility bills and payments - <span id="currentMonthDisplay" class="font-semibold text-primary"></span></p>
+                    </div>
+                </div>
+                <div id="billings-table-container" class="p-6">
+                    <div id="loadingState" class="text-center py-12">
+                        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
+                        <p class="text-slate-600">Loading billings data...</p>
+                    </div>
+                    <div id="errorState" class="hidden text-center py-12">
+                        <i class="fa-solid fa-triangle-exclamation text-red-500 text-4xl mb-4"></i>
+                        <p class="text-red-600 font-semibold" id="errorMessage">Failed to load billings</p>
+                    </div>
+                    <div id="tableContent" class="hidden overflow-x-auto">
+                        <table class="w-full border-collapse cash-report-table">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900">Store</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-slate-900">Electricity Bill</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-slate-900">WiFi Bill</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-slate-900">Gas Bill</th>
+                                </tr>
+                            </thead>
+                            <tbody id="billings-body">
+                                <!-- Data rows will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="paymentModalTitle">Pay Bill</h3>
+                <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="paymentModalError" class="modal-error"></div>
+                <form id="paymentForm">
+                    <div class="modal-form-group">
+                        <label for="paymentAmount">Amount <span style="color: #dc3545;">*</span></label>
+                        <input type="number" id="paymentAmount" name="paymentAmount" placeholder="Enter payment amount" step="0.01" min="0" required autofocus>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn modal-btn-secondary" onclick="closePaymentModal()">Cancel</button>
+                <button type="button" class="modal-btn modal-btn-primary" onclick="submitPayment()">Pay</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="static/js/script.js"></script>
+    <script>
+        let billingData = null;
+        let currentPaymentStore = null;
+        let currentPaymentType = null;
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2
+            }).format(amount);
+        }
+
+        async function loadBillings() {
+            const loadingState = document.getElementById('loadingState');
+            const errorState = document.getElementById('errorState');
+            const tableContent = document.getElementById('tableContent');
+            const errorMessage = document.getElementById('errorMessage');
+
+            loadingState.classList.remove('hidden');
+            errorState.classList.add('hidden');
+            tableContent.classList.add('hidden');
+
+            try {
+                const data = await apiGet('/billings/');
+                billingData = data;
+                renderTable();
+                
+                loadingState.classList.add('hidden');
+                tableContent.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error loading billings:', error);
+                loadingState.classList.add('hidden');
+                errorState.classList.remove('hidden');
+                errorMessage.textContent = error.message || 'Failed to load billings data';
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('billings-body');
+            tbody.innerHTML = '';
+
+            // Display current month
+            if (billingData && billingData.billing_month) {
+                const monthDate = new Date(billingData.billing_month + '-01');
+                const monthName = monthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                document.getElementById('currentMonthDisplay').textContent = monthName;
+            }
+
+            if (!billingData || !billingData.stores || billingData.stores.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-slate-500">No stores found</td></tr>';
+                return;
+            }
+
+            billingData.stores.forEach(storeName => {
+                const storeBilling = billingData.billings[storeName] || {
+                    'electricity': {'paid': false, 'amount': 0},
+                    'wifi': {'paid': false, 'amount': 0},
+                    'gas': {'paid': false, 'amount': 0}
+                };
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-blue-50/30';
+
+                // Store name cell
+                const storeTd = document.createElement('td');
+                storeTd.className = 'px-4 py-3 text-sm text-slate-800 font-medium';
+                storeTd.textContent = storeName;
+                tr.appendChild(storeTd);
+
+                // Bill type cells (electricity, wifi, gas)
+                ['electricity', 'wifi', 'gas'].forEach(billType => {
+                    const billTd = document.createElement('td');
+                    billTd.className = 'px-4 py-3 text-sm text-center';
+                    
+                    const billing = storeBilling[billType] || {'paid': false, 'amount': 0};
+                    
+                    if (billing.paid) {
+                        // Show paid status with amount
+                        billTd.innerHTML = `<span class="text-slate-900 font-semibold">Paid - ${formatCurrency(billing.amount)}</span>`;
+                    } else {
+                        // Show pay button
+                        const payButton = document.createElement('button');
+                        payButton.className = 'px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-all duration-200 hover:scale-105 font-semibold';
+                        payButton.textContent = 'Pay';
+                        payButton.onclick = () => openPaymentModal(storeName, billType);
+                        billTd.appendChild(payButton);
+                    }
+                    
+                    tr.appendChild(billTd);
+                });
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openPaymentModal(storeName, billType) {
+            currentPaymentStore = storeName;
+            currentPaymentType = billType;
+            
+            const billTypeDisplay = billType.charAt(0).toUpperCase() + billType.slice(1);
+            document.getElementById('paymentModalTitle').textContent = `Pay ${billTypeDisplay} Bill - ${storeName}`;
+            document.getElementById('paymentAmount').value = '';
+            document.getElementById('paymentModalError').classList.remove('show');
+            document.getElementById('paymentModalError').textContent = '';
+            document.getElementById('paymentModal').classList.add('show');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('show');
+            currentPaymentStore = null;
+            currentPaymentType = null;
+        }
+
+        async function submitPayment() {
+            const amountInput = document.getElementById('paymentAmount');
+            const amount = parseFloat(amountInput.value);
+            const errorDiv = document.getElementById('paymentModalError');
+
+            // Clear previous errors
+            errorDiv.classList.remove('show');
+            errorDiv.textContent = '';
+
+            // Validate amount
+            if (!amount || amount <= 0) {
+                errorDiv.textContent = 'Please enter a valid amount greater than 0';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            try {
+                const response = await apiPost('/billings/pay', {
+                    store_id: currentPaymentStore,
+                    bill_type: currentPaymentType,
+                    amount: amount
+                });
+
+                // Close modal
+                closePaymentModal();
+
+                // Reload billings to update the table
+                await loadBillings();
+
+                // Show success message
+                showSuccess('Payment recorded successfully!', 'Payment Recorded');
+            } catch (error) {
+                console.error('Error submitting payment:', error);
+                errorDiv.textContent = error.message || 'Failed to record payment';
+                errorDiv.classList.add('show');
+            }
+        }
+
+        // Close modal on outside click
+        document.getElementById('paymentModal').addEventListener('click', (e) => {
+            if (e.target.id === 'paymentModal') {
+                closePaymentModal();
+            }
+        });
+
+        // Handle Enter key in payment form
+        document.getElementById('paymentAmount').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitPayment();
+            }
+        });
+
+        // Initialize navigation active state
+        function initNavActiveState() {
+            const nav = document.getElementById('managerNavLinks');
+            if (nav) {
+                const links = Array.from(nav.querySelectorAll('a[data-nav-link]'));
+                const currentPath = window.location.pathname.split('/').pop();
+                links.forEach(link => {
+                    link.classList.remove('nav-link-active');
+                    const href = link.getAttribute('href');
+                    const hrefPath = href.split('/').pop();
+                    if (hrefPath === currentPath) {
+                        link.classList.add('nav-link-active');
+                    }
+                });
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Handle navigation visibility when viewing as admin/super-admin
+            const session = loadSession();
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewAs = urlParams.get('view_as');
+            
+            if (viewAs && (session?.role === 'super-admin' || session?.role === 'admin')) {
+                const managerNavLinks = document.getElementById('managerNavLinks');
+                const backToSuperAdmin = document.getElementById('backToSuperAdmin');
+                
+                if (managerNavLinks) {
+                    managerNavLinks.style.display = 'none';
+                }
+                if (backToSuperAdmin) {
+                    if (session?.role === 'admin') {
+                        backToSuperAdmin.href = 'admin.html';
+                        backToSuperAdmin.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i> Back to Admin';
+                    } else {
+                        backToSuperAdmin.href = 'super-admin.html';
+                        backToSuperAdmin.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i> Back to Super Admin';
+                    }
+                    backToSuperAdmin.classList.remove('hidden');
+                }
+            } else {
+                initNavActiveState();
+            }
+            
+            loadBillings();
+        });
+    </script>
+</body>
+</html>
+

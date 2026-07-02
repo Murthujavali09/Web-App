@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Employee — Pramaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#3B82F6',
+                            hover: '#2563EB'
+                        },
+                        secondary: '#64748B',
+                        light: '#F8FAFC',
+                        'card-border': '#E2E8F0',
+                        'input-border': '#CBD5E1',
+                        'warning-bg': '#FEF9C3',
+                        'warning-text': '#854D0E',
+                        'warning-icon': '#FBBF24',
+                        'accent-orange': {
+                            DEFAULT: '#F97316',
+                            hover: '#EA580C'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-fade-in {
+            animation: fadeInPage 0.6s ease forwards;
+        }
+        .nav-link-active {
+            color: #1d4ed8 !important;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 16px rgba(15, 23, 42, 0.18);
+        }
+        .nav-link-active:hover {
+            color: white !important;
+            background-color: rgba(59, 130, 246, 0.5) !important;
+        }
+        /* Mobile Menu Styles */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            max-width: 85vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #2563eb, #1d4ed8);
+            z-index: 50;
+            transition: right 0.3s ease;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+        }
+        .mobile-menu.active {
+            right: 0;
+        }
+        .mobile-menu-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mobile-menu-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mobile-menu-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .mobile-menu-nav {
+            padding: 1rem 0;
+        }
+        .mobile-menu-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .mobile-menu-link:hover,
+        .mobile-menu-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: white;
+            color: white;
+        }
+        .mobile-menu-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+</head>
+<body class="bg-light font-sans antialiased text-slate-800">
+    <div id="app-container" class="min-h-screen pb-12">
+        <header id="header" class="sticky top-0 z-50 w-full">
+            <div class="w-[95%] max-w-7xl mx-auto mt-4 bg-gradient-to-r from-blue-600 to-blue-700 backdrop-blur-xl rounded-2xl shadow-2xl border border-blue-400/30">
+                <div class="flex items-center justify-between px-10 py-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white rounded-xl p-2.5 flex items-center justify-center hover:scale-110 transition-transform duration-200 shadow-lg">
+                            <i class="fa-solid fa-clock text-blue-600 text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-bold text-white">Pramaan</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <nav id="managerNavLinks" class="hidden md:flex items-center space-x-3 bg-blue-700/20 px-3 py-2 rounded-xl backdrop-blur-sm">
+                            <a href="manager.html" id="dashboardLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-chart-pie mr-2"></i>
+                                Dashboard
+                            </a>
+                            <a href="add-employee.html" id="addEmployeeLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-user-plus mr-2"></i>
+                                Add Employee
+                            </a>
+                            <a href="billings-payments.html" id="billingsLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-credit-card mr-2"></i>
+                                Billings & Payments
+                            </a>
+                            <a href="list-employees.html" id="listEmployeesLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-users mr-2"></i>
+                                Employees
+                            </a>
+                            <a href="alerts.html" id="alertsLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-bell mr-2"></i>
+                                Alerts
+                            </a>
+                        </nav>
+                        <a href="#" id="backToSuperAdmin" class="hidden items-center px-4 py-2 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 mr-4">
+                            <i class="fa-solid fa-arrow-left mr-2"></i>
+                            Back
+                        </a>
+                        <button class="hidden md:flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform border border-white/20" onclick="logoutApp()">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                            Logout
+                        </button>
+                        <button class="md:hidden text-white hover:text-blue-200 transition-colors duration-200" onclick="toggleMobileMenu()" id="mobileMenuBtn">
+                            <i class="fa-solid fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <span class="text-white font-bold text-lg">Menu</span>
+                <button class="mobile-menu-close" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <nav class="mobile-menu-nav">
+                <a href="manager.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    Dashboard
+                </a>
+                <a href="add-employee.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-user-plus"></i>
+                    Add Employee
+                </a>
+                <a href="billings-payments.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-credit-card"></i>
+                    Billings & Payments
+                </a>
+                <a href="list-employees.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-users"></i>
+                    Employees
+                </a>
+                <a href="alerts.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-bell"></i>
+                    Alerts
+                </a>
+                <a href="#" id="backToSuperAdminMobile" class="mobile-menu-link hidden" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Back
+                </a>
+                <div class="border-t border-white/20 my-2"></div>
+                <button class="mobile-menu-link w-full text-left" onclick="logoutApp(); closeMobileMenu();" style="border: none; background: none; cursor: pointer;">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Logout
+                </button>
+            </nav>
+        </div>
+
+        <main id="main-content" class="page-fade-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12">
+            <div id="page-header" class="mb-8 bg-gradient-to-r from-slate-50 to-blue-50 p-8 rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-primary/10 p-3 rounded-full">
+                            <i class="fa-solid fa-user-plus text-primary text-2xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold text-slate-900 mb-1">Employee Registration</h1>
+                            <p class="text-base text-secondary leading-relaxed">Complete the employee onboarding process with biometric face registration for secure time tracking</p>
+                        </div>
+                    </div>
+                    <div class="hidden lg:flex items-center space-x-2 text-sm text-slate-500">
+                        <i class="fa-solid fa-shield-check text-primary"></i>
+                        <span>Secure &amp; Compliant</span>
+                    </div>
+                </div>
+                <div class="mt-6 flex items-center space-x-6 text-sm"></div>
+            </div>
+
+            <div id="notification-area" class="mb-6 space-y-4">
+                <div id="errorBox" class="hidden border border-red-200 bg-red-50 text-red-700 rounded-lg px-4 py-3 flex items-start gap-3 shadow-sm">
+                    <i class="fa-solid fa-triangle-exclamation text-red-500 mt-1"></i>
+                    <div>
+                        <p class="font-semibold uppercase tracking-wide text-xs">Error</p>
+                        <p id="errorMessage" class="text-sm"></p>
+                    </div>
+                </div>
+                <div id="statusMessage" class="hidden rounded-lg px-4 py-3 text-sm font-medium shadow-sm"></div>
+            </div>
+
+            <div id="employee-form-grid" class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                <div id="employee-info-card" class="lg:col-span-3 bg-white p-8 rounded-xl border border-card-border shadow-sm">
+                    <div class="flex items-center mb-6">
+                        <i class="fa-solid fa-user-tie text-primary text-xl"></i>
+                        <h2 class="ml-3 text-lg font-semibold text-slate-900">Employee Information</h2>
+                    </div>
+                    <form id="addEmployeeForm" class="space-y-6">
+                        <div>
+                            <label for="employeeName" class="block text-sm font-medium text-slate-700 mb-1">Full Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="employeeName" name="employeeName" placeholder="Enter full name" class="block w-full px-4 py-2 text-sm bg-slate-50 border border-input-border rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all duration-300 hover:border-slate-400 hover:shadow-md focus:shadow-lg focus:scale-[1.01]" required>
+                        </div>
+                        <div>
+                            <label for="employeeRole" class="block text-sm font-medium text-slate-700 mb-1">Job Role</label>
+                            <input type="text" id="employeeRole" name="employeeRole" placeholder="Enter job role" value="Employee" class="block w-full px-4 py-2 text-sm bg-slate-50 border border-input-border rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all duration-300 hover:border-slate-400 hover:shadow-md focus:shadow-lg focus:scale-[1.01]">
+                        </div>
+                        <div>
+                            <label for="employeePhone" class="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
+                            <input type="text" id="employeePhone" name="employeePhone" placeholder="Enter phone number (digits only)" inputmode="numeric" pattern="[0-9]*" class="block w-full px-4 py-2 text-sm bg-slate-50 border border-input-border rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all duration-300 hover:border-slate-400 hover:shadow-md focus:shadow-lg focus:scale-[1.01]">
+                        </div>
+                        <div>
+                            <label for="employeeHourlyPay" class="block text-sm font-medium text-slate-700 mb-1">Hourly Pay Rate</label>
+                            <input type="number" id="employeeHourlyPay" name="employeeHourlyPay" placeholder="25.00" step="0.01" min="0" class="block w-full px-4 py-2 text-sm bg-slate-50 border border-input-border rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all duration-300 hover:border-slate-400 hover:shadow-md focus:shadow-lg focus:scale-[1.01]">
+                        </div>
+                    </form>
+                </div>
+
+                <div id="face-registration-card" class="lg:col-span-2 bg-white p-8 rounded-xl border border-card-border shadow-sm">
+                    <div class="flex items-center mb-6">
+                        <i class="fa-solid fa-camera-retro text-primary text-xl"></i>
+                        <h2 class="ml-3 text-lg font-semibold text-slate-900">Face Registration</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <div id="registration-status" class="bg-warning-bg p-3 rounded-lg flex items-center hover:shadow-md transition-all duration-200">
+                            <i class="fa-solid fa-circle-info text-warning-icon text-lg"></i>
+                            <p id="faceStatus" class="ml-3 text-sm font-medium text-warning-text">Face not captured yet</p>
+                        </div>
+                        <div id="camera-preview" class="relative w-full h-64 bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center text-center overflow-hidden hover:border-primary hover:bg-slate-100 transition-all duration-300">
+                            <video id="videoPreview" autoplay playsinline class="w-full h-full object-cover hidden"></video>
+                            <img id="capturedImage" alt="Captured face" class="w-full h-full object-cover hidden">
+                            <div id="camera-placeholder" class="flex flex-col items-center justify-center text-center absolute inset-0">
+                                <i class="fa-solid fa-video text-4xl text-slate-400 mb-3"></i>
+                                <p class="font-semibold text-slate-600">Camera Preview</p>
+                                <p class="text-xs text-slate-500">Click "Start Camera" to begin</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button id="startCameraBtn" type="button" class="w-full flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-md hover:bg-primary-hover hover:shadow-lg hover:scale-[1.05] transition-all duration-200 shadow-sm">
+                                <i class="fa-solid fa-play mr-2"></i>
+                                Start Camera
+                            </button>
+                            <button id="stopCameraBtn" type="button" class="hidden w-full flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-200 rounded-md hover:bg-slate-300 hover:shadow-lg hover:scale-[1.05] transition-all duration-200">
+                                <i class="fa-solid fa-stop mr-2"></i>
+                                Stop Camera
+                            </button>
+                        </div>
+                        <button id="captureFaceBtn" type="button" class="hidden w-full flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-white bg-accent-orange rounded-md hover:bg-accent-orange-hover hover:shadow-lg hover:scale-[1.05] transition-all duration-200 shadow-sm">
+                            <i class="fa-solid fa-camera mr-2"></i>
+                            Capture Face
+                        </button>
+                        <button id="retakeBtn" type="button" class="hidden w-full flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-200 rounded-md hover:bg-slate-300 hover:shadow-lg hover:scale-[1.05] transition-all duration-200">
+                            <i class="fa-solid fa-rotate-right mr-2"></i>
+                            Retake Photo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="form-actions" class="mt-8 flex justify-end items-center space-x-4">
+                <button type="button" class="px-6 py-2.5 text-sm font-semibold text-secondary bg-white border border-slate-300 rounded-md hover:bg-slate-50 hover:shadow-lg hover:scale-[1.05] transition-all duration-200" onclick="window.location='manager.html'">
+                    Cancel
+                </button>
+                <button type="submit" form="addEmployeeForm" class="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-md hover:bg-primary-hover hover:shadow-lg hover:scale-[1.05] transition-all duration-200 shadow-sm">
+                    Save
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script src="static/js/face-recognition.js"></script>
+    <script src="static/js/script.js"></script>
+    <script>
+        const mainContent = document.getElementById('main-content');
+
+        (function initPageTransitions() {
+            if (mainContent) {
+                requestAnimationFrame(() => {
+                    mainContent.classList.add('page-fade-in');
+                });
+                mainContent.addEventListener('animationend', (event) => {
+                    if (event.animationName === 'fadeInPage') {
+                        mainContent.classList.remove('page-fade-in');
+                    }
+                });
+            }
+
+            const nav = document.querySelector('nav');
+            if (!nav) {
+                return;
+            }
+
+            const links = Array.from(nav.querySelectorAll('a[data-nav-link]'));
+            if (!links.length) {
+                return;
+            }
+
+            const currentPath = window.location.pathname.split('/').pop();
+            const activeLink = links.find(link => link.getAttribute('href').split('/').pop() === currentPath) || links[0];
+            if (activeLink) {
+                activeLink.classList.add('nav-link-active');
+            }
+        })();
+
+        let videoStream = null;
+        let faceDescriptor = null;
+        let capturedImageData = null;
+
+        const statusMessage = document.getElementById('statusMessage');
+        const faceStatus = document.getElementById('faceStatus');
+        const errorBox = document.getElementById('errorBox');
+        const errorMessage = document.getElementById('errorMessage');
+        const cameraPlaceholder = document.getElementById('camera-placeholder');
+        const videoElement = document.getElementById('videoPreview');
+        const capturedImage = document.getElementById('capturedImage');
+        const startCameraBtn = document.getElementById('startCameraBtn');
+        const captureFaceBtn = document.getElementById('captureFaceBtn');
+        const stopCameraBtn = document.getElementById('stopCameraBtn');
+        const retakeBtn = document.getElementById('retakeBtn');
+
+        function toggleStatus(message, type = 'info') {
+            const typeClasses = {
+                info: 'bg-blue-50 text-blue-700 border border-blue-200',
+                success: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+                error: 'bg-red-50 text-red-700 border border-red-200'
+            };
+
+            statusMessage.textContent = message;
+            statusMessage.className = `rounded-lg px-4 py-3 text-sm font-medium ${typeClasses[type] || typeClasses.info}`;
+            statusMessage.classList.remove('hidden');
+
+            if (type !== 'error') {
+                setTimeout(() => {
+                    statusMessage.classList.add('hidden');
+                }, 5000);
+            }
+        }
+
+        function updateFaceStatus(captured) {
+            if (captured) {
+                faceStatus.textContent = 'Face captured successfully';
+                faceStatus.className = 'ml-3 text-sm font-medium text-emerald-700';
+            } else {
+                faceStatus.textContent = 'Face not captured yet';
+                faceStatus.className = 'ml-3 text-sm font-medium text-warning-text';
+            }
+        }
+
+        startCameraBtn.addEventListener('click', async () => {
+            errorBox.classList.add('hidden');
+
+            try {
+                toggleStatus('Loading face detection models...', 'info');
+                const modelsLoaded = await loadFaceApiModels();
+                if (!modelsLoaded) {
+                    toggleStatus('Failed to load face detection models', 'error');
+                    return;
+                }
+
+                toggleStatus('Starting camera...', 'info');
+                videoStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    }
+                });
+
+                videoElement.srcObject = videoStream;
+                videoElement.classList.remove('hidden');
+                cameraPlaceholder.classList.add('hidden');
+
+                startCameraBtn.classList.add('hidden');
+                captureFaceBtn.classList.remove('hidden');
+                stopCameraBtn.classList.remove('hidden');
+
+                toggleStatus('Camera started. Position the face in the frame and press "Capture Face".', 'success');
+            } catch (err) {
+                console.error('Camera error:', err);
+                toggleStatus('Failed to access camera: ' + err.message, 'error');
+            }
+        });
+
+        captureFaceBtn.addEventListener('click', async () => {
+            try {
+                toggleStatus('Detecting face...', 'info');
+
+                const result = await captureFaceFromVideo(videoElement);
+                if (result.success) {
+                    faceDescriptor = result.descriptor;
+                    capturedImageData = result.imageDataUrl;
+
+                    capturedImage.src = capturedImageData;
+                    capturedImage.classList.remove('hidden');
+
+                    videoElement.classList.add('hidden');
+                    captureFaceBtn.classList.add('hidden');
+                    retakeBtn.classList.remove('hidden');
+
+                    updateFaceStatus(true);
+                    toggleStatus('Face captured successfully!', 'success');
+                } else {
+                    toggleStatus('Face detection failed: ' + result.error, 'error');
+                }
+            } catch (err) {
+                console.error('Capture error:', err);
+                toggleStatus('Failed to capture face: ' + err.message, 'error');
+            }
+        });
+
+        retakeBtn.addEventListener('click', () => {
+            capturedImage.classList.add('hidden');
+            videoElement.classList.remove('hidden');
+
+            captureFaceBtn.classList.remove('hidden');
+            retakeBtn.classList.add('hidden');
+
+            faceDescriptor = null;
+            capturedImageData = null;
+            updateFaceStatus(false);
+
+            toggleStatus('Ready to capture face again.', 'info');
+        });
+
+        stopCameraBtn.addEventListener('click', () => {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+
+            videoElement.classList.add('hidden');
+            videoElement.srcObject = null;
+            capturedImage.classList.add('hidden');
+            cameraPlaceholder.classList.remove('hidden');
+
+            startCameraBtn.classList.remove('hidden');
+            captureFaceBtn.classList.add('hidden');
+            stopCameraBtn.classList.add('hidden');
+            retakeBtn.classList.add('hidden');
+
+            faceDescriptor = null;
+            capturedImageData = null;
+            updateFaceStatus(false);
+
+            toggleStatus('Camera stopped.', 'info');
+        });
+
+        // Restrict phone number input to integers only
+        const employeePhoneInput = document.getElementById('employeePhone');
+        if (employeePhoneInput) {
+            employeePhoneInput.addEventListener('input', function(e) {
+                // Remove any non-digit characters
+                this.value = this.value.replace(/\D/g, '');
+            });
+            
+            // Prevent paste of non-numeric characters
+            employeePhoneInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const paste = (e.clipboardData || window.clipboardData).getData('text');
+                const numbersOnly = paste.replace(/\D/g, '');
+                this.value = numbersOnly;
+            });
+            
+            // Prevent non-numeric keypresses
+            employeePhoneInput.addEventListener('keypress', function(e) {
+                const char = String.fromCharCode(e.which);
+                if (!/[0-9]/.test(char)) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        document.getElementById('addEmployeeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const employeeName = document.getElementById('employeeName').value.trim();
+            const employeeRole = document.getElementById('employeeRole').value.trim();
+            const employeePhone = document.getElementById('employeePhone').value.trim();
+            const employeeHourlyPay = document.getElementById('employeeHourlyPay').value.trim();
+
+            if (!employeeName) {
+                toggleStatus('Please enter employee name.', 'error');
+                return;
+            }
+
+            if (!faceDescriptor) {
+                toggleStatus('Face registration is mandatory. Capture the employee face before submitting.', 'error');
+                return;
+            }
+
+            try {
+                toggleStatus('Creating employee...', 'info');
+
+                let hourlyPayValue = null;
+                if (employeeHourlyPay) {
+                    const parsed = parseFloat(employeeHourlyPay);
+                    if (!isNaN(parsed) && parsed >= 0) {
+                        hourlyPayValue = parsed;
+                    }
+                }
+
+                const empResult = await apiPost('/employees/', {
+                    store_id: null,
+                    name: employeeName,
+                    role: employeeRole || null,
+                    phone_number: employeePhone || null,
+                    hourly_pay: hourlyPayValue
+                });
+
+                const employeeId = empResult.id;
+
+                if (faceDescriptor && employeeId) {
+                    toggleStatus('Registering face...', 'info');
+
+                    try {
+                        const faceResult = await apiPost('/face/register', {
+                            employee_id: employeeId,
+                            face_descriptor: faceDescriptor,
+                            face_image: capturedImageData
+                        });
+
+                        if (faceResult.success) {
+                            showSuccess('Employee added successfully with face registration!');
+                        } else {
+                            showSuccess('Employee added successfully! (Face registration had issues)');
+                        }
+                    } catch (faceErr) {
+                        if (faceErr.message && faceErr.message.includes('already registered')) {
+                            try {
+                                await apiDelete(`/employees/${employeeId}`);
+                                console.log('Employee deleted due to duplicate face.');
+                            } catch (delErr) {
+                                console.error('Failed to delete employee:', delErr);
+                            }
+
+                            errorMessage.textContent = faceErr.message;
+                            errorBox.classList.remove('hidden');
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            return;
+                        } else {
+                            showSuccess('Employee added successfully! (Face registration had issues)');
+                        }
+                    }
+                } else {
+                    showSuccess('Employee added successfully!');
+                }
+
+                if (videoStream) {
+                    videoStream.getTracks().forEach(track => track.stop());
+                }
+
+                // Redirect to employees list immediately after successful registration
+                setTimeout(() => {
+                    window.location = 'list-employees.html';
+                }, 500);
+
+            } catch (err) {
+                console.error('Failed to add employee:', err);
+                toggleStatus('Failed to add employee: ' + err.message, 'error');
+            }
+        });
+
+        const session = loadSession();
+        if (!session || (session.role !== 'manager' && session.role !== 'super-admin' && session.role !== 'admin')) {
+            window.location = 'login.html';
+        }
+        
+        // Handle navigation visibility when viewing as admin/super-admin
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewAs = urlParams.get('view_as');
+        
+        if (viewAs && (session?.role === 'super-admin' || session?.role === 'admin')) {
+            const managerNavLinks = document.getElementById('managerNavLinks');
+            const backToSuperAdmin = document.getElementById('backToSuperAdmin');
+            
+            if (managerNavLinks) {
+                managerNavLinks.style.display = 'none';
+            }
+            if (backToSuperAdmin) {
+                if (session?.role === 'admin') {
+                    backToSuperAdmin.href = 'admin.html';
+                    backToSuperAdmin.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i> Back to Admin';
+                } else {
+                    backToSuperAdmin.href = 'super-admin.html';
+                    backToSuperAdmin.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i> Back to Super Admin';
+                }
+                backToSuperAdmin.classList.remove('hidden');
+            }
+        }
+        
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            const menu = document.getElementById('mobileMenu');
+            overlay.classList.toggle('active');
+            menu.classList.toggle('active');
+            if (menu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+        
+        function closeMobileMenu() {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            const menu = document.getElementById('mobileMenu');
+            overlay.classList.remove('active');
+            menu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMobileMenu();
+            }
+        });
+        
+        function updateMobileMenuActiveState() {
+            const currentPath = window.location.pathname.split('/').pop() || 'add-employee.html';
+            const mobileLinks = document.querySelectorAll('.mobile-menu-link');
+            mobileLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href && href !== '#') {
+                    const hrefPath = href.split('/').pop().split('#')[0];
+                    if (hrefPath === currentPath) {
+                        link.classList.add('active');
+                    }
+                }
+            });
+        }
+        
+        // Handle back to super admin link
+        const backToSuperAdminMobile = document.getElementById('backToSuperAdminMobile');
+        const backToSuperAdmin = document.getElementById('backToSuperAdmin');
+        if (backToSuperAdminMobile && backToSuperAdmin) {
+            backToSuperAdminMobile.href = backToSuperAdmin.href;
+            backToSuperAdminMobile.onclick = function(e) {
+                if (backToSuperAdmin.onclick) {
+                    backToSuperAdmin.onclick(e);
+                }
+                closeMobileMenu();
+            };
+        }
+        
+        updateMobileMenuActiveState();
+    </script>
+</body>
+</html>

@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin Dashboard — Pramaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#3B82F6',
+                            hover: '#2563EB'
+                        },
+                        secondary: '#64748B',
+                        light: '#F8FAFC',
+                        'card-border': '#E2E8F0',
+                        'input-border': '#CBD5E1'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-fade-in {
+            animation: fadeInPage 0.6s ease forwards;
+        }
+        .nav-link-active {
+            color: #1d4ed8 !important;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 16px rgba(15, 23, 42, 0.18);
+        }
+        .nav-link-active:hover {
+            color: white !important;
+            background-color: rgba(59, 130, 246, 0.5) !important;
+        }
+        /* Mobile Menu Styles */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            max-width: 85vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #2563eb, #1d4ed8);
+            z-index: 50;
+            transition: right 0.3s ease;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+        }
+        .mobile-menu.active {
+            right: 0;
+        }
+        .mobile-menu-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mobile-menu-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mobile-menu-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .mobile-menu-nav {
+            padding: 1rem 0;
+        }
+        .mobile-menu-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .mobile-menu-link:hover,
+        .mobile-menu-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: white;
+            color: white;
+        }
+        .mobile-menu-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-light font-sans antialiased text-slate-800">
+    <div id="app-container" class="min-h-screen pb-12">
+        <header id="header" class="sticky top-0 z-50 w-full">
+            <div class="w-[95%] max-w-7xl mx-auto mt-4 bg-gradient-to-r from-blue-600 to-blue-700 backdrop-blur-xl rounded-2xl shadow-2xl border border-blue-400/30">
+                <div class="flex items-center justify-between px-10 py-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white rounded-xl p-2.5 flex items-center justify-center hover:scale-110 transition-transform duration-200 shadow-lg">
+                            <i class="fa-solid fa-clock text-blue-600 text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-bold text-white">Pramaan</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <nav class="hidden md:flex items-center space-x-3 bg-blue-700/20 px-3 py-2 rounded-xl backdrop-blur-sm">
+                            <a href="super-admin.html" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-chart-pie mr-2"></i>
+                                Dashboard
+                            </a>
+                            <a href="all-managers.html" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-users mr-2"></i>
+                                All Managers
+                            </a>
+                            <a href="all-admins.html" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-user-shield mr-2"></i>
+                                Admins
+                            </a>
+                            <a href="#" onclick="showSubscriptionSection(); return false;" class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-credit-card mr-2"></i>
+                                Subscription
+                            </a>
+                        </nav>
+                        <button class="hidden md:flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform border border-white/20" onclick="logoutApp()">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                            Logout
+                        </button>
+                        <button class="md:hidden text-white hover:text-blue-200 transition-colors duration-200" onclick="toggleMobileMenu()" id="mobileMenuBtn">
+                            <i class="fa-solid fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <span class="text-white font-bold text-lg">Menu</span>
+                <button class="mobile-menu-close" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <nav class="mobile-menu-nav">
+                <a href="super-admin.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    Dashboard
+                </a>
+                <a href="all-managers.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-users"></i>
+                    All Managers
+                </a>
+                <a href="all-admins.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-user-shield"></i>
+                    Admins
+                </a>
+                <a href="#" class="mobile-menu-link" onclick="showSubscriptionSection(); closeMobileMenu(); return false;">
+                    <i class="fa-solid fa-credit-card"></i>
+                    Subscription
+                </a>
+                <div class="border-t border-white/20 my-2"></div>
+                <button class="mobile-menu-link w-full text-left" onclick="logoutApp(); closeMobileMenu();" style="border: none; background: none; cursor: pointer;">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Logout
+                </button>
+            </nav>
+        </div>
+
+        <main id="main-content" class="page-fade-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12">
+            <!-- Hero / welcome card -->
+            <div class="flex items-center justify-center mb-10">
+                <div class="bg-gradient-to-r from-slate-50 to-blue-50 p-10 rounded-2xl border border-slate-200 shadow-xl w-full max-w-3xl">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-r from-blue-600 to-blue-700 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                            <i class="fa-solid fa-user-shield text-white text-3xl"></i>
+                        </div>
+                        <h1 id="superAdminWelcome" class="text-4xl font-bold text-slate-900">
+                            Welcome
+                        </h1>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main sections: Quick Actions -->
+            <section class="max-w-5xl mx-auto">
+                <!-- Quick Actions -->
+                <div class="mb-10">
+                    <h2 class="text-2xl font-semibold text-slate-900 mb-6">Quick Actions</h2>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Cash Report card -->
+                        <a href="cash-report.html" class="group bg-white border border-card-border rounded-2xl shadow-sm p-8 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-200 min-h-[180px]">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-14 h-14 rounded-xl bg-emerald-50 flex items-center justify-center">
+                                    <i class="fa-solid fa-cash-register text-emerald-600 text-xl"></i>
+                                </div>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-slate-300 group-hover:text-emerald-500 text-base"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-slate-900 mb-2">Cash Report</h3>
+                                <p class="text-sm text-secondary">View daily cash reconciliation by store.</p>
+                            </div>
+                        </a>
+
+                        <!-- Card Report card -->
+                        <a href="card-report.html" class="group bg-white border border-card-border rounded-2xl shadow-sm p-8 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-200 min-h-[180px]">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-14 h-14 rounded-xl bg-blue-50 flex items-center justify-center">
+                                    <i class="fa-solid fa-credit-card text-blue-600 text-xl"></i>
+                                </div>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-slate-300 group-hover:text-blue-500 text-base"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-slate-900 mb-2">Card Report</h3>
+                                <p class="text-sm text-secondary">View card payment reports by store.</p>
+                            </div>
+                        </a>
+
+                        <!-- Billings card -->
+                        <a href="billings.html" class="group bg-white border border-card-border rounded-2xl shadow-sm p-8 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-200 min-h-[180px]">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-14 h-14 rounded-xl bg-purple-50 flex items-center justify-center">
+                                    <i class="fa-solid fa-file-invoice-dollar text-purple-600 text-xl"></i>
+                                </div>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-slate-300 group-hover:text-purple-500 text-base"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-slate-900 mb-2">Billings</h3>
+                                <p class="text-sm text-secondary">Manage billing and invoices.</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Subscription Management Section -->
+            <div id="subscriptionSection" class="hidden">
+                <div class="bg-white rounded-xl border border-card-border shadow-sm p-8 mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-slate-900">Subscription Management</h2>
+                        <button onclick="hideSubscriptionSection()" class="text-secondary hover:text-slate-900">
+                            <i class="fa-solid fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="subscriptionLoading" class="text-center py-8">
+                        <i class="fa-solid fa-spinner fa-spin text-3xl text-primary mb-4"></i>
+                        <p class="text-secondary">Loading subscription details...</p>
+                    </div>
+                    
+                    <div id="subscriptionContent" class="hidden">
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div class="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-200">
+                                <h3 class="text-lg font-semibold text-slate-900 mb-2">Current Plan</h3>
+                                <p id="currentPlan" class="text-3xl font-bold text-primary mb-2">-</p>
+                                <p id="subscriptionStatus" class="text-sm text-secondary">Status: <span id="statusBadge" class="font-semibold">-</span></p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-lg border border-green-200">
+                                <h3 class="text-lg font-semibold text-slate-900 mb-2">Billing Period</h3>
+                                <p id="billingPeriod" class="text-sm text-secondary mb-1">Current period ends:</p>
+                                <p id="periodEnd" class="text-lg font-semibold text-slate-900">-</p>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-card-border pt-6">
+                            <h3 class="text-lg font-semibold text-slate-900 mb-4">Plan Options</h3>
+                            <div class="grid md:grid-cols-3 gap-4 mb-6">
+                                <div class="border-2 border-card-border rounded-lg p-4 hover:border-primary transition-colors" id="plan-basic">
+                                    <h4 class="font-semibold text-slate-900 mb-2">Basic</h4>
+                                    <p class="text-sm text-secondary mb-4">Essential features</p>
+                                    <button onclick="upgradePlan('basic')" class="w-full px-4 py-2 text-sm font-semibold text-white bg-primary rounded-md hover:bg-primary-hover transition">Select Plan</button>
+                                </div>
+                                <div class="border-2 border-card-border rounded-lg p-4 hover:border-primary transition-colors" id="plan-standard">
+                                    <h4 class="font-semibold text-slate-900 mb-2">Standard</h4>
+                                    <p class="text-sm text-secondary mb-4">More features</p>
+                                    <button onclick="upgradePlan('standard')" class="w-full px-4 py-2 text-sm font-semibold text-white bg-primary rounded-md hover:bg-primary-hover transition">Select Plan</button>
+                                </div>
+                                <div class="border-2 border-card-border rounded-lg p-4 hover:border-primary transition-colors" id="plan-premium">
+                                    <h4 class="font-semibold text-slate-900 mb-2">Premium</h4>
+                                    <p class="text-sm text-secondary mb-4">All features</p>
+                                    <button onclick="upgradePlan('premium')" class="w-full px-4 py-2 text-sm font-semibold text-white bg-primary rounded-md hover:bg-primary-hover transition">Select Plan</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-card-border pt-6 flex gap-4">
+                            <button onclick="openBillingPortal()" class="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-primary rounded-md hover:bg-primary-hover transition shadow-sm">
+                                <i class="fa-solid fa-external-link"></i>
+                                Manage Billing
+                            </button>
+                            <button id="cancelButton" onclick="cancelSubscription()" class="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition border border-red-200">
+                                <i class="fa-solid fa-ban"></i>
+                                Cancel Subscription
+                            </button>
+                            <button id="reactivateButton" onclick="reactivateSubscription()" class="hidden flex items-center gap-2 px-6 py-3 text-sm font-semibold text-green-600 bg-green-50 rounded-md hover:bg-green-100 transition border border-green-200">
+                                <i class="fa-solid fa-check"></i>
+                                Reactivate Subscription
+                            </button>
+                        </div>
+                        
+                        <div id="subscriptionError" class="hidden mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="static/js/script.js"></script>
+    <script>
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            requestAnimationFrame(() => {
+                mainContent.classList.add('page-fade-in');
+            });
+        }
+
+        // Initialize navigation active state
+        function initNavActiveState() {
+            const nav = document.querySelector('nav');
+            if (nav) {
+                // Remove all active classes first
+                const links = Array.from(nav.querySelectorAll('a[data-nav-link]'));
+                links.forEach(link => link.classList.remove('nav-link-active'));
+                
+                // Find and activate the current page link
+                const currentPath = window.location.pathname.split('/').pop() || 'super-admin.html';
+                const activeLink = links.find(link => {
+                    const href = link.getAttribute('href');
+                    const hrefPath = href.split('/').pop();
+                    return hrefPath === currentPath;
+                });
+                
+                if (activeLink) {
+                    activeLink.classList.add('nav-link-active');
+                } else if (currentPath === 'super-admin.html') {
+                    // Default to Dashboard if on super-admin page
+                    const dashboardLink = links.find(link => link.getAttribute('href').includes('super-admin.html'));
+                    if (dashboardLink) {
+                        dashboardLink.classList.add('nav-link-active');
+                    }
+                }
+            }
+        }
+        
+        initNavActiveState();
+        
+        // Handle hash navigation for subscription
+        function handleHashNavigation() {
+            if (window.location.hash === '#subscription') {
+                // Small delay to ensure page is fully loaded
+                setTimeout(() => {
+                    showSubscriptionSection();
+                }, 100);
+            }
+        }
+        
+        // Handle hash on page load
+        handleHashNavigation();
+        
+        // Handle hash changes (when clicking subscription link from same page)
+        window.addEventListener('hashchange', handleHashNavigation);
+
+        // Subscription Management Functions
+        let subscriptionData = null;
+        
+        window.showSubscriptionSection = function() {
+            const subscriptionSection = document.getElementById('subscriptionSection');
+            if (subscriptionSection) {
+                subscriptionSection.classList.remove('hidden');
+                // Scroll to subscription section
+                subscriptionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                loadSubscription();
+            }
+        };
+        
+        window.hideSubscriptionSection = function() {
+            const subscriptionSection = document.getElementById('subscriptionSection');
+            if (subscriptionSection) {
+                subscriptionSection.classList.add('hidden');
+            }
+        };
+        
+        async function loadSubscription() {
+            try {
+                document.getElementById('subscriptionLoading').classList.remove('hidden');
+                document.getElementById('subscriptionContent').classList.add('hidden');
+                
+                subscriptionData = await apiGet('/tenants/subscription');
+                
+                // Update UI
+                document.getElementById('currentPlan').textContent = subscriptionData.plan.charAt(0).toUpperCase() + subscriptionData.plan.slice(1);
+                document.getElementById('subscriptionStatus').innerHTML = `Status: <span id="statusBadge" class="font-semibold">${subscriptionData.status}</span>`;
+                
+                // Style status badge
+                const statusBadge = document.getElementById('statusBadge');
+                if (subscriptionData.status === 'active') {
+                    statusBadge.className = 'font-semibold text-green-600';
+                } else if (subscriptionData.status === 'suspended') {
+                    statusBadge.className = 'font-semibold text-yellow-600';
+                } else {
+                    statusBadge.className = 'font-semibold text-red-600';
+                }
+                
+                if (subscriptionData.current_period_end) {
+                    const endDate = new Date(subscriptionData.current_period_end);
+                    document.getElementById('periodEnd').textContent = endDate.toLocaleDateString();
+                } else {
+                    document.getElementById('periodEnd').textContent = 'N/A';
+                }
+                
+                // Highlight current plan
+                ['basic', 'standard', 'premium'].forEach(plan => {
+                    const planDiv = document.getElementById(`plan-${plan}`);
+                    if (plan === subscriptionData.plan) {
+                        planDiv.classList.add('border-primary', 'bg-primary/5');
+                        planDiv.querySelector('button').textContent = 'Current Plan';
+                        planDiv.querySelector('button').disabled = true;
+                        planDiv.querySelector('button').classList.add('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        planDiv.classList.remove('border-primary', 'bg-primary/5');
+                        planDiv.querySelector('button').textContent = 'Select Plan';
+                        planDiv.querySelector('button').disabled = false;
+                        planDiv.querySelector('button').classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                });
+                
+                // Show/hide cancel/reactivate buttons
+                if (subscriptionData.cancel_at_period_end) {
+                    document.getElementById('cancelButton').classList.add('hidden');
+                    document.getElementById('reactivateButton').classList.remove('hidden');
+                } else {
+                    document.getElementById('cancelButton').classList.remove('hidden');
+                    document.getElementById('reactivateButton').classList.add('hidden');
+                }
+                
+                document.getElementById('subscriptionLoading').classList.add('hidden');
+                document.getElementById('subscriptionContent').classList.remove('hidden');
+                
+            } catch (err) {
+                console.error('Failed to load subscription:', err);
+                document.getElementById('subscriptionLoading').innerHTML = '<p class="text-red-600 font-semibold">Failed to load subscription details</p>';
+            }
+        }
+        
+        async function upgradePlan(plan) {
+            if (!confirm(`Are you sure you want to upgrade to ${plan} plan?`)) {
+                return;
+            }
+            
+            try {
+                const result = await apiPost('/tenants/subscription/upgrade', { plan });
+                if (result.checkout_url) {
+                    window.location.href = result.checkout_url;
+                }
+            } catch (err) {
+                const errorDiv = document.getElementById('subscriptionError');
+                errorDiv.textContent = err.message || 'Failed to initiate upgrade';
+                errorDiv.classList.remove('hidden');
+            }
+        }
+        
+        async function cancelSubscription() {
+            if (!confirm('Are you sure you want to cancel your subscription? It will remain active until the end of the current billing period.')) {
+                return;
+            }
+            
+            try {
+                await apiPost('/tenants/subscription/cancel');
+                alert('Subscription will be cancelled at the end of the current billing period.');
+                loadSubscription();
+            } catch (err) {
+                const errorDiv = document.getElementById('subscriptionError');
+                errorDiv.textContent = err.message || 'Failed to cancel subscription';
+                errorDiv.classList.remove('hidden');
+            }
+        }
+        
+        async function reactivateSubscription() {
+            if (!confirm('Are you sure you want to reactivate your subscription?')) {
+                return;
+            }
+            
+            try {
+                await apiPost('/tenants/subscription/reactivate');
+                alert('Subscription reactivated successfully!');
+                loadSubscription();
+            } catch (err) {
+                const errorDiv = document.getElementById('subscriptionError');
+                errorDiv.textContent = err.message || 'Failed to reactivate subscription';
+                errorDiv.classList.remove('hidden');
+            }
+        }
+        
+        async function openBillingPortal() {
+            try {
+                const result = await apiGet('/tenants/subscription/billing-portal');
+                if (result.url) {
+                    window.open(result.url, '_blank');
+                }
+            } catch (err) {
+                const errorDiv = document.getElementById('subscriptionError');
+                errorDiv.textContent = err.message || 'Failed to open billing portal';
+                errorDiv.classList.remove('hidden');
+            }
+        }
+        
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            const menu = document.getElementById('mobileMenu');
+            overlay.classList.toggle('active');
+            menu.classList.toggle('active');
+            // Prevent body scroll when menu is open
+            if (menu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+        
+        function closeMobileMenu() {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            const menu = document.getElementById('mobileMenu');
+            overlay.classList.remove('active');
+            menu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        // Close menu on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMobileMenu();
+            }
+        });
+        
+        // Update active link in mobile menu
+        function updateMobileMenuActiveState() {
+            const currentPath = window.location.pathname.split('/').pop() || 'super-admin.html';
+            const mobileLinks = document.querySelectorAll('.mobile-menu-link');
+            mobileLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href && href !== '#') {
+                    const hrefPath = href.split('/').pop();
+                    if (hrefPath === currentPath || (currentPath === 'super-admin.html' && href === 'super-admin.html')) {
+                        link.classList.add('active');
+                    }
+                }
+            });
+        }
+
+        const session = loadSession();
+        if (!session || session.role !== 'super-admin') {
+            window.location = 'login.html';
+        } else {
+            // Display super admin name
+            const superAdminName = session.name || session.username || 'Super Admin';
+            const superAdminWelcome = document.getElementById('superAdminWelcome');
+            if (superAdminWelcome) {
+                superAdminWelcome.textContent = `Welcome, ${superAdminName}`;
+            }
+            // Update mobile menu active state
+            updateMobileMenuActiveState();
+        }
+    </script>
+</body>
+</html>

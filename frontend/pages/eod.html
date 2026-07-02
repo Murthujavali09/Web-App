@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EOD — Pramaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#3B82F6',
+                            hover: '#2563EB'
+                        },
+                        secondary: '#64748B',
+                        light: '#F8FAFC',
+                        'card-border': '#E2E8F0',
+                        'input-border': '#CBD5E1'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-fade-in {
+            animation: fadeInPage 0.6s ease forwards;
+        }
+        .nav-link-active {
+            color: #1d4ed8 !important;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 16px rgba(15, 23, 42, 0.18);
+        }
+        .nav-link-active:hover {
+            color: white !important;
+            background-color: rgba(59, 130, 246, 0.5) !important;
+        }
+        .eod-input, .animated-input {
+            width: 100%;
+            padding: 0.625rem 0.75rem;
+            border: 2px solid #CBD5E1;
+            border-radius: 0.5rem;
+            font-size: 0.9375rem;
+            background: #F8FAFC;
+            transition: all 0.3s ease-out;
+            transform-origin: center;
+        }
+        .eod-input:focus, .animated-input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 10px 25px -5px rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px) scale(1.02);
+        }
+        .eod-input:hover, .animated-input:hover {
+            border-color: #94A3B8;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .animated-input {
+            transform-origin: center;
+        }
+        .animated-input:focus {
+            animation: inputFocus 0.3s ease-out;
+        }
+        @keyframes inputFocus {
+            0% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-2px) scale(1.01);
+            }
+            100% {
+                transform: translateY(-2px) scale(1.02);
+            }
+        }
+        .animated-input:focus {
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 10px 25px -5px rgba(59, 130, 246, 0.2);
+        }
+        .eod-form-group label {
+            transition: all 0.3s ease-out;
+        }
+        .eod-form-group:focus-within label,
+        .eod-form-group:has(input:focus) label,
+        .eod-form-group:has(textarea:focus) label {
+            transform: translateX(2px);
+            color: #3B82F6;
+        }
+        textarea.animated-input {
+            resize: vertical;
+        }
+    </style>
+</head>
+<body class="bg-light font-sans antialiased text-slate-800">
+    <div id="app-container" class="min-h-screen pb-12">
+        <!-- Top navbar -->
+        <header id="header" class="sticky top-0 z-50 w-full">
+            <div class="w-[95%] max-w-7xl mx-auto mt-4 bg-gradient-to-r from-blue-600 to-blue-700 backdrop-blur-xl rounded-2xl shadow-2xl border border-blue-400/30">
+                <div class="flex items-center justify-between px-10 py-4">
+                    <!-- Left: Website name / logo -->
+                    <div class="flex-1 flex items-center justify-start space-x-3">
+                        <a href="dashboard.html" class="bg-white rounded-xl p-2.5 flex items-center justify-center hover:scale-110 transition-transform duration-200 shadow-lg cursor-pointer">
+                            <i class="fa-solid fa-clock text-blue-600 text-xl"></i>
+                        </a>
+                        <span class="text-2xl font-bold text-white">Pramaan</span>
+                    </div>
+
+                    <!-- Right: Logout -->
+                    <div class="flex-1 flex items-center justify-end">
+                        <button class="flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform border border-white/20" onclick="logoutApp()">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main id="main-content" class="page-fade-in max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
+            <div id="eodRoot" class="bg-white p-8 rounded-2xl border border-card-border shadow-xl">
+                <div class="mb-6 flex items-start justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-gradient-to-r from-blue-600 to-blue-700 w-14 h-14 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fa-solid fa-calendar-check text-white text-xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-900">End of Day Submission</h2>
+                    </div>
+                </div>
+
+                <!-- FORM LAYOUT -->
+                <form id="eodForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- LEFT SIDE: MAIN FIELDS -->
+                        <div class="space-y-3.5">
+                            <!-- 1. Cash -->
+                            <div class="flex items-center gap-3">
+                                <label class="w-28 text-sm font-semibold text-slate-700 flex-shrink-0">
+                                    1. Cash
+                                </label>
+                                <input
+                                    type="text"
+                                    id="cash"
+                                    name="cash"
+                                    inputmode="decimal"
+                                    class="eod-input animated-input flex-1"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1'); calculateOverShort();"
+                                />
+                            </div>
+
+                            <!-- 2. Card -->
+                            <div class="flex items-center gap-3">
+                                <label class="w-28 text-sm font-semibold text-slate-700 flex-shrink-0">
+                                    2. Card
+                                </label>
+                                <input
+                                    type="text"
+                                    id="card"
+                                    name="card"
+                                    inputmode="decimal"
+                                    class="eod-input animated-input flex-1"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1'); calculateOverShort();"
+                                />
+                            </div>
+
+                            <!-- 3. Card1 -->
+                            <div class="flex items-center gap-3">
+                                <label class="w-28 text-sm font-semibold text-slate-700 flex-shrink-0">
+                                    3. Card1
+                                </label>
+                                <input
+                                    type="text"
+                                    id="card1"
+                                    name="card1"
+                                    inputmode="decimal"
+                                    class="eod-input animated-input flex-1"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1'); calculateOverShort();"
+                                />
+                            </div>
+
+                            <!-- 4. Ex-Total -->
+                            <div class="flex items-center gap-3">
+                                <label class="w-28 text-sm font-semibold text-slate-700 flex-shrink-0">
+                                    4. Ex-Total
+                                </label>
+                                <input
+                                    type="text"
+                                    id="total"
+                                    name="total"
+                                    inputmode="decimal"
+                                    class="eod-input animated-input flex-1"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1'); calculateOverShort();"
+                                />
+                            </div>
+
+                            <!-- 5. QPay -->
+                            <div class="flex items-center gap-3">
+                                <label class="w-28 text-sm font-semibold text-slate-700 flex-shrink-0">
+                                    5. QPay
+                                </label>
+                                <input
+                                    type="text"
+                                    id="qpay"
+                                    name="qpay"
+                                    inputmode="decimal"
+                                    class="eod-input animated-input flex-1"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                                />
+                            </div>
+
+                            <!-- 6. Boxes -->
+                            <div class="flex items-center gap-3">
+                                <label class="w-28 text-sm font-semibold text-slate-700 flex-shrink-0">
+                                    6. Boxes
+                                </label>
+                                <input
+                                    type="text"
+                                    id="boxes"
+                                    name="boxes"
+                                    inputmode="numeric"
+                                    class="eod-input animated-input flex-1"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                />
+                            </div>
+
+                            <!-- 7. Accessories -->
+                            <div class="flex items-center gap-3">
+                                <label class="w-28 text-sm font-semibold text-slate-700 flex-shrink-0">
+                                    7. Accessories
+                                </label>
+                                <input
+                                    type="text"
+                                    id="accessories"
+                                    name="accessories"
+                                    inputmode="decimal"
+                                    class="eod-input animated-input flex-1"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                                />
+                            </div>
+
+                            <!-- 8. Magenta -->
+                            <div class="flex items-center gap-3">
+                                <label class="w-28 text-sm font-semibold text-slate-700 flex-shrink-0">
+                                    8. Magenta
+                                </label>
+                                <input
+                                    type="text"
+                                    id="magenta"
+                                    name="magenta"
+                                    inputmode="decimal"
+                                    class="eod-input animated-input flex-1"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                                />
+                            </div>
+
+                            <!-- 9. Inventory Sold -->
+                            <div class="flex items-center gap-3">
+                                <label class="w-28 text-sm font-semibold text-slate-700 flex-shrink-0">
+                                    9. Inventory Sold
+                                </label>
+                                <input
+                                    type="text"
+                                    id="inventorySold"
+                                    name="inventorySold"
+                                    inputmode="numeric"
+                                    class="eod-input animated-input flex-1"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                />
+                            </div>
+
+                            <!-- 10. Over/Short -->
+                            <div class="flex items-center gap-3">
+                                <label class="w-28 text-sm font-semibold text-slate-700 flex-shrink-0">
+                                    10. Over/Short
+                                </label>
+                                <input
+                                    type="text"
+                                    id="overShort"
+                                    name="overShort"
+                                    inputmode="decimal"
+                                    class="eod-input animated-input flex-1"
+                                    readonly
+                                    style="background-color: #f1f5f9; cursor: not-allowed;"
+                                />
+                            </div>
+
+                            <!-- 11. Comments -->
+                            <div class="eod-form-group mt-3">
+                                <label for="comments" class="block text-sm font-semibold text-slate-700 mb-2">
+                                    11. Comments
+                                </label>
+                                <textarea
+                                    id="comments"
+                                    name="comments"
+                                    rows="3"
+                                    class="animated-input w-full px-4 py-3 text-base bg-slate-50 border-2 border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-600 focus:bg-white focus:shadow-lg focus:-translate-y-0.5 focus:scale-[1.01] transition-all duration-300 ease-out placeholder:text-slate-400 hover:border-slate-400 hover:shadow-sm"
+                                    placeholder="Any notes about discrepancies, issues, or comments..."
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT SIDE: DENOMINATIONS -->
+                        <div class="space-y-3.5">
+                            <!-- Denominations Card -->
+                            <div class="border border-card-border rounded-2xl p-5 bg-slate-50 h-full flex flex-col">
+                                <h3 class="text-base font-bold text-slate-800 mb-4">
+                                    Denominations
+                                </h3>
+
+                                <div class="space-y-2.5 flex-1">
+                                    <!-- 100 -->
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-14 text-sm font-semibold text-slate-700 flex-shrink-0">$100 ×</span>
+                                        <input
+                                            type="text"
+                                            id="denom100Count"
+                                            name="denom100Count"
+                                            inputmode="numeric"
+                                            class="eod-input animated-input w-20 flex-shrink-0"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                        />
+                                        <span class="text-sm font-semibold text-slate-700 flex-shrink-0">=</span>
+                                        <input
+                                            type="text"
+                                            id="denom100Total"
+                                            name="denom100Total"
+                                            inputmode="decimal"
+                                            class="eod-input animated-input flex-1"
+                                            oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                                        />
+                                    </div>
+
+                                    <!-- 50 -->
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-14 text-sm font-semibold text-slate-700 flex-shrink-0">$50 ×</span>
+                                        <input
+                                            type="text"
+                                            id="denom50Count"
+                                            name="denom50Count"
+                                            inputmode="numeric"
+                                            class="eod-input animated-input w-20 flex-shrink-0"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                        />
+                                        <span class="text-sm font-semibold text-slate-700 flex-shrink-0">=</span>
+                                        <input
+                                            type="text"
+                                            id="denom50Total"
+                                            name="denom50Total"
+                                            inputmode="decimal"
+                                            class="eod-input animated-input flex-1"
+                                            oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                                        />
+                                    </div>
+
+                                    <!-- 20 -->
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-14 text-sm font-semibold text-slate-700 flex-shrink-0">$20 ×</span>
+                                        <input
+                                            type="text"
+                                            id="denom20Count"
+                                            name="denom20Count"
+                                            inputmode="numeric"
+                                            class="eod-input animated-input w-20 flex-shrink-0"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                        />
+                                        <span class="text-sm font-semibold text-slate-700 flex-shrink-0">=</span>
+                                        <input
+                                            type="text"
+                                            id="denom20Total"
+                                            name="denom20Total"
+                                            inputmode="decimal"
+                                            class="eod-input animated-input flex-1"
+                                            oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                                        />
+                                    </div>
+
+                                    <!-- 10 -->
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-14 text-sm font-semibold text-slate-700 flex-shrink-0">$10 ×</span>
+                                        <input
+                                            type="text"
+                                            id="denom10Count"
+                                            name="denom10Count"
+                                            inputmode="numeric"
+                                            class="eod-input animated-input w-20 flex-shrink-0"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                        />
+                                        <span class="text-sm font-semibold text-slate-700 flex-shrink-0">=</span>
+                                        <input
+                                            type="text"
+                                            id="denom10Total"
+                                            name="denom10Total"
+                                            inputmode="decimal"
+                                            class="eod-input animated-input flex-1"
+                                            oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                                        />
+                                    </div>
+
+                                    <!-- 5 -->
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-14 text-sm font-semibold text-slate-700 flex-shrink-0">$5 ×</span>
+                                        <input
+                                            type="text"
+                                            id="denom5Count"
+                                            name="denom5Count"
+                                            inputmode="numeric"
+                                            class="eod-input animated-input w-20 flex-shrink-0"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                        />
+                                        <span class="text-sm font-semibold text-slate-700 flex-shrink-0">=</span>
+                                        <input
+                                            type="text"
+                                            id="denom5Total"
+                                            name="denom5Total"
+                                            inputmode="decimal"
+                                            class="eod-input animated-input flex-1"
+                                            oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                                        />
+                                    </div>
+
+                                    <!-- 1 -->
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-14 text-sm font-semibold text-slate-700 flex-shrink-0">$1 ×</span>
+                                        <input
+                                            type="text"
+                                            id="denom1Count"
+                                            name="denom1Count"
+                                            inputmode="numeric"
+                                            class="eod-input animated-input w-20 flex-shrink-0"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                        />
+                                        <span class="text-sm font-semibold text-slate-700 flex-shrink-0">=</span>
+                                        <input
+                                            type="text"
+                                            id="denom1Total"
+                                            name="denom1Total"
+                                            inputmode="decimal"
+                                            class="eod-input animated-input flex-1"
+                                            oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                                        />
+                                    </div>
+                                </div>
+
+                                <!-- Total Bills -->
+                                <div class="mt-4 pt-3 border-t border-slate-200 flex items-center gap-3">
+                                    <span class="w-28 text-sm font-bold text-slate-800 flex-shrink-0">
+                                        Total Bills
+                                    </span>
+                                    <input
+                                        type="text"
+                                        id="totalBills"
+                                        name="totalBills"
+                                        inputmode="numeric"
+                                        class="eod-input animated-input flex-1"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit button -->
+                    <div>
+                        <button
+                            id="submitEodBtn"
+                            type="button"
+                            class="w-full flex items-center justify-center gap-3 px-8 py-4 text-base font-bold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl hover:from-emerald-600 hover:to-emerald-700 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg"
+                        >
+                            <i class="fa-solid fa-dollar-sign"></i>
+                            Submit End of Day
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="static/js/script.js"></script>
+    <script>
+        // Add enhanced focus animations to all inputs
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('.animated-input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('input-focused');
+                    this.style.animation = 'inputFocus 0.3s ease-out';
+                });
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('input-focused');
+                });
+                input.addEventListener('mousedown', function() {
+                    this.style.transform = 'translateY(-1px) scale(1.01)';
+                });
+                input.addEventListener('mouseup', function() {
+                    if (!this.matches(':focus')) {
+                        this.style.transform = '';
+                    }
+                });
+            });
+        });
+
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            requestAnimationFrame(() => {
+                mainContent.classList.add('page-fade-in');
+            });
+        }
+
+        // Keep this in case nav is used elsewhere; it won't run without a nav element
+        const nav = document.querySelector('nav');
+        if (nav) {
+            const links = Array.from(nav.querySelectorAll('a[data-nav-link]'));
+            const currentPath = window.location.pathname.split('/').pop();
+            const activeLink = links.find(link => link.getAttribute('href').split('/').pop() === currentPath) || links[0];
+            if (activeLink) {
+                activeLink.classList.add('nav-link-active');
+            }
+        }
+
+        // Calculate Over/Short automatically
+        function calculateOverShort() {
+            const cashInput = document.getElementById('cash');
+            const cardInput = document.getElementById('card');
+            const card1Input = document.getElementById('card1');
+            const exTotalInput = document.getElementById('total');
+            const overShortInput = document.getElementById('overShort');
+            
+            if (!cashInput || !cardInput || !card1Input || !exTotalInput || !overShortInput) {
+                return;
+            }
+            
+            // Get values and convert to numbers
+            const cash = parseFloat(cashInput.value) || 0;
+            const card = parseFloat(cardInput.value) || 0;
+            const card1 = parseFloat(card1Input.value) || 0;
+            const exTotal = parseFloat(exTotalInput.value) || 0;
+            
+            // Calculate: Ex-Total - (Cash + Card + Card1)
+            const difference = exTotal - (cash + card + card1);
+            
+            // Format the result
+            if (difference > 0) {
+                // Positive: show as "+amount over"
+                overShortInput.value = '+' + difference.toFixed(2) + ' over';
+                overShortInput.style.color = '#28a745';
+            } else if (difference < 0) {
+                // Negative: show absolute value as "amount short"
+                const absValue = Math.abs(difference);
+                overShortInput.value = absValue.toFixed(2) + ' short';
+                overShortInput.style.color = '#dc3545';
+            } else {
+                // Zero: show as "0"
+                overShortInput.value = '0';
+                overShortInput.style.color = '#6c757d';
+            }
+        }
+        
+        // Calculate on page load if values exist
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateOverShort();
+        });
+
+    </script>
+</body>
+</html>

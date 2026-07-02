@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard — Pramaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#3B82F6',
+                            hover: '#2563EB'
+                        },
+                        secondary: '#64748B',
+                        light: '#F8FAFC',
+                        'card-border': '#E2E8F0',
+                        'input-border': '#CBD5E1'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-fade-in {
+            animation: fadeInPage 0.6s ease forwards;
+        }
+        .nav-link-active {
+            color: #1d4ed8 !important;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 16px rgba(15, 23, 42, 0.18);
+        }
+        .nav-link-active:hover {
+            color: white !important;
+            background-color: rgba(59, 130, 246, 0.5) !important;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+            position: relative;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal-header {
+            background: linear-gradient(to right, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 20px 24px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+        .modal-body {
+            padding: 24px;
+        }
+        .modal-form-group {
+            margin-bottom: 20px;
+        }
+        .modal-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        .modal-form-group:focus-within label {
+            transform: translateX(2px);
+            color: #2563eb;
+        }
+        .modal-form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #CBD5E1;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: #F8FAFC;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            transform-origin: center;
+        }
+        .modal-form-group input:hover {
+            border-color: #94A3B8;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .modal-form-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1), 0 10px 25px -5px rgba(37, 99, 235, 0.2);
+            transform: translateY(-2px) scale(1.02);
+        }
+        .modal-error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+            font-size: 0.9rem;
+        }
+        .modal-error.show {
+            display: block;
+        }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        .modal-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        .modal-btn-primary {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            color: white;
+        }
+        .modal-btn-primary:hover {
+            background: linear-gradient(to right, #1d4ed8, #1e40af);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .modal-btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .modal-btn-secondary:hover {
+            background: #5a6268;
+        }
+        .store-card-details.expanded {
+            max-height: 3000px !important;
+        }
+        /* Mobile Menu Styles */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            max-width: 85vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #2563eb, #1d4ed8);
+            z-index: 50;
+            transition: right 0.3s ease;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+        }
+        .mobile-menu.active {
+            right: 0;
+        }
+        .mobile-menu-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mobile-menu-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mobile-menu-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .mobile-menu-nav {
+            padding: 1rem 0;
+        }
+        .mobile-menu-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .mobile-menu-link:hover,
+        .mobile-menu-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: white;
+            color: white;
+        }
+        .mobile-menu-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-light font-sans antialiased text-slate-800">
+    <div id="app-container" class="min-h-screen pb-12">
+        <header id="header" class="sticky top-0 z-50 w-full">
+            <div class="w-[95%] max-w-7xl mx-auto mt-4 bg-gradient-to-r from-blue-600 to-blue-700 backdrop-blur-xl rounded-2xl shadow-2xl border border-blue-400/30">
+                <div class="flex items-center justify-between px-10 py-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white rounded-xl p-2.5 flex items-center justify-center hover:scale-110 transition-transform duration-200 shadow-lg">
+                            <i class="fa-solid fa-clock text-blue-600 text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-bold text-white">Pramaan</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <nav id="managerNavLinks" class="hidden md:flex items-center space-x-3 bg-blue-700/20 px-3 py-2 rounded-xl backdrop-blur-sm">
+                            <a href="manager.html" id="dashboardLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-chart-pie mr-2"></i>
+                                Dashboard
+                            </a>
+                            <a href="add-employee.html" id="addEmployeeLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-user-plus mr-2"></i>
+                                Add Employee
+                            </a>
+                            <a href="billings-payments.html" id="billingsLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-credit-card mr-2"></i>
+                                Billings & Payments
+                            </a>
+                            <a href="list-employees.html" id="listEmployeesLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-users mr-2"></i>
+                                Employees
+                            </a>
+                            <a href="alerts.html" id="alertsLink" data-nav-link class="relative z-10 flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform">
+                                <i class="fa-solid fa-bell mr-2"></i>
+                                Alerts
+                            </a>
+                        </nav>
+                        <a href="#" id="backToSuperAdmin" class="hidden items-center px-4 py-2 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 mr-4">
+                            <i class="fa-solid fa-arrow-left mr-2"></i>
+                            Back
+                        </a>
+                        <button class="hidden md:flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform border border-white/20" onclick="logoutApp()">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                            Logout
+                        </button>
+                        <button class="md:hidden text-white hover:text-blue-200 transition-colors duration-200" onclick="toggleMobileMenu()" id="mobileMenuBtn">
+                            <i class="fa-solid fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <span class="text-white font-bold text-lg">Menu</span>
+                <button class="mobile-menu-close" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <nav class="mobile-menu-nav">
+                <a href="manager.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    Dashboard
+                </a>
+                <a href="add-employee.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-user-plus"></i>
+                    Add Employee
+                </a>
+                <a href="billings-payments.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-credit-card"></i>
+                    Billings & Payments
+                </a>
+                <a href="list-employees.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-users"></i>
+                    Employees
+                </a>
+                <a href="alerts.html" class="mobile-menu-link" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-bell"></i>
+                    Alerts
+                </a>
+                <a href="#" id="backToSuperAdminMobile" class="mobile-menu-link hidden" onclick="closeMobileMenu()">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Back to Super Admin
+                </a>
+                <div class="border-t border-white/20 my-2"></div>
+                <button class="mobile-menu-link w-full text-left" onclick="logoutApp(); closeMobileMenu();" style="border: none; background: none; cursor: pointer;">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Logout
+                </button>
+            </nav>
+        </div>
+
+        <main id="main-content" class="page-fade-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12">
+            <!-- Hero / welcome card -->
+            <div class="flex items-center justify-center mb-10">
+                <div class="bg-gradient-to-r from-slate-50 to-blue-50 p-10 rounded-2xl border border-slate-200 shadow-xl w-full max-w-3xl">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-r from-blue-600 to-blue-700 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                            <i class="fa-solid fa-user-tie text-white text-3xl"></i>
+                        </div>
+                        <h1 id="dashboardTitle" class="text-4xl font-bold text-slate-900 mb-2">
+                            Welcome
+                        </h1>
+                        <p id="managerSubtitle" class="text-slate-600 text-lg">Manage your stores and monitor daily operations</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions Section -->
+            <div class="mb-8 flex items-center justify-between">
+                <h2 class="text-2xl font-semibold text-slate-900">Store Overview</h2>
+                <button id="addStoreBtn" onclick="handleAddStore()" class="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-slate-700 bg-white border-2 border-slate-300 rounded-lg hover:bg-slate-50 hover:border-slate-400 hover:shadow-lg hover:scale-105 transition-all duration-200">
+                    <i class="fa-solid fa-plus text-slate-600"></i>
+                    Add Store
+                </button>
+            </div>
+            
+            <div id="managerRoot">
+                <div id="managerCards" class="space-y-6"></div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Add Store Modal -->
+    <div id="addStoreModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Add New Store</h3>
+                <button class="modal-close" onclick="closeAddStoreModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="addStoreError" class="modal-error"></div>
+                <form id="addStoreForm">
+                    <div class="modal-form-group">
+                        <label for="storeName">Store Name <span style="color: #dc3545;">*</span></label>
+                        <input type="text" id="storeName" name="storeName" placeholder="Enter store name (e.g., Lawrence)" required autofocus>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="storeTotalBoxes">Total Boxes <span style="color: #dc3545;">*</span></label>
+                        <input type="number" id="storeTotalBoxes" name="storeTotalBoxes" placeholder="Enter total boxes (positive integer)" min="1" step="1" required>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="storeUsername">Username <span style="color: #dc3545;">*</span></label>
+                        <input type="text" id="storeUsername" name="storeUsername" placeholder="Enter username" required>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="storePassword">Password <span style="color: #dc3545;">*</span></label>
+                        <input type="password" id="storePassword" name="storePassword" placeholder="Enter password" required>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="storeConfirmPassword">Confirm Password <span style="color: #dc3545;">*</span></label>
+                        <input type="password" id="storeConfirmPassword" name="storeConfirmPassword" placeholder="Confirm password" required>
+                        <div id="storeConfirmPasswordError" class="mt-2 text-sm text-red-600 hidden"></div>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="storeOpeningTime">Opening Time (24-hour format) <span style="color: #dc3545;">*</span></label>
+                        <input type="time" id="storeOpeningTime" name="storeOpeningTime" required>
+                        <small class="text-slate-500">Employees can clock in 30 minutes before this time</small>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="storeClosingTime">Closing Time (24-hour format) <span style="color: #dc3545;">*</span></label>
+                        <input type="time" id="storeClosingTime" name="storeClosingTime" required>
+                        <small class="text-slate-500">Employees will be auto clocked out 15 minutes after this time if they forget</small>
+                    </div>
+                </form>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-slate-600">
+                    <i class="fa-solid fa-lock text-blue-600 mr-2"></i>
+                    The store will be locked to the IP address you are using right now. Only users on that network will be able to log in with the store account.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn modal-btn-secondary" onclick="closeAddStoreModal()">Cancel</button>
+                <button type="button" class="modal-btn modal-btn-primary" onclick="submitAddStore()">Add Store</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Store Modal -->
+    <div id="editStoreModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>✏️ Edit Store</h3>
+                <button class="modal-close" onclick="closeEditStoreModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="editStoreError" class="modal-error"></div>
+                <form id="editStoreForm">
+                    <input type="hidden" id="editStoreOriginalName" name="editStoreOriginalName">
+                    <div class="modal-form-group">
+                        <label for="editStoreName">Store Name <span style="color: #dc3545;">*</span></label>
+                        <input type="text" id="editStoreName" name="editStoreName" placeholder="Enter store name" required autofocus>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="editStoreTotalBoxes">Total Boxes <span style="color: #dc3545;">*</span></label>
+                        <input type="number" id="editStoreTotalBoxes" name="editStoreTotalBoxes" placeholder="Enter total boxes (positive integer)" min="1" step="1" required>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="editStoreUsername">Username <span style="color: #dc3545;">*</span></label>
+                        <input type="text" id="editStoreUsername" name="editStoreUsername" placeholder="Enter username" required>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="editStorePassword">Password <span style="color: #dc3545;">*</span></label>
+                        <input type="password" id="editStorePassword" name="editStorePassword" placeholder="Enter password" required>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="editStoreConfirmPassword">Confirm Password <span style="color: #dc3545;">*</span></label>
+                        <input type="password" id="editStoreConfirmPassword" name="editStoreConfirmPassword" placeholder="Confirm password" required>
+                        <div id="editStoreConfirmPasswordError" class="mt-2 text-sm text-red-600 hidden"></div>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="editStoreOpeningTime">Opening Time (24-hour format) <span style="color: #dc3545;">*</span></label>
+                        <input type="time" id="editStoreOpeningTime" name="editStoreOpeningTime" required>
+                        <small class="text-slate-500">Employees can clock in 30 minutes before this time</small>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="editStoreClosingTime">Closing Time (24-hour format) <span style="color: #dc3545;">*</span></label>
+                        <input type="time" id="editStoreClosingTime" name="editStoreClosingTime" required>
+                        <small class="text-slate-500">Employees will be auto clocked out 15 minutes after this time if they forget</small>
+                    </div>
+                </form>
+                <p id="editStoreAllowedIpInfo" class="mt-4 text-sm text-slate-600"></p>
+                <div class="modal-form-group mt-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="editStoreUseCurrentIp" class="w-4 h-4">
+                        <span>Use my current IP address for this store's login</span>
+                    </label>
+                    <small class="block mt-2 text-sm text-slate-500">When checked, the store's allowed IP will be updated to the network you're currently using.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn modal-btn-secondary" onclick="closeEditStoreModal()">Cancel</button>
+                <button type="button" class="modal-btn modal-btn-primary" onclick="submitEditStore()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="static/js/script.js"></script>
+    <script>
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            requestAnimationFrame(() => {
+                mainContent.classList.add('page-fade-in');
+            });
+        }
+
+        const nav = document.getElementById('managerNavLinks');
+        if (nav) {
+            const links = Array.from(nav.querySelectorAll('a[data-nav-link]'));
+            const currentPath = window.location.pathname.split('/').pop();
+            const activeLink = links.find(link => link.getAttribute('href').split('/').pop() === currentPath) || links[0];
+            if (activeLink) {
+                activeLink.classList.add('nav-link-active');
+            }
+        }
+        
+        // Set manager name if not viewing as someone else (script.js handles view_as case)
+        const session = loadSession();
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewAs = urlParams.get('view_as');
+        
+        // If viewing as admin or super-admin (using view_as), hide manager nav links and show back button
+        if (session && (session.role === 'admin' || session.role === 'super-admin') && viewAs) {
+            const managerNavLinks = document.getElementById('managerNavLinks');
+            const backToSuperAdmin = document.getElementById('backToSuperAdmin');
+            
+            if (managerNavLinks) {
+                managerNavLinks.style.display = 'none';
+            }
+            if (backToSuperAdmin) {
+                backToSuperAdmin.classList.remove('hidden');
+                if (session.role === 'admin') {
+                    backToSuperAdmin.href = 'admin.html';
+                    backToSuperAdmin.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i> Back to Admin';
+                } else {
+                    backToSuperAdmin.href = 'super-admin.html';
+                    backToSuperAdmin.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i> Back to Super Admin';
+                }
+            }
+        }
+        
+        if (session && session.role === 'manager' && !viewAs) {
+            const managerName = session.name || session.username || 'Manager';
+            const title = document.getElementById('dashboardTitle');
+            if (title && title.textContent === 'Welcome') {
+                title.textContent = `Welcome, ${managerName}`;
+            }
+        }
+        
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            const menu = document.getElementById('mobileMenu');
+            overlay.classList.toggle('active');
+            menu.classList.toggle('active');
+            if (menu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+        
+        function closeMobileMenu() {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            const menu = document.getElementById('mobileMenu');
+            overlay.classList.remove('active');
+            menu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMobileMenu();
+            }
+        });
+        
+        function updateMobileMenuActiveState() {
+            const currentPath = window.location.pathname.split('/').pop() || 'manager.html';
+            const mobileLinks = document.querySelectorAll('.mobile-menu-link');
+            mobileLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href && href !== '#') {
+                    const hrefPath = href.split('/').pop().split('#')[0];
+                    if (hrefPath === currentPath) {
+                        link.classList.add('active');
+                    }
+                }
+            });
+        }
+        
+        // Handle back to super admin link
+        const backToSuperAdminMobile = document.getElementById('backToSuperAdminMobile');
+        const backToSuperAdmin = document.getElementById('backToSuperAdmin');
+        if (backToSuperAdminMobile && backToSuperAdmin) {
+            backToSuperAdminMobile.href = backToSuperAdmin.href;
+            backToSuperAdminMobile.onclick = function(e) {
+                if (backToSuperAdmin.onclick) {
+                    backToSuperAdmin.onclick(e);
+                }
+                closeMobileMenu();
+            };
+        }
+        
+        updateMobileMenuActiveState();
+    </script>
+</body>
+</html>
