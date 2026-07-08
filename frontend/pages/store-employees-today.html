@@ -1,9 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Employees Today — Pramaan</title>
+    <title>Employees Today â€” BranchPilot</title>
     <link rel="stylesheet" href="static/css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
@@ -109,7 +109,7 @@
 <body>
     <div class="navbar">
         <div class="nav-left">
-            <div class="logo">⏰ Pramaan</div>
+            <div class="logo">â° BranchPilot</div>
             <nav class="nav-links">
                 <a href="manager.html">Dashboard</a>
                 <a href="add-employee.html">Add Employee</a>
@@ -163,9 +163,9 @@
     <div class="container">
         <h2 id="storeTitle">Employees Working Today</h2>
         <div style="margin-top:12px">
-            <button id="backBtn" class="bulk-update-btn" style="background:#6c757d">← Back to Stores</button>
+            <button id="backBtn" class="bulk-update-btn" style="background:#6c757d">â† Back to Stores</button>
             <button id="viewHistoryBtn" class="bulk-update-btn" style="background:#007bff">View Employee History</button>
-            <button id="refreshBtn" class="bulk-update-btn" style="background:#28a745">🔄 Refresh</button>
+            <button id="refreshBtn" class="bulk-update-btn" style="background:#28a745">ðŸ”„ Refresh</button>
         </div>
         <div id="employeesTodayList" style="margin-top:20px"></div>
     </div>
@@ -182,7 +182,7 @@
         const employeesTodayList = document.getElementById('employeesTodayList');
         
         if (storeTitle) {
-          storeTitle.textContent = `${storeName} — Employees Today`;
+          storeTitle.textContent = `${storeName} â€” Employees Today`;
         }
         
         if (backBtn) {
@@ -219,7 +219,7 @@
             });
             
             let html = `<div style="margin-bottom:20px;padding:16px;background:#f8f9fa;border-radius:8px;">
-              <h3 style="margin:0;color:#2c3e50;">📅 ${dateStr}</h3>
+              <h3 style="margin:0;color:#2c3e50;">ðŸ“… ${dateStr}</h3>
               <p style="margin:8px 0 0 0;color:#6c757d;">Total Entries: ${data.total_count}</p>
             </div>`;
             
@@ -236,7 +236,7 @@
               let clockOutStr = 'Active';
               let hoursStr = '';
               let statusColor = '#28a745';
-              let statusIcon = '🟢';
+              let statusIcon = 'ðŸŸ¢';
               let statusText = 'Clocked In';
               let statusBadge = '<span style="background:#d4edda;color:#155724;padding:4px 12px;border-radius:12px;font-size:0.85rem;font-weight:600;">Active</span>';
               
@@ -250,7 +250,7 @@
                 const hours = emp.hours_worked || 0;
                 hoursStr = `${hours.toFixed(2)} hrs`;
                 statusColor = '#6c757d';
-                statusIcon = '⚪';
+                statusIcon = 'âšª';
                 statusText = 'Clocked Out';
                 statusBadge = '<span style="background:#e9ecef;color:#495057;padding:4px 12px;border-radius:12px;font-size:0.85rem;font-weight:600;">Clocked Out</span>';
               }

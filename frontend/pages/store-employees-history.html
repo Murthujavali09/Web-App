@@ -1,9 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Employee History — Pramaan</title>
+    <title>Employee History â€” BranchPilot</title>
     <link rel="stylesheet" href="static/css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
@@ -109,7 +109,7 @@
 <body>
     <div class="navbar">
         <div class="nav-left">
-            <div class="logo">⏰ Pramaan</div>
+            <div class="logo">â° BranchPilot</div>
             <nav class="nav-links">
                 <a href="manager.html">Dashboard</a>
                 <a href="add-employee.html">Add Employee</a>
@@ -163,14 +163,14 @@
     <div class="container">
         <h2 id="storeTitle">Employee Attendance History</h2>
         <div style="margin-top:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-            <button id="backBtn" class="bulk-update-btn" style="background:#6c757d">← Back to Today</button>
+            <button id="backBtn" class="bulk-update-btn" style="background:#6c757d">â† Back to Today</button>
             <select id="daysFilter" style="padding:8px 16px;border-radius:8px;border:1px solid #dee2e6;font-size:1rem;">
               <option value="7">Last 7 Days</option>
               <option value="30" selected>Last 30 Days</option>
               <option value="60">Last 60 Days</option>
               <option value="90">Last 90 Days</option>
             </select>
-            <button id="refreshBtn" class="bulk-update-btn" style="background:#28a745">🔄 Refresh</button>
+            <button id="refreshBtn" class="bulk-update-btn" style="background:#28a745">ðŸ”„ Refresh</button>
         </div>
         <div id="employeesHistoryList" style="margin-top:20px"></div>
     </div>
@@ -187,7 +187,7 @@
         const employeesHistoryList = document.getElementById('employeesHistoryList');
         
         if (storeTitle) {
-          storeTitle.textContent = `${storeName} — Attendance History`;
+          storeTitle.textContent = `${storeName} â€” Attendance History`;
         }
         
         if (backBtn) {
@@ -213,7 +213,7 @@
             }
             
             let html = `<div style="margin-bottom:20px;padding:16px;background:#f8f9fa;border-radius:8px;">
-              <h3 style="margin:0;color:#2c3e50;">📊 Attendance Records</h3>
+              <h3 style="margin:0;color:#2c3e50;">ðŸ“Š Attendance Records</h3>
               <p style="margin:8px 0 0 0;color:#6c757d;">Total Entries: ${data.total_count} (Last ${days} days)</p>
             </div>`;
             
@@ -245,7 +245,7 @@
               html += `
                 <div style="background:white;padding:20px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
                   <h3 style="margin:0 0 16px 0;color:#2c3e50;font-size:1.2rem;border-bottom:2px solid #e9ecef;padding-bottom:8px;">
-                    📅 ${dateStr}
+                    ðŸ“… ${dateStr}
                   </h3>
                   <div style="display:grid;gap:12px;">
               `;

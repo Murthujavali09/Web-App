@@ -83,7 +83,7 @@ def create_app():
         email_config = get_email_config()
         if not email_config['configured']:
             print("\n" + "="*80)
-            print("⚠️  EMAIL CONFIGURATION WARNING")
+            print("WARNING  EMAIL CONFIGURATION WARNING")
             print("="*80)
             print("SMTP credentials are not configured. Emails will NOT be sent!")
             print("\nTo enable email sending, set these environment variables:")
@@ -98,9 +98,9 @@ def create_app():
             print("  3. Use the app password as SMTP_PASSWORD (not your regular password)")
             print("="*80 + "\n")
         else:
-            print(f"✅ Email configured: {email_config['from_email']} via {email_config['host']}:{email_config['port']}")
+            print(f"OK Email configured: {email_config['from_email']} via {email_config['host']}:{email_config['port']}")
     except Exception as e:
-        print(f"⚠️  Warning: Could not check email configuration: {e}")
+        print(f"WARNING  Warning: Could not check email configuration: {e}")
     
     # Check Stripe webhook configuration at startup
     try:
@@ -110,7 +110,7 @@ def create_app():
             env_mode = os.getenv("FLASK_ENV", os.getenv("ENVIRONMENT", "production")).lower()
             is_dev = env_mode == "development"
             print("\n" + "="*80)
-            print("⚠️  STRIPE WEBHOOK CONFIGURATION WARNING")
+            print("WARNING  STRIPE WEBHOOK CONFIGURATION WARNING")
             print("="*80)
             if is_dev:
                 print("Development mode: Webhook secret not configured.")
@@ -128,9 +128,9 @@ def create_app():
             print("\nSee WEBHOOK_SETUP.md for detailed instructions")
             print("="*80 + "\n")
         else:
-            print(f"✅ Stripe webhook configured ({'dev' if stripe_config.get('is_dev') else 'production'} mode)")
+            print(f"OK Stripe webhook configured ({'dev' if stripe_config.get('is_dev') else 'production'} mode)")
     except Exception as e:
-        print(f"⚠️  Warning: Could not check Stripe webhook configuration: {e}")
+        print(f"WARNING  Warning: Could not check Stripe webhook configuration: {e}")
     
     # Initialize rate limiter
     # Don't apply default limits globally - only apply to specific routes that need protection
@@ -355,10 +355,10 @@ def create_app():
     frontend_pages = project_root / "frontend" / "pages"
     frontend_static = project_root / "frontend" / "static"
 
-    # Serve login page at root
+    # Serve public landing page at root
     @app.get("/")
     def serve_root():
-        return send_from_directory(frontend_pages, "login.html")
+        return send_from_directory(frontend_pages, "index.html")
     
     # Serve login page at /login.html
     @app.get("/login.html")
@@ -370,10 +370,10 @@ def create_app():
     def serve_login():
         return send_from_directory(frontend_pages, "login.html")
     
-    # Keep index.html for backward compatibility (redirect to login)
+    # Serve public landing page at /index.html
     @app.get("/index.html")
     def serve_index():
-        return send_from_directory(frontend_pages, "login.html")
+        return send_from_directory(frontend_pages, "index.html")
     
     # Serve HTML pages from frontend/pages
     @app.get("/<path:page>.html")
@@ -407,16 +407,16 @@ def create_app():
         stores_count = Store.query.count()
         if stores_count == 0:
             store1 = Store(
-                name="Lawrence",
-                username="lawrence",
-                password=hash_password("lawrence123"),
+                name="Downtown Store",
+                username="downtown",
+                password=hash_password("Store@123"),
                 total_boxes=0,
                 manager_username=None
             )
             store2 = Store(
-                name="Oakville",
-                username="oakville",
-                password=hash_password("oakville123"),
+                name="West Houston",
+                username="westhouston",
+                password=hash_password("Store@123"),
                 total_boxes=0,
                 manager_username=None
             )
@@ -431,14 +431,14 @@ def create_app():
             
             if tenant_id:
                 # Add default inventory items for each store
-                count1 = add_default_inventory_to_store(tenant_id=tenant_id, store_name="Lawrence")
-                count2 = add_default_inventory_to_store(tenant_id=tenant_id, store_name="Oakville")
-                click.echo(f"✓ Seeded default stores with inventory:")
-                click.echo(f"  - Lawrence: {count1} items")
-                click.echo(f"  - Oakville: {count2} items")
+                count1 = add_default_inventory_to_store(tenant_id=tenant_id, store_name="Downtown Store")
+                count2 = add_default_inventory_to_store(tenant_id=tenant_id, store_name="West Houston")
+                click.echo(f"OK Seeded default stores with inventory:")
+                click.echo(f"  - Downtown Store: {count1} items")
+                click.echo(f"  - West Houston: {count2} items")
             else:
                 click.echo("Warning: No tenant found, skipping inventory creation")
-                click.echo("✓ Seeded default stores (no inventory added)")
+                click.echo("OK Seeded default stores (no inventory added)")
         else:
             click.echo("Stores already exist; skipping seed")
     
@@ -451,14 +451,14 @@ def create_app():
         
         store = Store.query.filter_by(name=store_name).first()
         if not store:
-            click.echo(f"❌ Error: Store '{store_name}' not found")
+            click.echo(f"ERROR Error: Store '{store_name}' not found")
             click.echo("\nAvailable stores:")
             for s in Store.query.all():
                 click.echo(f"  - {s.name}")
             return
         
         count = add_default_inventory_to_store(tenant_id=store.tenant_id, store_name=store_name)
-        click.echo(f"✓ Added {count} new inventory items to store '{store_name}'")
+        click.echo(f"OK Added {count} new inventory items to store '{store_name}'")
         
         # Show total inventory count
         from backend.models import Inventory
@@ -497,7 +497,7 @@ def create_app():
             click.echo("No stores found")
             return
         
-        click.echo("\n📦 Inventory Status:")
+        click.echo("\nInventory Inventory Status:")
         click.echo("-" * 40)
         for store in stores:
             count = Inventory.query.filter_by(store_id=store.name).count()
@@ -514,7 +514,7 @@ def create_app():
             # Import the model to ensure it's registered
             # Then create all tables
             db.create_all()
-            click.echo("✓ store_billings table created (or already exists)")
+            click.echo("OK store_billings table created (or already exists)")
     
     # CLI command to add billing_month column
     @app.cli.command("add-billing-month")
@@ -554,7 +554,7 @@ def create_app():
     @app.cli.command("seed-dev")
     @click.option("--reset-super-admin", is_flag=True, help="Reset super admin password from .env")
     @click.option("--no-demo-manager", is_flag=True, help="Skip creating demo manager account")
-    @click.option("--no-demo-stores", is_flag=True, help="Skip creating Lawrence/Oakville demo stores")
+    @click.option("--no-demo-stores", is_flag=True, help="Skip creating realistic demo stores")
     def seed_dev_command(reset_super_admin, no_demo_manager, no_demo_stores):
         """Seed tenant, super admin (from .env), demo manager, and sample stores for local dev"""
         from backend.seed_dev import seed_dev
@@ -573,7 +573,7 @@ def create_app():
         click.echo(f"Tenant: {result['company_name']} (id={result['tenant_id']})")
         click.echo(f"Tenant email (for /api/tenants/login): {result['tenant_email']}")
         click.echo("")
-        click.echo("Super Admin (login page — use USERNAME field):")
+        click.echo("Super Admin (login page - use USERNAME field):")
         click.echo(f"  Username: {result['super_admin_username']}")
         click.echo(f"  Password: {result['super_admin_password']}")
         click.echo("")

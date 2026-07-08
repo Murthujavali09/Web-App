@@ -1,8 +1,8 @@
-# Pramaan (TimeTrack)
+﻿# BranchPilot
 
-**Pramaan** is a multi-tenant retail operations platform for store teams and managers. It combines **time clocking with face recognition**, **inventory tracking**, **end-of-day (EOD) cash reporting**, **billing**, and **manager alerts** in a single Flask application.
+**BranchPilot** is a multi-tenant retail operations platform for store teams and managers. It combines **time clocking with face recognition**, **inventory tracking**, **end-of-day (EOD) cash reporting**, **billing**, and **manager alerts** in a single Flask application.
 
-The frontend is plain HTML, CSS, and JavaScript. The backend is a **Flask REST API**. There is **no separate frontend dev server**—one process serves both the API and the web pages.
+The frontend is plain HTML, CSS, and JavaScript. The backend is a **Flask REST API**. There is **no separate frontend dev server**â€”one process serves both the API and the web pages.
 
 ---
 
@@ -17,7 +17,7 @@ The frontend is plain HTML, CSS, and JavaScript. The backend is a **Flask REST A
 ### 1. Clone and install dependencies
 
 ```powershell
-cd timetrack
+cd webapp
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
@@ -26,7 +26,7 @@ pip install -r requirements.txt
 On macOS/Linux:
 
 ```bash
-cd timetrack
+cd webapp
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -49,7 +49,7 @@ See [.env.example](.env.example) for all supported variables. Minimum for local 
 
 ### 3. Run the application (frontend + backend together)
 
-From the **project root** (`timetrack/`), not inside `backend/`:
+From the **project root** (`webapp/`), not inside `backend/`:
 
 ```powershell
 # PowerShell
@@ -84,9 +84,9 @@ This creates:
 | Role | Username | Password (default) |
 |------|----------|-------------------|
 | Super Admin | From `SUPER_ADMIN_USERNAME` in `.env` | From `SUPER_ADMIN_PASSWORD` in `.env` |
-| Demo Manager | `manager` | `manager123` |
-| Demo Store Lawrence | `lawrence` | `lawrence123` |
-| Demo Store Oakville | `oakville` | `oakville123` |
+| Regional Manager | `manager` | `Manager@123` |
+| Demo Store Downtown Store | `downtown` | `Store@123` |
+| Demo Store West Houston | `westhouston` | `Store@123` |
 
 To reset the super admin password after changing `.env`:
 
@@ -105,14 +105,14 @@ flask --app backend.app:create_app seed-stores
 ## How frontend and backend work together
 
 ```
-Browser  →  http://localhost:5000/dashboard.html   (HTML from frontend/pages/)
-         →  http://localhost:5000/static/js/script.js
-         →  http://localhost:5000/api/timeclock/...  (Flask blueprints)
+Browser  â†’  http://localhost:5000/dashboard.html   (HTML from frontend/pages/)
+         â†’  http://localhost:5000/static/js/script.js
+         â†’  http://localhost:5000/api/timeclock/...  (Flask blueprints)
 ```
 
 | Path | Served by |
 |------|-----------|
-| `/`, `/login.html`, `/*.html` | `frontend/pages/` |
+| `/`, `/index.html`, `/*.html` | `frontend/pages/` |
 | `/static/css/*`, `/static/js/*` | `frontend/static/` |
 | `/api/*` | Flask blueprints under `backend/routes/` |
 
@@ -169,29 +169,29 @@ Use PostgreSQL, a strong `SECRET_KEY`, and configure Stripe/SMTP if you enable s
 
 ```
 timetrack/
-├── api/                 # Vercel serverless entry
-├── backend/
-│   ├── app.py           # Flask app factory + static file routes
-│   ├── config.py        # Environment configuration
-│   ├── models.py        # SQLAlchemy models
-│   ├── routes/          # API blueprints
-│   ├── migrations/      # One-off DB migration scripts
-│   └── services/        # Face recognition helpers
-├── frontend/
-│   ├── pages/           # HTML pages
-│   └── static/          # CSS and JS
-├── docs/
-│   └── FEATURES.md      # Detailed feature documentation
-├── requirements.txt
-└── .env.example
+â”œâ”€â”€ api/                 # Vercel serverless entry
+â”œâ”€â”€ backend/
+â”‚   â”œâ”€â”€ app.py           # Flask app factory + static file routes
+â”‚   â”œâ”€â”€ config.py        # Environment configuration
+â”‚   â”œâ”€â”€ models.py        # SQLAlchemy models
+â”‚   â”œâ”€â”€ routes/          # API blueprints
+â”‚   â”œâ”€â”€ migrations/      # One-off DB migration scripts
+â”‚   â””â”€â”€ services/        # Face recognition helpers
+â”œâ”€â”€ frontend/
+â”‚   â”œâ”€â”€ pages/           # HTML pages
+â”‚   â””â”€â”€ static/          # CSS and JS
+â”œâ”€â”€ docs/
+â”‚   â””â”€â”€ FEATURES.md      # Detailed feature documentation
+â”œâ”€â”€ requirements.txt
+â””â”€â”€ .env.example
 ```
 
 ---
 
 ## Documentation
 
-- **[docs/FEATURES.md](docs/FEATURES.md)** — Every module, page, and API area explained
-- **[.env.example](.env.example)** — Environment variable reference
+- **[docs/FEATURES.md](docs/FEATURES.md)** â€” Every module, page, and API area explained
+- **[.env.example](.env.example)** â€” Environment variable reference
 
 ---
 

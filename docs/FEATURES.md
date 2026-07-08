@@ -1,4 +1,4 @@
-# Pramaan — Feature Guide
+﻿# BranchPilot â€” Feature Guide
 
 This document describes what the application does, who uses each part, and how the main modules fit together.
 
@@ -6,7 +6,7 @@ This document describes what the application does, who uses each part, and how t
 
 ## Overview
 
-**Pramaan** helps retail organizations run day-to-day store operations:
+**BranchPilot** helps retail organizations run day-to-day store operations:
 
 1. Employees **clock in/out** using **face recognition**
 2. Stores track **phone/device inventory** and daily snapshots
@@ -33,7 +33,7 @@ JWT tokens are stored in the browser after login. API routes under `/api/*` requ
 
 ### Store login restrictions
 
-When a manager creates a store, the store can be **locked to the creator’s IP address** (`allowed_ip`). Only clients on that network can log in as that store—useful for fixed in-store terminals.
+When a manager creates a store, the store can be **locked to the creatorâ€™s IP address** (`allowed_ip`). Only clients on that network can log in as that storeâ€”useful for fixed in-store terminals.
 
 ### Super admin login (tenant owner)
 
@@ -98,7 +98,7 @@ After store login, staff see quick actions:
 | Inventory | `inventory.html` | Adjust stock counts by SKU/device |
 | End of Day | `eod.html` | Submit daily close-out report |
 
-“Coming soon” placeholders on the dashboard are UI stubs only (not implemented yet).
+â€œComing soonâ€ placeholders on the dashboard are UI stubs only (not implemented yet).
 
 ---
 
@@ -119,8 +119,8 @@ When managers add employees (`add-employee.html`), they can register face descri
 
 Each store has:
 
-- **Opening time** — employees may clock in starting **30 minutes before** open
-- **Closing time** — used for late/auto clock-out logic
+- **Opening time** â€” employees may clock in starting **30 minutes before** open
+- **Closing time** â€” used for late/auto clock-out logic
 
 Configured when creating/editing a store on the manager dashboard.
 
@@ -155,7 +155,7 @@ Call this endpoint periodically in production (cron, Vercel cron, etc.).
 
 ### Manager store inventory (`store-inventory.html`)
 
-Managers open a store from `manager.html` to view/edit that store’s inventory (same data, manager context with `?store=` query param).
+Managers open a store from `manager.html` to view/edit that storeâ€™s inventory (same data, manager context with `?store=` query param).
 
 ### Inventory history (`store-inventory-history.html`)
 
@@ -197,8 +197,8 @@ Managers and admins use these with `?store=` (and optional `view_as`) to audit s
 ### Manager home (`manager.html`)
 
 - **Store overview** cards for each assigned store
-- **Add store** — name, credentials, total boxes, opening/closing times, IP lock
-- **Edit store** — update timings, credentials, box counts
+- **Add store** â€” name, credentials, total boxes, opening/closing times, IP lock
+- **Edit store** â€” update timings, credentials, box counts
 - Per-store shortcuts (from JS-rendered cards):
   - Inventory management
   - Inventory history
@@ -263,7 +263,7 @@ All JSON APIs are prefixed with `/api/`.
 | `/api/alerts` | Manager alerts |
 | `/api/auto-clockout` | Batch auto clock-out |
 
-**Health:** `GET /api/health` → `{ "status": "ok" }`
+**Health:** `GET /api/health` â†’ `{ "status": "ok" }`
 
 Rate limiting applies to login endpoints (5 requests per minute per IP).
 
@@ -306,7 +306,7 @@ For welcome and notification emails:
 
 ### Security
 
-- `SECRET_KEY` — **required in production** for JWT
+- `SECRET_KEY` â€” **required in production** for JWT
 - Never commit `.env` (listed in `.gitignore`)
 
 ---
@@ -345,4 +345,4 @@ For welcome and notification emails:
 
 ## Planned / placeholder UI
 
-The store dashboard “Coming soon” section mentions **Inventory Dash** and **Store Targets**—these are not implemented yet; they are visual placeholders only.
+The store dashboard â€œComing soonâ€ section mentions **Inventory Dash** and **Store Targets**â€”these are not implemented yet; they are visual placeholders only.

@@ -105,8 +105,8 @@ class Config:
     SECRET_KEY = os.getenv("SECRET_KEY")
     
     # Super Admin credentials (for managing managers)
-    SUPER_ADMIN_USERNAME = os.getenv('SUPER_ADMIN_USERNAME', 'superadmin')
-    SUPER_ADMIN_PASSWORD = os.getenv('SUPER_ADMIN_PASSWORD', 'superadmin123')
+    SUPER_ADMIN_USERNAME = os.getenv('SUPER_ADMIN_USERNAME', 'owner')
+    SUPER_ADMIN_PASSWORD = os.getenv('SUPER_ADMIN_PASSWORD', 'Owner@123')
     
     # Stripe configuration
     STRIPE_SECRET_KEY = STRIPE_SECRET_KEY

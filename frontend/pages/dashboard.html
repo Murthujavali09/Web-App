@@ -3,207 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store Dashboard — Pramaan</title>
+    <title>Store Dashboard - BranchPilot</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="static/css/style.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: {
-                            DEFAULT: '#3B82F6',
-                            hover: '#2563EB'
-                        },
-                        secondary: '#64748B',
-                        light: '#F8FAFC',
-                        'card-border': '#E2E8F0',
-                        'input-border': '#CBD5E1'
-                    }
-                }
-            }
-        };
-    </script>
     <style>
-        ::-webkit-scrollbar { display: none; }
-        @keyframes fadeInPage {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .page-fade-in {
-            animation: fadeInPage 0.6s ease forwards;
-        }
-        .nav-link-active {
-            color: #1d4ed8 !important;
-            background-color: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 10px 16px rgba(15, 23, 42, 0.18);
-        }
-        .nav-link-active:hover {
-            color: white !important;
-            background-color: rgba(59, 130, 246, 0.5) !important;
-        }
+        body { font-family: Inter, system-ui, sans-serif; background:#f8fafc; }
+        .nav-shell { background: #1d4ed8; }
+        .kpi-card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:22px; box-shadow:0 10px 28px rgba(15,23,42,.05); }
+        .action-card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:22px; box-shadow:0 10px 28px rgba(15,23,42,.05); transition: transform .15s ease, box-shadow .15s ease; }
+        .action-card:hover { transform: translateY(-2px); box-shadow:0 16px 36px rgba(15,23,42,.09); }
     </style>
 </head>
-<body class="bg-light font-sans antialiased text-slate-800">
-    <div id="app-container" class="min-h-screen pb-12">
-        <!-- Top navbar -->
-        <header id="header" class="sticky top-0 z-50 w-full">
-            <div class="w-[95%] max-w-7xl mx-auto mt-4 bg-gradient-to-r from-blue-600 to-blue-700 backdrop-blur-xl rounded-2xl shadow-2xl border border-blue-400/30">
-                <div class="flex items-center justify-between px-10 py-4">
-                    <!-- Left: Website name / logo -->
-                    <div class="flex-1 flex items-center justify-start space-x-3">
-                        <a href="dashboard.html" class="bg-white rounded-xl p-2.5 flex items-center justify-center hover:scale-110 transition-transform duration-200 shadow-lg cursor-pointer">
-                            <i class="fa-solid fa-clock text-blue-600 text-xl"></i>
-                        </a>
-                        <span class="text-2xl font-bold text-white">Pramaan</span>
-                    </div>
-
-                    <!-- Right: Logout -->
-                    <div class="flex-1 flex items-center justify-end">
-                        <button class="flex items-center px-6 py-2.5 text-sm font-semibold text-blue-50 hover:text-white hover:bg-blue-400/50 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg transform border border-white/20" onclick="logoutApp()">
-                            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>
-                            Logout
-                        </button>
-                    </div>
+<body class="text-slate-900">
+    <div class="min-h-screen pb-12">
+        <header class="sticky top-0 z-50 w-full">
+            <div class="w-[95%] max-w-7xl mx-auto mt-4 nav-shell rounded-2xl shadow-xl border border-blue-500/30">
+                <div class="flex items-center justify-between px-6 lg:px-8 py-4">
+                    <a href="dashboard.html" class="flex items-center gap-3 no-underline">
+                        <span class="bg-white rounded-xl w-10 h-10 flex items-center justify-center shadow-sm"><i class="fa-solid fa-store text-blue-700"></i></span>
+                        <span class="text-2xl font-extrabold text-white">BranchPilot</span>
+                    </a>
+                    <nav class="hidden md:flex items-center gap-2 text-sm font-bold">
+                        <a href="dashboard.html" class="px-4 py-2 rounded-lg bg-white text-blue-700">Dashboard</a>
+                        <a href="inventory.html" class="px-4 py-2 rounded-lg text-blue-50 hover:bg-blue-600">Inventory</a>
+                        <a href="timeclock.html" class="px-4 py-2 rounded-lg text-blue-50 hover:bg-blue-600">Employees</a>
+                        <a href="eod.html" class="px-4 py-2 rounded-lg text-blue-50 hover:bg-blue-600">Reports</a>
+                    </nav>
+                    <button class="flex items-center px-4 py-2 text-sm font-bold text-blue-50 hover:text-white hover:bg-blue-600 rounded-lg border border-white/20" onclick="logoutApp()"><i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Logout</button>
                 </div>
             </div>
         </header>
 
-        <!-- Main content -->
-        <main id="main-content" class="page-fade-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
-            <!-- Hero / welcome card -->
-            <div class="flex items-center justify-center mb-10">
-                <div class="bg-gradient-to-r from-slate-50 to-blue-50 p-10 rounded-2xl border border-slate-200 shadow-xl w-full max-w-3xl">
-                    <div class="text-center">
-                        <div class="bg-gradient-to-r from-blue-600 to-blue-700 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                            <i class="fa-solid fa-store text-white text-3xl"></i>
-                        </div>
-                        <h1 id="dashboardWelcome" class="text-4xl font-bold text-slate-900">
-                            Welcome back
-                        </h1>
-                        <!-- Tagline removed as requested -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-12">
+            <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 lg:p-8 mb-8">
+                <div class="flex flex-col lg:flex-row gap-6 lg:items-center lg:justify-between">
+                    <div>
+                        <p class="text-sm font-bold text-blue-700 uppercase tracking-wide">Store dashboard</p>
+                        <h1 id="dashboardWelcome" class="mt-2 text-3xl lg:text-4xl font-extrabold tracking-tight">Downtown Store</h1>
+                        <p class="mt-3 text-slate-600">Today at a glance: sales, staffing, inventory, and report status.</p>
+                    </div>
+                    <div class="flex items-center gap-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl px-4 py-3 font-bold text-sm">
+                        <i class="fa-solid fa-circle-check"></i> Branch online
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Main sections: Quick Actions + Coming Soon -->
-            <section class="max-w-5xl mx-auto">
-                <!-- Quick Actions -->
-                <div class="mb-10">
-                    <h2 class="text-2xl font-semibold text-slate-900 mb-6">Quick Actions</h2>
+            <section class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+                <div class="kpi-card"><div class="flex justify-between items-center"><span class="text-sm font-bold text-slate-500">Today's Sales</span><i class="fa-solid fa-dollar-sign text-blue-700"></i></div><div class="mt-3 text-3xl font-extrabold">$4,820</div><div class="mt-1 text-xs font-semibold text-emerald-700">+12% vs avg</div></div>
+                <div class="kpi-card"><div class="flex justify-between items-center"><span class="text-sm font-bold text-slate-500">Employees Present</span><i class="fa-solid fa-user-check text-blue-700"></i></div><div class="mt-3 text-3xl font-extrabold">5</div><div class="mt-1 text-xs font-semibold text-slate-500">1 scheduled later</div></div>
+                <div class="kpi-card"><div class="flex justify-between items-center"><span class="text-sm font-bold text-slate-500">Low Stock Items</span><i class="fa-solid fa-triangle-exclamation text-amber-600"></i></div><div class="mt-3 text-3xl font-extrabold">6</div><div class="mt-1 text-xs font-semibold text-amber-700">Review today</div></div>
+                <div class="kpi-card"><div class="flex justify-between items-center"><span class="text-sm font-bold text-slate-500">Pending Reports</span><i class="fa-solid fa-clipboard-list text-blue-700"></i></div><div class="mt-3 text-3xl font-extrabold">1</div><div class="mt-1 text-xs font-semibold text-slate-500">EOD due by close</div></div>
+                <div class="kpi-card"><div class="flex justify-between items-center"><span class="text-sm font-bold text-slate-500">Branches Online</span><i class="fa-solid fa-wifi text-emerald-600"></i></div><div class="mt-3 text-3xl font-extrabold">4/4</div><div class="mt-1 text-xs font-semibold text-emerald-700">All active</div></div>
+            </section>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <!-- Time Clock card -->
-                        <a href="timeclock.html" class="group bg-white border border-card-border rounded-2xl shadow-sm p-8 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-200 min-h-[180px]">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="w-14 h-14 rounded-xl bg-blue-50 flex items-center justify-center">
-                                    <i class="fa-solid fa-clock text-blue-600 text-xl"></i>
-                                </div>
-                                <i class="fa-solid fa-arrow-up-right-from-square text-slate-300 group-hover:text-blue-500 text-base"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-semibold text-slate-900 mb-2">Time Clock</h3>
-                                <p class="text-sm text-secondary">Clock in and clock out.</p>
-                            </div>
-                        </a>
-
-                        <!-- Inventory card -->
-                        <a href="inventory.html" class="group bg-white border border-card-border rounded-2xl shadow-sm p-8 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-200 min-h-[180px]">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="w-14 h-14 rounded-xl bg-blue-50 flex items-center justify-center">
-                                    <i class="fa-solid fa-boxes text-blue-600 text-xl"></i>
-                                </div>
-                                <i class="fa-solid fa-arrow-up-right-from-square text-slate-300 group-hover:text-blue-500 text-base"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-semibold text-slate-900 mb-2">Inventory</h3>
-                                <p class="text-sm text-secondary">Manage and adjust store stock.</p>
-                            </div>
-                        </a>
-
-                        <!-- End of Day card -->
-                        <a href="eod.html" class="group bg-white border border-card-border rounded-2xl shadow-sm p-8 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-200 min-h-[180px]">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="w-14 h-14 rounded-xl bg-blue-50 flex items-center justify-center">
-                                    <i class="fa-solid fa-calendar-check text-blue-600 text-xl"></i>
-                                </div>
-                                <i class="fa-solid fa-arrow-up-right-from-square text-slate-300 group-hover:text-blue-500 text-base"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-semibold text-slate-900 mb-2">End of Day</h3>
-                                <p class="text-sm text-secondary">Close out and verify daily tasks.</p>
-                            </div>
-                        </a>
+            <section class="grid lg:grid-cols-[1.1fr_.9fr] gap-6">
+                <div>
+                    <h2 class="text-xl font-extrabold mb-4">Core workflows</h2>
+                    <div class="grid sm:grid-cols-3 gap-4">
+                        <a href="timeclock.html" class="action-card no-underline text-slate-900"><div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center"><i class="fa-solid fa-user-clock text-blue-700"></i></div><h3 class="mt-5 font-extrabold">Employees</h3><p class="mt-2 text-sm text-slate-600">Clock in/out and review presence.</p></a>
+                        <a href="inventory.html" class="action-card no-underline text-slate-900"><div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center"><i class="fa-solid fa-boxes-stacked text-blue-700"></i></div><h3 class="mt-5 font-extrabold">Inventory</h3><p class="mt-2 text-sm text-slate-600">Update stock and submit snapshots.</p></a>
+                        <a href="eod.html" class="action-card no-underline text-slate-900"><div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center"><i class="fa-solid fa-file-invoice-dollar text-blue-700"></i></div><h3 class="mt-5 font-extrabold">Daily Report</h3><p class="mt-2 text-sm text-slate-600">Submit sales, cash, and notes.</p></a>
                     </div>
-                </div>
 
-                <!-- Coming Soon (smaller heading + more spacing from above) -->
-                <div class="mt-10">
-                    <h2 class="text-xl font-semibold text-slate-900 mb-3">Coming Soon</h2>
-                    <p class="text-base text-secondary mb-6">New modules will be available shortly.</p>
-
-                    <div class="bg-white rounded-2xl border border-card-border shadow-md p-8">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <!-- Inventory Dash (not clickable) -->
-                            <div class="rounded-xl border border-dashed border-card-border bg-slate-50 p-6 flex flex-col justify-between min-h-[140px]">
-                                <div class="flex items-center mb-3">
-                                    <div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center mr-3 shadow-sm">
-                                        <i class="fa-solid fa-chart-line text-blue-600 text-lg"></i>
-                                    </div>
-                                    <div class="font-semibold text-slate-900 text-base">Inventory Dash</div>
-                                </div>
-                                <p class="text-sm text-secondary">
-                                    Visual dashboards for inventory trends and stock health.
-                                </p>
-                            </div>
-
-                            <!-- Store Targets (not clickable) -->
-                            <div class="rounded-xl border border-dashed border-card-border bg-slate-50 p-6 flex flex-col justify-between min-h-[140px]">
-                                <div class="flex items-center mb-3">
-                                    <div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center mr-3 shadow-sm">
-                                        <i class="fa-solid fa-bullseye text-blue-600 text-lg"></i>
-                                    </div>
-                                    <div class="font-semibold text-slate-900 text-base">Store Targets</div>
-                                </div>
-                                <p class="text-sm text-secondary">
-                                    Track sales and performance targets for your store.
-                                </p>
-                            </div>
+                    <div class="mt-6 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                        <div class="flex items-center justify-between mb-4"><h2 class="text-xl font-extrabold">Inventory watchlist</h2><a href="inventory.html" class="text-sm font-bold text-blue-700">Open inventory</a></div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead><tr class="text-left text-slate-500 border-b"><th class="py-3">Item</th><th>Qty</th><th>Status</th></tr></thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    <tr><td class="py-3 font-semibold">iPhone 16 128GB</td><td>3</td><td><span class="text-amber-700 font-bold">Low</span></td></tr>
+                                    <tr><td class="py-3 font-semibold">Samsung S25</td><td>5</td><td><span class="text-emerald-700 font-bold">Healthy</span></td></tr>
+                                    <tr><td class="py-3 font-semibold">USB-C Chargers</td><td>8</td><td><span class="text-amber-700 font-bold">Reorder</span></td></tr>
+                                    <tr><td class="py-3 font-semibold">AirPods Pro</td><td>2</td><td><span class="text-red-700 font-bold">Critical</span></td></tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
+
+                <aside class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                    <h2 class="text-xl font-extrabold mb-4">Recent activity</h2>
+                    <div class="space-y-4">
+                        <div class="flex gap-3"><span class="w-9 h-9 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center"><i class="fa-solid fa-check"></i></span><div><div class="font-bold">Emily Smith clocked in</div><div class="text-sm text-slate-500">9:03 AM - Sales Associate</div></div></div>
+                        <div class="flex gap-3"><span class="w-9 h-9 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center"><i class="fa-solid fa-box"></i></span><div><div class="font-bold">Inventory snapshot submitted</div><div class="text-sm text-slate-500">142 items counted</div></div></div>
+                        <div class="flex gap-3"><span class="w-9 h-9 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></span><div><div class="font-bold">AirPods Pro reached critical stock</div><div class="text-sm text-slate-500">2 units remaining</div></div></div>
+                        <div class="flex gap-3"><span class="w-9 h-9 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center"><i class="fa-solid fa-receipt"></i></span><div><div class="font-bold">Yesterday EOD approved</div><div class="text-sm text-slate-500">$4,390.25 reconciled</div></div></div>
+                    </div>
+                </aside>
             </section>
         </main>
     </div>
 
     <script src="static/js/script.js"></script>
     <script>
-        const mainContent = document.getElementById('main-content');
-        if (mainContent) {
-            requestAnimationFrame(() => {
-                mainContent.classList.add('page-fade-in');
-            });
-        }
-
-        // Keep this in case nav is used elsewhere; it won't run without a nav element
-        const nav = document.querySelector('nav');
-        if (nav) {
-            const links = Array.from(nav.querySelectorAll('a[data-nav-link]'));
-            const currentPath = window.location.pathname.split('/').pop();
-            const activeLink = links.find(link => link.getAttribute('href').split('/').pop() === currentPath) || links[0];
-            if (activeLink) {
-                activeLink.classList.add('nav-link-active');
-            }
-        }
-
+        const session = loadSession();
+        const title = document.getElementById('dashboardWelcome');
+        if (title && session?.storeName) title.textContent = session.storeName;
     </script>
 </body>
 </html>

@@ -541,76 +541,27 @@ def verify_password(password, hashed):
 
 
 def get_default_inventory_items():
-    """Returns a list of default inventory items that should be created for each new store, categorized by device_type"""
+    """Returns a polished retail starter catalog for phone/electronics stores."""
     return [
-        # Metro Devices
-        {"sku": "Samsung", "name": "Samsung A15", "device_type": "metro"},
-        {"sku": "Samsung", "name": "Samsung A16", "device_type": "metro"},
-        {"sku": "Samsung", "name": "Samsung A36", "device_type": "metro"},
-        {"sku": "Samsung", "name": "Samsung S25FE", "device_type": "metro"},
-        {"sku": "Samsung", "name": "Samsung Tab A9+", "device_type": "metro"},
-        {"sku": "Samsung", "name": "Samsung watch", "device_type": "metro"},
-  
-        {"sku": "Moto", "name": "Moto Gplay 2026", "device_type": "metro"},
-        {"sku": "Moto", "name": "Moto G 2025", "device_type": "metro"},
-        {"sku": "Moto", "name": "Moto power 2025", "device_type": "metro"},
-        {"sku": "Moto", "name": "Moto stylus 2025", "device_type": "metro"},
-        {"sku": "Moto", "name": "Moto Razr 2025", "device_type": "metro"},
-        
-        {"sku": "TCL", "name": "TCL K32", "device_type": "metro"},
-        {"sku": "TCL", "name": "TCL Flip 4", "device_type": "metro"},
-        
-        {"sku": "Revvl", "name": "Revvl 8", "device_type": "metro"},
-        {"sku": "Revvl", "name": "Revvl tab2", "device_type": "metro"},
-        
-        {"sku": "Apple", "name": "iPhone 13", "device_type": "metro"},
-        {"sku": "Apple", "name": "iPhone 14", "device_type": "metro"},
-        {"sku": "Apple", "name": "iPhone 15", "device_type": "metro"},
-        {"sku": "Apple", "name": "iPhone 16 e", "device_type": "metro"},
-        {"sku": "Apple", "name": "iPhone Air", "device_type": "metro"},
-        {"sku": "Apple", "name": "Apple watch", "device_type": "metro"},
-  
-        {"sku": "Generic", "name": "HSI", "device_type": "metro"},
-        {"sku": "Generic", "name": "EDGE 2025", "device_type": "metro"},
-        {"sku": "Simcards", "name": "Simcards", "device_type": "metro"},
-        
-        # Discontinued Devices
-        {"sku": "Generic", "name": "A13", "device_type": "discontinued"},
-        {"sku": "Generic", "name": "A35", "device_type": "discontinued"},
-        {"sku": "Generic", "name": "G400", "device_type": "discontinued"},
-        {"sku": "Moto", "name": "STYLUS 2023", "device_type": "discontinued"},
-        {"sku": "Moto", "name": "EDGE 2024", "device_type": "discontinued"},
-        {"sku": "Samsung", "name": "S24FE", "device_type": "discontinued"},
-        {"sku": "TCL", "name": "K11", "device_type": "discontinued"},
-        {"sku": "Generic", "name": "N300", "device_type": "discontinued"},
-        {"sku": "TCL", "name": "ION X", "device_type": "discontinued"},
-        {"sku": "Chromebook", "name": "CHROMEBOOK", "device_type": "discontinued"},
-        
-        # Unlocked Devices
-        {"sku": "Generic", "name": "A14", "device_type": "unlocked"},
-        {"sku": "Generic", "name": "A15", "device_type": "unlocked"},
-        {"sku": "Generic", "name": "A16", "device_type": "unlocked"},
-        {"sku": "Generic", "name": "A36", "device_type": "unlocked"},
-        {"sku": "Generic", "name": "A25", "device_type": "unlocked"},
-        {"sku": "Samsung", "name": "S22 PLUS", "device_type": "unlocked"},
-        {"sku": "Samsung", "name": "S25 ULTRA", "device_type": "unlocked"},
-        {"sku": "Apple", "name": "IPHONE11", "device_type": "unlocked"},
-        {"sku": "Apple", "name": "IPHONE 12", "device_type": "unlocked"},
-        {"sku": "Apple", "name": "IPHONE 13", "device_type": "unlocked"},
-        {"sku": "Apple", "name": "IPHONE 14", "device_type": "unlocked"},
-        {"sku": "Apple", "name": "IPHONE16 PRO", "device_type": "unlocked"},
-        {"sku": "Apple", "name": "IPHONE16 PRO MAX", "device_type": "unlocked"},
-        {"sku": "Apple", "name": "IPhone 17 PRO MAX", "device_type": "unlocked"},
-        {"sku": "Revvl", "name": "REVVL 6X", "device_type": "unlocked"},
-        {"sku": "Generic", "name": "LOGIC(4G)", "device_type": "unlocked"},
-        {"sku": "Moto", "name": "MOTO G 2022", "device_type": "unlocked"},
-        {"sku": "Moto", "name": "MOTO G 2024", "device_type": "unlocked"},
-        {"sku": "Generic", "name": "ORBIC", "device_type": "unlocked"},
-        {"sku": "Generic", "name": "NOKIA", "device_type": "unlocked"},
-        {"sku": "Generic", "name": "PANDA", "device_type": "unlocked"},
-        {"sku": "Generic", "name": "FUSION", "device_type": "unlocked"},
-        {"sku": "Generic", "name": "EDGE", "device_type": "unlocked"},
-]
+        {"sku": "APL-IP16-128", "name": "iPhone 16 128GB", "device_type": "metro"},
+        {"sku": "APL-IP16P-256", "name": "iPhone 16 Pro 256GB", "device_type": "unlocked"},
+        {"sku": "APL-IP15-128", "name": "iPhone 15 128GB", "device_type": "metro"},
+        {"sku": "SMS-S25-128", "name": "Samsung S25 128GB", "device_type": "metro"},
+        {"sku": "SMS-S25U-256", "name": "Samsung S25 Ultra", "device_type": "unlocked"},
+        {"sku": "SMS-A36-128", "name": "Samsung A36", "device_type": "metro"},
+        {"sku": "GOO-PXL9-128", "name": "Google Pixel 9", "device_type": "metro"},
+        {"sku": "GOO-PXL9P-256", "name": "Google Pixel 9 Pro", "device_type": "unlocked"},
+        {"sku": "MOT-RAZR-256", "name": "Motorola Razr", "device_type": "unlocked"},
+        {"sku": "APL-AIRPODS-PRO", "name": "AirPods Pro", "device_type": "metro"},
+        {"sku": "APL-WATCH-SE", "name": "Apple Watch SE", "device_type": "metro"},
+        {"sku": "ACC-USBC-30W", "name": "USB-C Fast Chargers", "device_type": "metro"},
+        {"sku": "ACC-CASE-IP16", "name": "iPhone 16 Cases", "device_type": "metro"},
+        {"sku": "ACC-CASE-S25", "name": "Samsung S25 Cases", "device_type": "metro"},
+        {"sku": "ACC-SCREEN", "name": "Tempered Glass Protectors", "device_type": "metro"},
+        {"sku": "SIM-5G", "name": "5G SIM Cards", "device_type": "metro"},
+        {"sku": "DISC-IP12", "name": "iPhone 12 Refurbished", "device_type": "discontinued"},
+        {"sku": "DISC-S22", "name": "Samsung S22 Refurbished", "device_type": "discontinued"},
+    ]
 
 
 # ================== Tenant Functions ==================

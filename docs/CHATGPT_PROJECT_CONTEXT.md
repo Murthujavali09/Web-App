@@ -1,10 +1,10 @@
-# Pramaan / TimeTrack - ChatGPT Project Context
+﻿# BranchPilot / BranchPilot - ChatGPT Project Context
 
 Use this document as a single handoff file for ChatGPT or another developer. It summarizes the repository structure, runtime, data model, user roles, frontend pages, backend API, setup steps, and important implementation details.
 
 ## 1. One-Line Summary
 
-Pramaan, also called TimeTrack in some files, is a multi-tenant retail operations web app for store teams, managers, admins, and tenant owners. It combines store login, manager/admin dashboards, employee management, webcam face-recognition time clocking, inventory tracking, daily EOD cash/card reports, billing payments, alerts, tenant signup, Stripe subscriptions, and SMTP email notifications.
+BranchPilot, also called BranchPilot in some files, is a multi-tenant retail operations web app for store teams, managers, admins, and tenant owners. It combines store login, manager/admin dashboards, employee management, webcam face-recognition time clocking, inventory tracking, daily EOD cash/card reports, billing payments, alerts, tenant signup, Stripe subscriptions, and SMTP email notifications.
 
 ## 2. Tech Stack
 
@@ -113,7 +113,7 @@ Seed local demo data after the database is empty:
 flask --app backend.app:create_app seed-dev
 ```
 
-This creates a tenant, a super admin from `.env`, a demo manager, and demo stores.
+This creates a tenant, a super admin from `.env`, a regional manager, and realistic demo stores.
 
 ## 5. Environment Variables
 
@@ -191,7 +191,7 @@ Login flow in `frontend/static/js/script.js` tries, in order:
 3. `/api/stores/manager/login`
 4. `/api/stores/login`
 
-Successful sessions are stored in browser `localStorage` under `Pramaan_Session`.
+Successful sessions are stored in browser `localStorage` under `BranchPilot_Session`.
 
 ## 8. Authentication Details
 

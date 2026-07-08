@@ -1,4 +1,4 @@
-# backend/routes/tenants.py
+﻿# backend/routes/tenants.py
 """
 Tenant management routes for multi-tenant SaaS platform.
 Handles tenant signup, authentication, and plan management.
@@ -133,7 +133,7 @@ def send_email(to_email, subject, body_html, body_text=None):
     email_config = get_email_config()
     
     if not email_config['configured']:
-        print(f"❌ EMAIL NOT CONFIGURED: SMTP credentials are missing!")
+        print(f"âŒ EMAIL NOT CONFIGURED: SMTP credentials are missing!")
         print(f"   Required environment variables: SMTP_USER, SMTP_PASSWORD")
         print(f"   Optional: SMTP_HOST (default: smtp.gmail.com), SMTP_PORT (default: 587), FROM_EMAIL")
         print(f"   Would send email to: {to_email}")
@@ -141,7 +141,7 @@ def send_email(to_email, subject, body_html, body_text=None):
         return False
     
     try:
-        print(f"📧 Attempting to send email to {to_email}...")
+        print(f"ðŸ“§ Attempting to send email to {to_email}...")
         print(f"   SMTP Host: {email_config['host']}:{email_config['port']}")
         print(f"   From: {email_config['from_email']}")
         print(f"   Subject: {subject}")
@@ -164,10 +164,10 @@ def send_email(to_email, subject, body_html, body_text=None):
             print(f"   Sending message...")
             server.send_message(msg)
         
-        print(f"✅ Email sent successfully to {to_email}!")
+        print(f"âœ… Email sent successfully to {to_email}!")
         return True
     except smtplib.SMTPAuthenticationError as e:
-        print(f"❌ SMTP Authentication Error: {e}")
+        print(f"âŒ SMTP Authentication Error: {e}")
         print(f"   Check your SMTP_USER and SMTP_PASSWORD in environment variables")
         print(f"   For Gmail: Use an 'App Password' (not your regular password)")
         print(f"   Get app password: https://myaccount.google.com/apppasswords")
@@ -175,12 +175,12 @@ def send_email(to_email, subject, body_html, body_text=None):
         traceback.print_exc()
         return False
     except smtplib.SMTPException as e:
-        print(f"❌ SMTP Error: {e}")
+        print(f"âŒ SMTP Error: {e}")
         import traceback
         traceback.print_exc()
         return False
     except Exception as e:
-        print(f"❌ Error sending email: {type(e).__name__}: {e}")
+        print(f"âŒ Error sending email: {type(e).__name__}: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -442,7 +442,7 @@ def stripe_webhook():
     Stripe webhook handler for subscription events.
     Updates tenant status and creates super admin account.
     """
-    print("🔔 Webhook received!")
+    print("ðŸ”” Webhook received!")
     
     # Get Stripe configuration
     stripe_config = get_stripe_config()
@@ -450,11 +450,11 @@ def stripe_webhook():
     webhook_secret = stripe_config['webhook_secret']
     
     if not stripe_key:
-        print("❌ Error: Stripe is not configured")
+        print("âŒ Error: Stripe is not configured")
         return jsonify({"error": "Stripe is not configured"}), 500
     
     if not webhook_secret:
-        print("❌ Error: Webhook secret not configured")
+        print("âŒ Error: Webhook secret not configured")
         print("   For development: Run 'stripe listen' and set STRIPE_WEBHOOK_SECRET_DEV")
         print("   For production: Configure webhook in Stripe Dashboard and set STRIPE_WEBHOOK_SECRET")
         print("   See WEBHOOK_SETUP.md for detailed instructions")
@@ -470,17 +470,17 @@ def stripe_webhook():
         event = stripe.Webhook.construct_event(
             payload, sig_header, webhook_secret
         )
-        print(f"✅ Webhook event verified: {event['type']}")
+        print(f"âœ… Webhook event verified: {event['type']}")
     except ValueError as e:
-        print(f"❌ Invalid payload: {e}")
+        print(f"âŒ Invalid payload: {e}")
         return jsonify({"error": "Invalid payload"}), 400
     except stripe.error.SignatureVerificationError as e:
-        print(f"❌ Invalid signature: {e}")
+        print(f"âŒ Invalid signature: {e}")
         return jsonify({"error": "Invalid signature"}), 400
     
     # Handle the event
     if event['type'] == 'checkout.session.completed':
-        print("📦 Processing checkout.session.completed event...")
+        print("ðŸ“¦ Processing checkout.session.completed event...")
         try:
             session = event['data']['object']
             print(f"   Session ID: {session.get('id')}")
@@ -488,7 +488,7 @@ def stripe_webhook():
             
             # Check if metadata exists
             if not session.get('metadata') or 'tenant_id' not in session['metadata']:
-                print("❌ Error: Missing tenant_id in session metadata")
+                print("âŒ Error: Missing tenant_id in session metadata")
                 print(f"   Available metadata keys: {list(session.get('metadata', {}).keys())}")
                 return jsonify({"error": "Missing tenant_id in session metadata"}), 400
             
@@ -498,10 +498,10 @@ def stripe_webhook():
             
             tenant = Tenant.query.get(tenant_id)
             if not tenant:
-                print(f"❌ Tenant not found: {tenant_id}")
+                print(f"âŒ Tenant not found: {tenant_id}")
                 return jsonify({"error": "Tenant not found"}), 404
             
-            print(f"✅ Found tenant: {tenant.company_name} ({tenant.email})")
+            print(f"âœ… Found tenant: {tenant.company_name} ({tenant.email})")
             
             # Update tenant with subscription ID
             subscription_id = session.get('subscription')
@@ -509,14 +509,14 @@ def stripe_webhook():
                 tenant.stripe_subscription_id = subscription_id
                 tenant.status = 'active'
                 db.session.commit()
-                print(f"✅ Tenant status updated to 'active'")
+                print(f"âœ… Tenant status updated to 'active'")
                 
                 # Create super admin account for this tenant
                 super_admin_username = tenant.email.split('@')[0]  # Use email prefix as username
                 super_admin_password = generate_temp_password()
                 
-                print(f"📧 Preparing to send email to: {tenant.email}")
-                print(f"🔑 Generated password: {super_admin_password}")
+                print(f"ðŸ“§ Preparing to send email to: {tenant.email}")
+                print(f"ðŸ”‘ Generated password: {super_admin_password}")
                 
                 try:
                     create_manager(
@@ -526,7 +526,7 @@ def stripe_webhook():
                         password=super_admin_password,
                         is_super_admin=True
                     )
-                    print(f"✅ Super admin created: {super_admin_username}")
+                    print(f"âœ… Super admin created: {super_admin_username}")
                     
                     # Initialize storage tracking for this tenant
                     from backend.utils.storage import initialize_tenant_storage
@@ -537,7 +537,7 @@ def stripe_webhook():
                     email_body = f"""
                     <html>
                     <body>
-                        <h2>Welcome to Pramaan!</h2>
+                        <h2>Welcome to BranchPilot!</h2>
                         <p>Your account has been successfully created.</p>
                         <p><strong>Company:</strong> {tenant.company_name}</p>
                         <p><strong>Plan:</strong> {plan.capitalize()}</p>
@@ -552,26 +552,26 @@ def stripe_webhook():
                     
                     email_sent = send_email(
                         to_email=tenant.email,
-                        subject="Welcome to Pramaan - Your Account is Ready",
+                        subject="Welcome to BranchPilot - Your Account is Ready",
                         body_html=email_body
                     )
                     
                     if email_sent:
-                        print(f"✅ Email sent successfully to {tenant.email}")
+                        print(f"âœ… Email sent successfully to {tenant.email}")
                     else:
-                        print(f"❌ CRITICAL: Email sending failed!")
+                        print(f"âŒ CRITICAL: Email sending failed!")
                         print(f"   Tenant ID: {tenant_id}")
                         print(f"   Email: {tenant.email}")
                         print(f"   Username: {super_admin_username}")
                         print(f"   Password: {super_admin_password}")
-                        print(f"   ⚠️ Please configure SMTP settings to send emails automatically")
-                        print(f"   ⚠️ User must contact support or check server logs for credentials")
+                        print(f"   âš ï¸ Please configure SMTP settings to send emails automatically")
+                        print(f"   âš ï¸ User must contact support or check server logs for credentials")
                     
                 except ValueError as e:
                     # Manager already exists or other error
-                    print(f"⚠️ Warning: Could not create super admin: {e}")
+                    print(f"âš ï¸ Warning: Could not create super admin: {e}")
         except Exception as e:
-            print(f"❌ Error processing checkout.session.completed: {type(e).__name__}: {e}")
+            print(f"âŒ Error processing checkout.session.completed: {type(e).__name__}: {e}")
             import traceback
             traceback.print_exc()
             return jsonify({"error": f"Error processing webhook: {str(e)}"}), 500
@@ -597,7 +597,7 @@ def stripe_webhook():
             tenant.status = 'cancelled'
             db.session.commit()
     
-    print(f"✅ Webhook processed successfully for event: {event['type']}")
+    print(f"âœ… Webhook processed successfully for event: {event['type']}")
     return jsonify({"status": "success"}), 200
 
 

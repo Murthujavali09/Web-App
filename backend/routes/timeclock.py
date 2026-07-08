@@ -1,4 +1,4 @@
-# backend/routes/timeclock.py
+﻿# backend/routes/timeclock.py
 from flask import Blueprint, request, jsonify, g
 from datetime import datetime, timedelta
 from backend.database import db
@@ -69,7 +69,7 @@ def clock_in_face():
     {
         "face_descriptor": [0.123, -0.456, ...],
         "face_image": "data:image/jpeg;base64,...",
-        "store_id": "Lawrence"
+        "store_id": "Downtown Store"
     }
     """
     try:
@@ -293,7 +293,7 @@ def clock_out_face():
     {
         "face_descriptor": [0.123, -0.456, ...],
         "face_image": "data:image/jpeg;base64,...",
-        "store_id": "Lawrence"
+        "store_id": "Downtown Store"
     }
     """
     try:

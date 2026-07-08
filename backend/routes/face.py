@@ -1,4 +1,4 @@
-# backend/routes/face.py
+﻿# backend/routes/face.py
 from flask import Blueprint, request, jsonify, g
 from datetime import datetime
 from backend.database import db
@@ -293,7 +293,7 @@ def recognize_face():
     Request JSON:
     {
         "face_descriptor": [0.123, -0.456, ...],  // 128-dimensional array
-        "store_id": "Lawrence"
+        "store_id": "Downtown Store"
     }
     """
     try:

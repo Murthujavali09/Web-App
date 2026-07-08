@@ -301,14 +301,14 @@ async function apiDelete(path) {
 
 // ---------- Session ----------
 function saveSession(session) {
-  localStorage.setItem("Pramaan_Session", JSON.stringify(session));
+  localStorage.setItem("BranchPilot_Session", JSON.stringify(session));
 }
 function loadSession() {
-  try { return JSON.parse(localStorage.getItem("Pramaan_Session")); }
+  try { return JSON.parse(localStorage.getItem("BranchPilot_Session")); }
   catch { return null; }
 }
 function clearSession() {
-  localStorage.removeItem("Pramaan_Session");
+  localStorage.removeItem("BranchPilot_Session");
 }
 
 // ---------- Login ----------

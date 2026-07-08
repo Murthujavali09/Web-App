@@ -1,15 +1,15 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>View Inventory Snapshot — Pramaan</title>
+    <title>View Inventory Snapshot â€” BranchPilot</title>
     <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
     <div class="navbar">
         <div class="nav-left">
-            <div class="logo">⏰ Pramaan</div>
+            <div class="logo">â° BranchPilot</div>
             <nav class="nav-links">
                 <a href="manager.html">Manager Dashboard</a>
             </nav>
@@ -22,7 +22,7 @@
     <div class="container">
         <h2 id="snapshotTitle">Inventory Snapshot</h2>
         <div style="margin-top:12px">
-            <button id="backBtn" class="bulk-update-btn" style="background:#6c757d">← Back to History</button>
+            <button id="backBtn" class="bulk-update-btn" style="background:#6c757d">â† Back to History</button>
         </div>
         
         <div id="snapshotContainer" style="margin-top:20px">
@@ -59,7 +59,7 @@
         });
         
         // Update title
-        document.getElementById('snapshotTitle').textContent = `Inventory Snapshot — ${displayDate}`;
+        document.getElementById('snapshotTitle').textContent = `Inventory Snapshot â€” ${displayDate}`;
         
         // Back button
         document.getElementById('backBtn').addEventListener('click', () => {
