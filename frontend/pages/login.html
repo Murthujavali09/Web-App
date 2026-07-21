@@ -45,24 +45,30 @@
 
             <div class="mt-8 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm max-w-3xl">
                 <div class="text-sm font-extrabold text-slate-950 mb-4">Demo credentials</div>
-                <div class="grid md:grid-cols-3 gap-3">
+                <div class="grid md:grid-cols-2 gap-3">
                     <div class="demo-card rounded-xl border border-slate-200 bg-slate-50 p-4 relative">
                         <div class="flex items-center gap-2 font-bold"><i class="fa-solid fa-crown text-blue-700"></i> Owner</div>
-                        <div class="mt-3 text-sm text-slate-600">Username</div><div class="font-mono text-sm font-bold">owner</div>
-                        <div class="mt-2 text-sm text-slate-600">Password</div><div class="font-mono text-sm font-bold">Owner@123</div>
-                        <button type="button" onclick="fillDemo('owner','Owner@123')" class="mt-3 text-xs font-bold text-blue-700">Use account</button>
+                        <div class="mt-3 text-sm text-slate-600">Username</div><div class="font-mono text-sm font-bold">superadmin</div>
+                        <div class="mt-2 text-sm text-slate-600">Password</div><div class="font-mono text-sm font-bold">superadmin123</div>
+                        <button type="button" onclick="fillDemo('superadmin','superadmin123')" class="mt-3 text-xs font-bold text-blue-700">Use account</button>
                     </div>
                     <div class="demo-card rounded-xl border border-slate-200 bg-slate-50 p-4 relative">
                         <div class="flex items-center gap-2 font-bold"><i class="fa-solid fa-user-tie text-blue-700"></i> Manager</div>
                         <div class="mt-3 text-sm text-slate-600">Username</div><div class="font-mono text-sm font-bold">manager</div>
-                        <div class="mt-2 text-sm text-slate-600">Password</div><div class="font-mono text-sm font-bold">Manager@123</div>
-                        <button type="button" onclick="fillDemo('manager','Manager@123')" class="mt-3 text-xs font-bold text-blue-700">Use account</button>
+                        <div class="mt-2 text-sm text-slate-600">Password</div><div class="font-mono text-sm font-bold">manager123</div>
+                        <button type="button" onclick="fillDemo('manager','manager123')" class="mt-3 text-xs font-bold text-blue-700">Use account</button>
                     </div>
                     <div class="demo-card rounded-xl border border-slate-200 bg-slate-50 p-4 relative">
-                        <div class="flex items-center gap-2 font-bold"><i class="fa-solid fa-cash-register text-blue-700"></i> Store</div>
-                        <div class="mt-3 text-sm text-slate-600">Username</div><div class="font-mono text-sm font-bold">downtown</div>
-                        <div class="mt-2 text-sm text-slate-600">Password</div><div class="font-mono text-sm font-bold">Store@123</div>
-                        <button type="button" onclick="fillDemo('downtown','Store@123')" class="mt-3 text-xs font-bold text-blue-700">Use account</button>
+                        <div class="flex items-center gap-2 font-bold"><i class="fa-solid fa-cash-register text-blue-700"></i> Store — Lawrence</div>
+                        <div class="mt-3 text-sm text-slate-600">Username</div><div class="font-mono text-sm font-bold">lawrence</div>
+                        <div class="mt-2 text-sm text-slate-600">Password</div><div class="font-mono text-sm font-bold">lawrence123</div>
+                        <button type="button" onclick="fillDemo('lawrence','lawrence123')" class="mt-3 text-xs font-bold text-blue-700">Use account</button>
+                    </div>
+                    <div class="demo-card rounded-xl border border-slate-200 bg-slate-50 p-4 relative">
+                        <div class="flex items-center gap-2 font-bold"><i class="fa-solid fa-cash-register text-blue-700"></i> Store — Oakville</div>
+                        <div class="mt-3 text-sm text-slate-600">Username</div><div class="font-mono text-sm font-bold">oakville</div>
+                        <div class="mt-2 text-sm text-slate-600">Password</div><div class="font-mono text-sm font-bold">oakville123</div>
+                        <button type="button" onclick="fillDemo('oakville','oakville123')" class="mt-3 text-xs font-bold text-blue-700">Use account</button>
                     </div>
                 </div>
             </div>
@@ -78,7 +84,7 @@
             <form id="loginForm" class="space-y-5">
                 <div>
                     <label for="username" class="block text-sm font-bold text-slate-700 mb-2">Username</label>
-                    <input type="text" id="username" placeholder="owner" autocomplete="username" class="block w-full px-4 py-3 text-base bg-slate-50 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-600 focus:bg-white outline-none transition">
+                    <input type="text" id="username" placeholder="superadmin" autocomplete="username" class="block w-full px-4 py-3 text-base bg-slate-50 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-600 focus:bg-white outline-none transition">
                 </div>
                 <div>
                     <label for="password" class="block text-sm font-bold text-slate-700 mb-2">Password</label>

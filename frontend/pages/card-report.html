@@ -297,7 +297,7 @@
                             <tfoot>
                                 <tr class="bg-slate-100">
                                     <td colspan="100" class="px-4 py-4 text-right text-lg font-bold text-slate-900">Grand Total:</td>
-                                    <td class="px-4 py-4 text-right text-lg font-bold text-primary" id="grandTotal">$0.00</td>
+                                    <td class="px-4 py-4 text-right text-lg font-bold text-primary" id="grandTotal">₹0.00</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -352,7 +352,7 @@
         function formatCurrency(amount) {
             return new Intl.NumberFormat('en-US', {
                 style: 'currency',
-                currency: 'USD',
+                currency: 'INR',
                 minimumFractionDigits: 2
             }).format(amount);
         }
@@ -800,3 +800,4 @@
     </script>
 </body>
 </html>
+

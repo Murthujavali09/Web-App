@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
     <style>
         * { box-sizing: border-box; }
         body { font-family: Inter, system-ui, sans-serif; background: #f8fafc; color: #0f172a; }
@@ -63,7 +64,7 @@
                         <div class="text-xs bg-white/15 px-3 py-1 rounded-full">Live</div>
                     </div>
                     <div class="p-5 grid grid-cols-2 gap-4">
-                        <div class="metric"><div class="text-xs text-slate-500 font-bold uppercase">Today's sales</div><div class="mt-2 text-2xl font-extrabold">$18,420</div></div>
+                        <div class="metric"><div class="text-xs text-slate-500 font-bold uppercase">Today's sales</div><div class="mt-2 text-2xl font-extrabold">₹18,420</div></div>
                         <div class="metric"><div class="text-xs text-slate-500 font-bold uppercase">Employees present</div><div class="mt-2 text-2xl font-extrabold">27</div></div>
                         <div class="metric"><div class="text-xs text-slate-500 font-bold uppercase">Reports pending</div><div class="mt-2 text-2xl font-extrabold">3</div></div>
                         <div class="metric"><div class="text-xs text-slate-500 font-bold uppercase">Branches online</div><div class="mt-2 text-2xl font-extrabold">8/8</div></div>
@@ -110,9 +111,53 @@
         </section>
 
         <section id="pricing" class="section py-14">
-            <div class="card p-8 flex flex-col lg:flex-row gap-6 lg:items-center lg:justify-between">
-                <div><h2 class="text-3xl font-extrabold">Pricing coming soon</h2><p class="mt-2 text-slate-600">Early customers can book a demo for pilot pricing built around their location count.</p></div>
-                <a href="#contact" class="btn-primary"><i class="fa-solid fa-handshake"></i> Talk to Sales</a>
+            <div class="max-w-2xl"><h2 class="text-3xl font-extrabold">Pricing</h2><p class="mt-3 text-slate-600">Straightforward plans for small and growing retail chains.</p></div>
+            <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+                <div class="card p-6 lg:p-8 flex flex-col">
+                    <h3 class="text-xl font-extrabold">Starter</h3>
+                    <p class="mt-2 text-sm font-semibold text-slate-500">Perfect for small operations</p>
+                    <p class="mt-1 text-xs font-bold text-blue-700 uppercase tracking-wide">Up to 3 branches</p>
+                    <div class="mt-5 text-4xl font-extrabold tracking-tight">$99<span class="text-base font-semibold text-slate-500">/month</span></div>
+                    <ul class="mt-6 space-y-3 text-sm text-slate-600 flex-1">
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>Inventory tracking across all branches</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>Staff time clock with face recognition</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>Daily sales &amp; EOD reports</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>Manager dashboard</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>Email support</span></li>
+                    </ul>
+                    <a href="mailto:branchflow.demo@gmail.com?subject=Start%20Free%20Trial%20-%20Starter" class="btn-primary mt-8 justify-center"><i class="fa-solid fa-envelope"></i> Start Free Trial</a>
+                </div>
+                <div class="card p-6 lg:p-8 flex flex-col border-2 border-blue-700 relative bg-blue-50/40 shadow-lg">
+                    <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-700 text-white text-xs font-extrabold px-3 py-1 rounded-full whitespace-nowrap">Most Popular</span>
+                    <h3 class="text-xl font-extrabold">Growth</h3>
+                    <p class="mt-2 text-sm font-semibold text-slate-500">For growing retail businesses</p>
+                    <p class="mt-1 text-xs font-bold text-blue-700 uppercase tracking-wide">Up to 8 branches</p>
+                    <div class="mt-5 text-4xl font-extrabold tracking-tight">$199<span class="text-base font-semibold text-slate-500">/month</span></div>
+                    <ul class="mt-6 space-y-3 text-sm text-slate-600 flex-1">
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>Everything in Starter</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>Multi-store analytics dashboard</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>Trade-in &amp; repair tracking</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>Custom report builder</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>Priority email support</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>Onboarding call included</span></li>
+                    </ul>
+                    <a href="mailto:branchflow.demo@gmail.com?subject=Start%20Free%20Trial%20-%20Growth" class="btn-primary mt-8 justify-center"><i class="fa-solid fa-envelope"></i> Start Free Trial</a>
+                </div>
+                <div class="card p-6 lg:p-8 flex flex-col">
+                    <h3 class="text-xl font-extrabold">Enterprise</h3>
+                    <p class="mt-2 text-sm font-semibold text-slate-500">For large operations</p>
+                    <p class="mt-1 text-xs font-bold text-blue-700 uppercase tracking-wide">Unlimited branches</p>
+                    <div class="mt-5 text-4xl font-extrabold tracking-tight">Custom pricing</div>
+                    <ul class="mt-6 space-y-3 text-sm text-slate-600 flex-1">
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>Everything in Growth</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>Unlimited branches</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>Dedicated onboarding specialist</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>API access</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>SLA guarantee</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span><span>Phone &amp; WhatsApp support</span></li>
+                    </ul>
+                    <a href="mailto:branchflow.demo@gmail.com?subject=Enterprise%20Inquiry" class="btn-primary mt-8 justify-center"><i class="fa-solid fa-envelope"></i> Contact Us</a>
+                </div>
             </div>
         </section>
 
@@ -129,7 +174,7 @@
         <section id="contact" class="bg-blue-700 text-white py-14">
             <div class="section flex flex-col lg:flex-row gap-6 lg:items-center lg:justify-between">
                 <div><h2 class="text-3xl font-extrabold">Book a demo</h2><p class="mt-2 text-blue-100">See how BranchPilot would look with your stores, employees, inventory, and reports.</p></div>
-                <div class="flex flex-col sm:flex-row gap-3"><a href="login.html" class="btn-secondary"><i class="fa-solid fa-right-to-bracket"></i> Open Demo</a><a href="mailto:sales@branchpilot.app" class="btn-primary bg-white text-blue-700 hover:bg-blue-50"><i class="fa-solid fa-envelope"></i> Contact</a></div>
+                <div class="flex flex-col sm:flex-row gap-3"><a href="login.html" class="btn-secondary"><i class="fa-solid fa-right-to-bracket"></i> Open Demo</a><a href="mailto:sales@branchpilot.app" class="btn-primary bg-white text-blue-700 hover:bg-blue-50"><i class="fa-solid fa-envelope"></i> Contact</a><a href="https://wa.me/917207839129?text=Hi%2C%20I%27m%20interested%20in%20BranchPilot" class="btn-secondary"><i class="fa-brands fa-whatsapp"></i> Chat with us on WhatsApp</a></div>
             </div>
         </section>
     </main>
@@ -137,8 +182,9 @@
     <footer class="bg-slate-950 text-slate-300 py-8">
         <div class="section flex flex-col md:flex-row gap-3 md:items-center md:justify-between text-sm">
             <div class="font-bold text-white">BranchPilot</div>
-            <div>Retail operations software for growing multi-location teams.</div>
+            <div class="flex flex-col sm:flex-row gap-3 sm:items-center"><span>Retail operations software for growing multi-location teams.</span><a href="https://wa.me/917207839129?text=Hi%2C%20I%27m%20interested%20in%20BranchPilot" class="text-emerald-300 hover:text-emerald-200 font-semibold"><i class="fa-brands fa-whatsapp mr-1"></i> Chat with us on WhatsApp</a></div>
         </div>
     </footer>
+    <script src="static/js/script.js"></script>
 </body>
 </html>

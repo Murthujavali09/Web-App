@@ -1266,6 +1266,19 @@ document.addEventListener("click", function(e) {
   }
 });
 
+function ensureWhatsAppButton() {
+  if (document.querySelector(".floating-whatsapp")) return;
+
+  const link = document.createElement("a");
+  link.className = "floating-whatsapp";
+  link.href = "https://wa.me/917207839129?text=Hi%2C%20I%27m%20interested%20in%20BranchPilot";
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.setAttribute("aria-label", "Chat with us on WhatsApp");
+  link.innerHTML = '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16.01 3.2c-7.07 0-12.82 5.73-12.82 12.79 0 2.26.6 4.47 1.73 6.41L3.08 29l6.77-1.78a12.8 12.8 0 0 0 6.16 1.57h.01c7.06 0 12.8-5.74 12.8-12.8S23.08 3.2 16.01 3.2Zm0 23.43h-.01a10.6 10.6 0 0 1-5.4-1.48l-.39-.23-4.02 1.06 1.07-3.92-.25-.4a10.57 10.57 0 0 1-1.62-5.67c0-5.85 4.76-10.61 10.62-10.61 2.84 0 5.5 1.1 7.5 3.11a10.55 10.55 0 0 1 3.11 7.5c0 5.86-4.76 10.64-10.61 10.64Zm5.82-7.96c-.32-.16-1.89-.93-2.18-1.04-.29-.1-.5-.16-.71.16-.21.32-.82 1.04-1 1.25-.18.21-.37.24-.69.08-.32-.16-1.35-.5-2.57-1.59-.95-.85-1.59-1.9-1.78-2.22-.18-.32-.02-.49.14-.65.14-.14.32-.37.48-.55.16-.19.21-.32.32-.53.1-.21.05-.4-.03-.56-.08-.16-.71-1.71-.97-2.35-.26-.62-.52-.54-.71-.55h-.61c-.21 0-.56.08-.85.4-.29.32-1.12 1.09-1.12 2.66s1.15 3.09 1.31 3.3c.16.21 2.27 3.46 5.49 4.85.77.33 1.37.53 1.84.68.77.24 1.47.21 2.02.13.62-.09 1.89-.77 2.16-1.52.27-.75.27-1.39.19-1.52-.08-.13-.29-.21-.61-.37Z"/></svg>';
+  document.body.appendChild(link);
+}
+
 // Close modal on Escape key
 document.addEventListener("keydown", function(e) {
   if (e.key === "Escape") {
@@ -1276,6 +1289,8 @@ document.addEventListener("keydown", function(e) {
 
 // ---------- Example Page Hooks ----------
 document.addEventListener("DOMContentLoaded", async () => {
+  ensureWhatsAppButton();
+
   const session = loadSession();
   const path = window.location.pathname.split("/").pop();
 
@@ -2705,22 +2720,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Format over/short with color
         let overShortDisplay = '';
         if (overShort > 0) {
-          overShortDisplay = `<span style="color:#28a745;font-weight:600;">+$${overShort.toFixed(2)}</span>`;
+          overShortDisplay = `<span style="color:#28a745;font-weight:600;">+₹${overShort.toFixed(2)}</span>`;
         } else if (overShort < 0) {
-          overShortDisplay = `<span style="color:#dc3545;font-weight:600;">$${overShort.toFixed(2)}</span>`;
+          overShortDisplay = `<span style="color:#dc3545;font-weight:600;">₹${overShort.toFixed(2)}</span>`;
         } else {
-          overShortDisplay = '<span style="color:#6c757d;">$0.00</span>';
+          overShortDisplay = '<span style="color:#6c757d;">₹0.00</span>';
         }
         
         // Build denominations HTML
         let denominationsHtml = '';
         const denominations = [
-          { label: '$100', count: denom100Count, total: denom100Total },
-          { label: '$50', count: denom50Count, total: denom50Total },
-          { label: '$20', count: denom20Count, total: denom20Total },
-          { label: '$10', count: denom10Count, total: denom10Total },
-          { label: '$5', count: denom5Count, total: denom5Total },
-          { label: '$1', count: denom1Count, total: denom1Total }
+          { label: '₹100', count: denom100Count, total: denom100Total },
+          { label: '₹50', count: denom50Count, total: denom50Total },
+          { label: '₹20', count: denom20Count, total: denom20Total },
+          { label: '₹10', count: denom10Count, total: denom10Total },
+          { label: '₹5', count: denom5Count, total: denom5Total },
+          { label: '₹1', count: denom1Count, total: denom1Total }
         ];
         
         const hasDenominations = denominations.some(d => d.count > 0 || d.total > 0) || totalBills > 0;
@@ -2734,11 +2749,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                   <div style="padding:12px;background:#f8f9fa;border-radius:8px;border:1px solid #dee2e6;">
                     <div style="font-weight:600;color:#495057;margin-bottom:4px;">${d.label}</div>
                     <div style="font-size:0.9rem;color:#6c757d;">Count: ${d.count}</div>
-                    <div style="font-size:0.9rem;color:#6c757d;">Total: $${d.total.toFixed(2)}</div>
+                    <div style="font-size:0.9rem;color:#6c757d;">Total: ₹${d.total.toFixed(2)}</div>
                   </div>
                 `).join('')}
               </div>
-              ${totalBills > 0 ? `<div style="padding:12px;background:#e7f3ff;border-radius:8px;border:1px solid #b3d9ff;"><strong>Total Bills:</strong> <span style="font-weight:600;color:#0066cc;">$${totalBills.toFixed(2)}</span></div>` : ''}
+              ${totalBills > 0 ? `<div style="padding:12px;background:#e7f3ff;border-radius:8px;border:1px solid #b3d9ff;"><strong>Total Bills:</strong> <span style="font-weight:600;color:#0066cc;">₹${totalBills.toFixed(2)}</span></div>` : ''}
             </div>
           `;
         }
@@ -2761,25 +2776,25 @@ document.addEventListener("DOMContentLoaded", async () => {
               <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:20px;">
                 <div style="padding:16px;background:#f8f9fa;border-radius:8px;border-left:4px solid #28a745;">
                   <div style="font-size:0.875rem;color:#6c757d;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Cash</div>
-                  <div style="color:#28a745;font-size:1.5rem;font-weight:700;">$${cashAmount.toFixed(2)}</div>
+                  <div style="color:#28a745;font-size:1.5rem;font-weight:700;">₹${cashAmount.toFixed(2)}</div>
                 </div>
                 <div style="padding:16px;background:#f8f9fa;border-radius:8px;border-left:4px solid #007bff;">
                   <div style="font-size:0.875rem;color:#6c757d;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Card</div>
-                  <div style="color:#007bff;font-size:1.5rem;font-weight:700;">$${creditAmount.toFixed(2)}</div>
+                  <div style="color:#007bff;font-size:1.5rem;font-weight:700;">₹${creditAmount.toFixed(2)}</div>
                 </div>
                 ${card1Amount > 0 ? `
                 <div style="padding:16px;background:#f8f9fa;border-radius:8px;border-left:4px solid #6f42c1;">
                   <div style="font-size:0.875rem;color:#6c757d;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Card1</div>
-                  <div style="color:#6f42c1;font-size:1.5rem;font-weight:700;">$${card1Amount.toFixed(2)}</div>
+                  <div style="color:#6f42c1;font-size:1.5rem;font-weight:700;">₹${card1Amount.toFixed(2)}</div>
                 </div>
                 ` : ''}
                 <div style="padding:16px;background:#f8f9fa;border-radius:8px;border-left:4px solid #fd7e14;">
                   <div style="font-size:0.875rem;color:#6c757d;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">QPay</div>
-                  <div style="color:#fd7e14;font-size:1.5rem;font-weight:700;">$${qpayAmount.toFixed(2)}</div>
+                  <div style="color:#fd7e14;font-size:1.5rem;font-weight:700;">₹${qpayAmount.toFixed(2)}</div>
                 </div>
                 <div style="padding:16px;background:#e7f3ff;border-radius:8px;border-left:4px solid #0066cc;">
                   <div style="font-size:0.875rem;color:#6c757d;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Total</div>
-                  <div style="color:#0066cc;font-size:1.5rem;font-weight:700;">$${total1.toFixed(2)}</div>
+                  <div style="color:#0066cc;font-size:1.5rem;font-weight:700;">₹${total1.toFixed(2)}</div>
                 </div>
                 <div style="padding:16px;background:#f8f9fa;border-radius:8px;border-left:4px solid #6c757d;">
                   <div style="font-size:0.875rem;color:#6c757d;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Boxes</div>
@@ -2788,13 +2803,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ${accessoriesAmount > 0 ? `
                 <div style="padding:16px;background:#f8f9fa;border-radius:8px;border-left:4px solid #17a2b8;">
                   <div style="font-size:0.875rem;color:#6c757d;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Accessories</div>
-                  <div style="color:#17a2b8;font-size:1.5rem;font-weight:700;">$${accessoriesAmount.toFixed(2)}</div>
+                  <div style="color:#17a2b8;font-size:1.5rem;font-weight:700;">₹${accessoriesAmount.toFixed(2)}</div>
                 </div>
                 ` : ''}
                 ${magentaAmount > 0 ? `
                 <div style="padding:16px;background:#f8f9fa;border-radius:8px;border-left:4px solid #e83e8c;">
                   <div style="font-size:0.875rem;color:#6c757d;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Magenta</div>
-                  <div style="color:#e83e8c;font-size:1.5rem;font-weight:700;">$${magentaAmount.toFixed(2)}</div>
+                  <div style="color:#e83e8c;font-size:1.5rem;font-weight:700;">₹${magentaAmount.toFixed(2)}</div>
                 </div>
                 ` : ''}
                 ${inventorySold > 0 ? `
@@ -2805,11 +2820,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ` : ''}
                 <div style="padding:16px;background:#f8f9fa;border-radius:8px;border-left:4px solid ${overShort >= 0 ? '#28a745' : '#dc3545'};">
                   <div style="font-size:0.875rem;color:#6c757d;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Over/Short</div>
-                  <div style="color:${overShort >= 0 ? '#28a745' : '#dc3545'};font-size:1.5rem;font-weight:700;">${overShort >= 0 ? '+' : ''}$${overShort.toFixed(2)}</div>
+                  <div style="color:${overShort >= 0 ? '#28a745' : '#dc3545'};font-size:1.5rem;font-weight:700;">${overShort >= 0 ? '+' : ''}₹${overShort.toFixed(2)}</div>
                 </div>
                 <div style="padding:16px;background:#fff3cd;border-radius:8px;border-left:4px solid #ffc107;">
                   <div style="font-size:0.875rem;color:#6c757d;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Total2</div>
-                  <div style="color:#856404;font-size:1.5rem;font-weight:700;">$${total2.toFixed(2)}</div>
+                  <div style="color:#856404;font-size:1.5rem;font-weight:700;">₹${total2.toFixed(2)}</div>
                   ${total2Indicator}
                 </div>
               </div>

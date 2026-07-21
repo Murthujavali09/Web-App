@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
         tailwind.config = {
@@ -155,8 +156,8 @@
                     <div class="bg-gradient-to-r from-blue-600 to-blue-700 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                         <i class="fa-solid fa-clock text-white text-3xl"></i>
                     </div>
-                    <h1 class="text-4xl font-bold tracking-tight text-slate-900 mb-2">Find the Perfect Plan</h1>
-                    <p class="text-muted-foreground text-lg">Select the ideal package for your needs and start building today.</p>
+                    <h1 class="text-4xl font-bold tracking-tight text-slate-900 mb-2">Simple plans for growing retail teams</h1>
+                    <p class="text-muted-foreground text-lg">Choose the right BranchPilot plan for your branch count and daily operations.</p>
                 </div>
                 
                 <div id="errorMessage" class="message error mb-6" style="display:none;"></div>
@@ -175,44 +176,31 @@
                 </div>
                 
                 <!-- Plan Cards -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start mb-8">
-                    <!-- Basic Plan -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-8">
+                    <!-- Starter Plan -->
                     <div class="plan-card border border-border rounded-2xl p-8 flex flex-col relative bg-white/70 backdrop-blur-sm cursor-pointer animate-slide-in" data-plan="basic" style="animation-delay: 0s;">
                         <div class="flex-1 flex flex-col text-center">
-                            <h3 class="text-xl font-semibold text-foreground mb-2">Basic</h3>
-                            <p class="text-sm text-muted-foreground mb-6">Perfect for individuals and small projects.</p>
+                            <h3 class="text-xl font-semibold text-foreground mb-2">Starter</h3>
+                            <p class="text-sm text-muted-foreground">Perfect for small operations</p>
+                            <p class="text-xs font-bold text-primary uppercase tracking-wide mt-1 mb-4">Up to 3 branches</p>
                             <div class="flex items-baseline justify-center gap-x-1 mb-2">
-                                <span class="text-5xl font-bold tracking-tight text-foreground" id="basicPrice">$29</span>
+                                <span class="text-5xl font-bold tracking-tight text-foreground" id="basicPrice">$99</span>
                                 <span class="text-sm font-semibold leading-6 tracking-wide text-muted-foreground">/ month</span>
                             </div>
                             <p class="text-xs text-muted-foreground mb-8" id="basicBilling">Billed Monthly</p>
-                            <ul role="list" class="space-y-3 text-sm leading-6 text-left text-muted-foreground mb-8">
-                                <li class="flex gap-x-3">
-                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
-                                    <span>Up to 10 stores</span>
-                                </li>
-                                <li class="flex gap-x-3">
-                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
-                                    <span>Basic analytics</span>
-                                </li>
-                                <li class="flex gap-x-3">
-                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
-                                    <span>48-hour support response</span>
-                                </li>
-                                <li class="flex gap-x-3">
-                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
-                                    <span>1GB Storage</span>
-                                </li>
-                                <li class="flex gap-x-3">
-                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
-                                    <span>Community support</span>
-                                </li>
+                            <ul role="list" class="space-y-3 text-sm leading-6 text-left text-muted-foreground mb-8 flex-1">
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>Inventory tracking across all branches</span></li>
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>Staff time clock with face recognition</span></li>
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>Daily sales &amp; EOD reports</span></li>
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>Manager dashboard</span></li>
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>Email support</span></li>
                             </ul>
+                            <a href="mailto:branchflow.demo@gmail.com?subject=Start%20Free%20Trial%20-%20Starter" class="w-full inline-flex items-center justify-center px-6 py-3 text-base font-bold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition shadow-lg" onclick="event.stopPropagation()"><i class="fa-solid fa-envelope mr-2"></i> Start Free Trial</a>
                         </div>
                     </div>
                     
-                    <!-- Standard Plan (Popular) -->
-                    <div class="plan-card popular border-2 border-primary rounded-2xl p-8 flex flex-col relative bg-white/70 backdrop-blur-sm cursor-pointer selected popular-desktop animate-slide-in" data-plan="standard" style="animation-delay: 0.15s;">
+                    <!-- Growth Plan (Popular) -->
+                    <div class="plan-card popular border-2 border-primary rounded-2xl p-8 flex flex-col relative bg-blue-50/50 backdrop-blur-sm cursor-pointer selected popular-desktop animate-slide-in" data-plan="standard" style="animation-delay: 0.15s;">
                         <div class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
                             <div class="bg-primary py-1.5 px-4 rounded-full flex items-center gap-1.5">
                                 <i class="fa-solid fa-star text-white text-sm"></i>
@@ -220,70 +208,45 @@
                             </div>
                         </div>
                         <div class="flex-1 flex flex-col text-center">
-                            <h3 class="text-xl font-semibold text-foreground mb-2">Standard</h3>
-                            <p class="text-sm text-muted-foreground mb-6">Ideal for growing teams and businesses.</p>
+                            <h3 class="text-xl font-semibold text-foreground mb-2">Growth</h3>
+                            <p class="text-sm text-muted-foreground">For growing retail businesses</p>
+                            <p class="text-xs font-bold text-primary uppercase tracking-wide mt-1 mb-4">Up to 8 branches</p>
                             <div class="flex items-baseline justify-center gap-x-1 mb-2">
-                                <span class="text-5xl font-bold tracking-tight text-foreground" id="standardPrice">$79</span>
+                                <span class="text-5xl font-bold tracking-tight text-foreground" id="standardPrice">$199</span>
                                 <span class="text-sm font-semibold leading-6 tracking-wide text-muted-foreground">/ month</span>
                             </div>
                             <p class="text-xs text-muted-foreground mb-8" id="standardBilling">Billed Monthly</p>
-                            <ul role="list" class="space-y-3 text-sm leading-6 text-left text-muted-foreground mb-8">
-                                <li class="flex gap-x-3">
-                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
-                                    <span>Unlimited stores</span>
-                                </li>
-                                <li class="flex gap-x-3">
-                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
-                                    <span>Advanced analytics</span>
-                                </li>
-                                <li class="flex gap-x-3">
-                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
-                                    <span>24-hour support response</span>
-                                </li>
-                                <li class="flex gap-x-3">
-                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
-                                    <span>10GB Storage</span>
-                                </li>
-                                <li class="flex gap-x-3">
-                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
-                                    <span>Priority support & Team collaboration</span>
-                                </li>
+                            <ul role="list" class="space-y-3 text-sm leading-6 text-left text-muted-foreground mb-8 flex-1">
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>Everything in Starter</span></li>
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>Multi-store analytics dashboard</span></li>
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>Trade-in &amp; repair tracking</span></li>
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>Custom report builder</span></li>
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>Priority email support</span></li>
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>Onboarding call included</span></li>
                             </ul>
+                            <a href="mailto:branchflow.demo@gmail.com?subject=Start%20Free%20Trial%20-%20Growth" class="w-full inline-flex items-center justify-center px-6 py-3 text-base font-bold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition shadow-lg" onclick="event.stopPropagation()"><i class="fa-solid fa-envelope mr-2"></i> Start Free Trial</a>
                         </div>
                     </div>
                     
-                    <!-- Premium Plan -->
+                    <!-- Enterprise Plan -->
                     <div class="plan-card border border-border rounded-2xl p-8 flex flex-col relative bg-white/70 backdrop-blur-sm cursor-pointer animate-slide-in" data-plan="premium" style="animation-delay: 0.3s;">
                         <div class="flex-1 flex flex-col text-center">
-                            <h3 class="text-xl font-semibold text-foreground mb-2">Premium</h3>
-                            <p class="text-sm text-muted-foreground mb-6">For large organizations with specific needs.</p>
+                            <h3 class="text-xl font-semibold text-foreground mb-2">Enterprise</h3>
+                            <p class="text-sm text-muted-foreground">For large operations</p>
+                            <p class="text-xs font-bold text-primary uppercase tracking-wide mt-1 mb-4">Unlimited branches</p>
                             <div class="flex items-baseline justify-center gap-x-1 mb-2">
-                                <span class="text-5xl font-bold tracking-tight text-foreground" id="premiumPrice">$199</span>
-                                <span class="text-sm font-semibold leading-6 tracking-wide text-muted-foreground">/ month</span>
+                                <span class="text-4xl font-bold tracking-tight text-foreground" id="premiumPrice">Custom pricing</span>
                             </div>
-                            <p class="text-xs text-muted-foreground mb-8" id="premiumBilling">Billed Monthly</p>
-                            <ul role="list" class="space-y-3 text-sm leading-6 text-left text-muted-foreground mb-8">
-                                <li class="flex gap-x-3">
-                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
-                                    <span>Everything in Standard</span>
-                                </li>
-                                <li class="flex gap-x-3">
-                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
-                                    <span>Custom solutions & integrations</span>
-                                </li>
-                                <li class="flex gap-x-3">
-                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
-                                    <span>Dedicated account manager</span>
-                                </li>
-                                <li class="flex gap-x-3">
-                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
-                                    <span>100GB Storage</span>
-                                </li>
-                                <li class="flex gap-x-3">
-                                    <i class="fa-solid fa-check text-primary flex-none mt-1"></i>
-                                    <span>SSO Authentication & Advanced security</span>
-                                </li>
+                            <p class="text-xs text-muted-foreground mb-8" id="premiumBilling">Contact us for a quote</p>
+                            <ul role="list" class="space-y-3 text-sm leading-6 text-left text-muted-foreground mb-8 flex-1">
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>Everything in Growth</span></li>
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>Unlimited branches</span></li>
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>Dedicated onboarding specialist</span></li>
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>API access</span></li>
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>SLA guarantee</span></li>
+                                <li class="flex gap-x-3"><span class="text-emerald-600 font-bold">✓</span><span>Phone &amp; WhatsApp support</span></li>
                             </ul>
+                            <a href="mailto:branchflow.demo@gmail.com?subject=Enterprise%20Inquiry" class="w-full inline-flex items-center justify-center px-6 py-3 text-base font-bold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition shadow-lg" onclick="event.stopPropagation()"><i class="fa-solid fa-envelope mr-2"></i> Contact Us</a>
                         </div>
                     </div>
                 </div>
@@ -320,9 +283,9 @@
         
         // Pricing data
         const pricingData = {
-            basic: { monthly: 29, annual: 23 },
-            standard: { monthly: 79, annual: 63 },
-            premium: { monthly: 199, annual: 159 }
+            basic: { monthly: 99, annual: 79 },
+            standard: { monthly: 199, annual: 159 },
+            premium: { monthly: null, annual: null }
         };
         
         let isMonthly = true;
@@ -380,10 +343,13 @@
             Object.keys(pricingData).forEach(plan => {
                 const priceEl = document.getElementById(`${plan}Price`);
                 const billingEl = document.getElementById(`${plan}Billing`);
-                if (priceEl) {
+                if (priceEl && plan === 'premium') {
+                    priceEl.textContent = 'Custom pricing';
+                    if (billingEl) billingEl.textContent = 'Contact us for a quote';
+                } else if (priceEl) {
                     priceEl.textContent = '$' + pricingData[plan][period];
                 }
-                if (billingEl) {
+                if (billingEl && plan !== 'premium') {
                     billingEl.textContent = billingText;
                 }
             });
@@ -511,6 +477,7 @@
             showError('Signup was cancelled. Please try again if you want to continue.');
         }
     </script>
+    <script src="static/js/script.js"></script>
 </body>
 </html>
 
